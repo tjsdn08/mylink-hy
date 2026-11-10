@@ -13,7 +13,7 @@ import { join } from "node:path";
 let fontCache: Promise<ArrayBuffer> | undefined;
 function getOgFont(): Promise<ArrayBuffer> {
   fontCache ??= readFile(join(process.cwd(), "public", "fonts", "noto-sans-kr-700.woff"))
-    .then((buffer) => Uint8Array.from(buffer).buffer)
+    .then((buffer) => Uint8Array.from(buffer).buffer as ArrayBuffer)
     .catch((error: unknown) => {
       fontCache = undefined;
       throw new Error("로컬 OG 폰트가 없습니다. npm install 후 npm run dev 또는 npm run build를 실행하세요.", { cause: error });
