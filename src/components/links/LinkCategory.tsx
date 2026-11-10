@@ -8,7 +8,10 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { LinkCard } from "@/components/links/LinkCard";
-import type { Link as LinkItem, LinkCategory as LinkCategoryId } from "@/types/link";
+import type {
+  Link as LinkItem,
+  LinkCategory as LinkCategoryId,
+} from "@/types/link";
 
 const categoryDetails: Record<
   LinkCategoryId,
@@ -24,9 +27,16 @@ const categoryDetails: Record<
 export interface LinkCategoryProps {
   category: LinkCategoryId;
   links: LinkItem[];
+  onUpdate?: (link: LinkItem) => Promise<void>;
+  onDelete?: (link: LinkItem) => void;
 }
 
-export function LinkCategory({ category, links }: LinkCategoryProps) {
+export function LinkCategory({
+  category,
+  links,
+  onUpdate,
+  onDelete,
+}: LinkCategoryProps) {
   const { title, icon: Icon } = categoryDetails[category];
 
   return (
@@ -51,7 +61,7 @@ export function LinkCategory({ category, links }: LinkCategoryProps) {
       <ul className="grid gap-3 sm:grid-cols-2">
         {links.map((link) => (
           <li key={link.id}>
-            <LinkCard link={link} />
+            <LinkCard link={link} onUpdate={onUpdate} onDelete={onDelete} />
           </li>
         ))}
       </ul>

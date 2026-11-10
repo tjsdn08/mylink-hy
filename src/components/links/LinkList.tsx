@@ -1,5 +1,8 @@
 import { LinkCategory } from "@/components/links/LinkCategory";
-import type { Link as LinkItem, LinkCategory as LinkCategoryId } from "@/types/link";
+import type {
+  Link as LinkItem,
+  LinkCategory as LinkCategoryId,
+} from "@/types/link";
 
 const categoryOrder: LinkCategoryId[] = [
   "github",
@@ -11,9 +14,11 @@ const categoryOrder: LinkCategoryId[] = [
 
 export interface LinkListProps {
   links: LinkItem[];
+  onUpdate?: (link: LinkItem) => Promise<void>;
+  onDelete?: (link: LinkItem) => void;
 }
 
-export function LinkList({ links }: LinkListProps) {
+export function LinkList({ links, onUpdate, onDelete }: LinkListProps) {
   const categories = categoryOrder
     .map((category) => ({
       category,
@@ -28,6 +33,8 @@ export function LinkList({ links }: LinkListProps) {
           key={group.category}
           category={group.category}
           links={group.links}
+          onUpdate={onUpdate}
+          onDelete={onDelete}
         />
       ))}
     </div>

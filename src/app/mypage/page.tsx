@@ -5,10 +5,14 @@ import { Plus } from "lucide-react";
 import {
   addDoc,
   collection,
+  deleteDoc,
+  doc,
   onSnapshot,
   orderBy,
   query,
   serverTimestamp,
+  Timestamp,
+  updateDoc,
 } from "firebase/firestore";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,8 +26,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { LinkList } from "@/components/links/LinkList";
-import { mockLinks } from "@/data/mockLinks";
 import { getFirebaseFirestore } from "@/lib/firebase";
+import { validateLinkForm } from "@/lib/link-validation";
 import type { Link } from "@/types/link";
 
 interface LinkFormValues {
@@ -33,26 +37,16 @@ interface LinkFormValues {
 
 const emptyForm: LinkFormValues = { title: "", url: "" };
 
-function validateUrl(value: string): string | null {
-  try {
-    const url = new URL(value);
-    if (url.protocol !== "http:" && url.protocol !== "https:") {
-      return "http 또는 https 주소를 입력해 주세요.";
-    }
-    return null;
-  } catch {
-    return "올바른 URL을 입력해 주세요. 예: https://example.com";
-  }
-}
-
 export default function MyPage() {
   const [firestoreLinks, setFirestoreLinks] = useState<Link[]>([]);
   const [loadError, setLoadError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [linkToDelete, setLinkToDelete] = useState<Link | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [form, setForm] = useState<LinkFormValues>(emptyForm);
   const [error, setError] = useState("");
-  const links = [...firestoreLinks, ...mockLinks];
+  const links = firestoreLinks;
 
   useEffect(() => {
     let isCancelled = false;
@@ -97,6 +91,10 @@ export default function MyPage() {
                     )
                       ? (data.category as Link["category"])
                       : "other",
+                  updatedAt:
+                    data.updatedAt instanceof Timestamp
+                      ? data.updatedAt.toDate()
+                      : undefined,
                 },
               ];
             });
@@ -141,19 +139,9 @@ export default function MyPage() {
     const title = form.title.trim();
     const url = form.url.trim();
 
-    if (!title) {
-      setError("링크 제목을 입력해 주세요.");
-      return;
-    }
-
-    if (!url) {
-      setError("URL을 입력해 주세요.");
-      return;
-    }
-
-    const urlError = validateUrl(url);
-    if (urlError) {
-      setError(urlError);
+    const validationError = validateLinkForm({ title, url });
+    if (validationError) {
+      setError(validationError);
       return;
     }
 
@@ -169,6 +157,7 @@ export default function MyPage() {
           description: "",
           category: "other",
           createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
         }
       );
       resetForm();
@@ -181,6 +170,44 @@ export default function MyPage() {
       );
     } finally {
       setIsSaving(false);
+    }
+  }
+
+  async function handleUpdateLink(link: Link) {
+    await updateDoc(
+      doc(getFirebaseFirestore(), "users", "anonymous", "links", link.id),
+      {
+        title: link.title,
+        url: link.url,
+        updatedAt: serverTimestamp(),
+      }
+    );
+  }
+
+  async function handleDeleteLink() {
+    if (!linkToDelete) return;
+
+    setIsDeleting(true);
+    setLoadError("");
+    try {
+      await deleteDoc(
+        doc(
+          getFirebaseFirestore(),
+          "users",
+          "anonymous",
+          "links",
+          linkToDelete.id
+        )
+      );
+      setLinkToDelete(null);
+    } catch (deleteError) {
+      setLoadError(
+        deleteError instanceof Error
+          ? `링크를 삭제하지 못했어요: ${deleteError.message}`
+          : "링크를 삭제하지 못했어요. 다시 시도해 주세요."
+      );
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -273,7 +300,46 @@ export default function MyPage() {
         </p>
       ) : null}
 
-      <LinkList links={links} />
+      <LinkList
+        links={links}
+        onUpdate={handleUpdateLink}
+        onDelete={setLinkToDelete}
+      />
+
+      <Dialog
+        open={linkToDelete !== null}
+        onOpenChange={(open) => {
+          if (!open && !isDeleting) setLinkToDelete(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>정말 삭제하시겠습니까?</DialogTitle>
+            <DialogDescription>
+              삭제할 링크: <span className="font-medium text-foreground">{linkToDelete?.title}</span>
+            </DialogDescription>
+          </DialogHeader>
+          <p className="text-sm font-medium text-destructive">
+            이 작업은 되돌릴 수 없습니다
+          </p>
+          <DialogFooter>
+            <DialogClose
+              render={<Button variant="outline" type="button" />}
+              disabled={isDeleting}
+            >
+              취소
+            </DialogClose>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleDeleteLink}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "삭제 중..." : "삭제하기"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }

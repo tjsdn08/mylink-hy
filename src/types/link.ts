@@ -6,4 +6,5 @@ export interface Link {
   url: string;
   description: string;
   category: LinkCategory;
+  updatedAt?: Date;
 }
