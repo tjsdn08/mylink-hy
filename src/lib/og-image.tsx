@@ -11,7 +11,7 @@ function hasKorean(text: string) {
 
 // 한글이 포함된 프로필을 공유할 때 필요한 문자만 폰트로 불러옵니다.
 async function getKoreanFont(text: string): Promise<ArrayBuffer | null> {
-  if (!hasKorean(text)) return null;
+  // ImageResponse는 이미지 레이아웃 계산을 위해 영문에도 폰트가 필요합니다.
   try {
     const response = await fetch(
       "https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@700&text=" + encodeURIComponent(text),
@@ -33,7 +33,8 @@ async function getKoreanFont(text: string): Promise<ArrayBuffer | null> {
 
 export async function generateOgImage(profile?: OgProfile) {
   const koreanText = profile ? [profile.displayName, profile.bio].join(" ").slice(0, 170) : "";
-  const font = await getKoreanFont(koreanText);
+  const font = await getKoreanFont(koreanText || "MyLink One link. All of you. Projects Blog Portfolio");
+  if (!font) throw new Error("OG 이미지 폰트를 불러오지 못했어요.");
   const showKorean = !hasKorean(koreanText) || Boolean(font);
   const name = profile ? (showKorean ? profile.displayName.slice(0, 20) : profile.username) : "One link.";
   const subline = profile ? (showKorean ? profile.bio.slice(0, 65) || "My links, all in one place." : "My links, all in one place.") : "Your story, beautifully connected.";
@@ -41,10 +42,10 @@ export async function generateOgImage(profile?: OgProfile) {
     (
       <div style={{ display: "flex", width: "100%", height: "100%", padding: "56px 64px",
         position: "relative", overflow: "hidden", backgroundColor: "#F9FBFF",
-        color: "#191F28", fontFamily: font ? "NotoKR" : "Arial", flexDirection: "column" }}>
+        color: "#191F28", fontFamily: "NotoKR", flexDirection: "column" }}>
         <div style={{ display: "flex", position: "absolute", width: 560, height: 560,
           right: -100, top: -240, backgroundColor: "#E8F3FF", borderRadius: 300 }} />
-        <div style={{ display: "flex", alignItems: "center", gap: 12, zIndex: 1 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ display: "flex", width: 45, height: 45, borderRadius: 15,
             backgroundColor: "#3182F6", color: "#FFFFFF", fontSize: 27,
             fontWeight: 700, alignItems: "center", justifyContent: "center" }}>∞</div>
@@ -54,7 +55,7 @@ export async function generateOgImage(profile?: OgProfile) {
         </div>
 
         <div style={{ display: "flex", flexDirection: "row", alignItems: "center",
-          flex: 1, width: "100%", zIndex: 1 }}>
+          flex: 1, width: "100%" }}>
           <div style={{ display: "flex", flexDirection: "column", width: "57%", paddingRight: 28 }}>
             <span style={{ display: "flex", alignSelf: "flex-start", borderRadius: 30,
               padding: "10px 18px", backgroundColor: "#E8F3FF", color: "#3182F6",
@@ -107,7 +108,7 @@ export async function generateOgImage(profile?: OgProfile) {
             </div>
           </div>
         </div>
-        <div style={{ display: "flex", zIndex: 1, justifyContent: "space-between",
+        <div style={{ display: "flex", justifyContent: "space-between",
           color: "#8B95A1", fontSize: 18 }}>
           <span>mylink · all in one place</span>
           <span>mylink</span>
@@ -116,7 +117,7 @@ export async function generateOgImage(profile?: OgProfile) {
     ),
     {
       ...size,
-      fonts: font ? [{ name: "NotoKR", data: font, weight: 700 as const, style: "normal" as const }] : [],
+      fonts: [{ name: "NotoKR", data: font, weight: 700 as const, style: "normal" as const }],
     }
   );
 }
