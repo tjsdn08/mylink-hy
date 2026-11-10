@@ -78,6 +78,7 @@ const reservedUsernames = new Set([
   "login",
   "mypage",
   "settings",
+  "stats",
 ]);
 
 export default function MyPage() {
@@ -550,6 +551,9 @@ export default function MyPage() {
                     </>
                   ) : null}
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem render={<NextLink href="/stats" />}>
+                    클릭 통계
+                  </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => void handleGoogleSignOut()}
                     disabled={isSigningOut}
