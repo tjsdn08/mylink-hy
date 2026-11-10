@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import { ExternalLink, Plus } from "lucide-react";
+import { ArrowUpRight, ChartNoAxesColumn, ChevronDown, ExternalLink, Link2, Pencil, Plus, Sparkles } from "lucide-react";
 import {
   GoogleAuthProvider,
   onAuthStateChanged,
@@ -41,7 +41,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ProfileCard } from "@/components/profile/ProfileCard";
 import {
   Avatar,
   AvatarFallback,
@@ -93,7 +92,6 @@ export default function MyPage() {
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
   const [isProfileSaving, setIsProfileSaving] = useState(false);
   const [profileSaveError, setProfileSaveError] = useState("");
-  const [profileSaveSuccess, setProfileSaveSuccess] = useState(false);
   const [profileForm, setProfileForm] = useState<ProfileFormValues>({
     username: "",
     displayName: "",
@@ -136,8 +134,7 @@ export default function MyPage() {
             setUserProfile(null);
             setIsProfileDialogOpen(false);
             setProfileSaveError("");
-            setProfileSaveSuccess(false);
-            setIsDialogOpen(false);
+                    setIsDialogOpen(false);
             setLinkToDelete(null);
             setForm(emptyForm);
             setError("");
@@ -324,7 +321,6 @@ export default function MyPage() {
       bio: userProfile.bio,
     });
     setProfileSaveError("");
-    setProfileSaveSuccess(false);
     setIsProfileDialogOpen(true);
   }
 
@@ -355,14 +351,12 @@ export default function MyPage() {
 
     setIsProfileSaving(true);
     setProfileSaveError("");
-    setProfileSaveSuccess(false);
     try {
       await saveUserProfile(user.uid, profile);
       setUserProfile((currentProfile) =>
         currentProfile ? { ...currentProfile, ...profile } : currentProfile
       );
       setIsProfileDialogOpen(false);
-      setProfileSaveSuccess(true);
       showToast("프로필이 저장되었어요.");
     } catch (saveError) {
       setProfileSaveError(
@@ -482,103 +476,65 @@ export default function MyPage() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-3xl space-y-6 px-4 py-8 sm:px-6">
-      <header className="flex items-start justify-between gap-4">
-        <div className="flex min-w-0 items-center gap-2">
-          <span className="size-2.5 rounded-full bg-primary" />
-          <span className="text-title-2 font-bold text-foreground">MyLink</span>
-        </div>
-
-        <div className="flex min-w-0 items-center gap-3">
+    <main className="mx-auto w-full max-w-4xl space-y-7 px-4 py-5 sm:px-6 sm:py-8">
+      <header className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/70 bg-card/90 px-4 py-3 shadow-tds-1 sm:px-5">
+        <NextLink href="/" aria-label="MyLink 홈" className="flex shrink-0 items-center gap-2.5">
+          <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+            <Link2 aria-hidden="true" className="size-5" />
+          </span>
+          <span className="text-lg font-extrabold tracking-tight text-foreground">My<span className="text-primary">Link</span></span>
+        </NextLink>
+        <div className="flex items-center gap-2 sm:gap-3">
           {isAuthLoading || (user && !isProfileReady && !profileError) ? (
-            <span className="text-caption text-muted-foreground">
-              {user ? "프로필 확인 중..." : "로그인 확인 중..."}
-            </span>
+            <span role="status" className="text-xs text-muted-foreground">{user ? "프로필 확인 중..." : "로그인 확인 중..."}</span>
           ) : user ? (
             <>
               {userProfile?.username ? (
                 <NextLink
                   href={`/${encodeURIComponent(userProfile.username)}`}
-                  className={buttonVariants({ variant: "outline", size: "sm" })}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-xl px-2.5 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:px-3"
                 >
-                  <ExternalLink aria-hidden="true" />
-                  내 공개 페이지
+                  <ArrowUpRight aria-hidden="true" className="size-4" />
+                  <span className="hidden sm:inline">내 공개 페이지</span>
+                  <span className="sm:hidden">공개 페이지</span>
                 </NextLink>
               ) : null}
               <DropdownMenu>
                 <DropdownMenuTrigger
                   render={
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      aria-label="프로필 메뉴"
-                    />
+                    <Button variant="outline" className="h-10 gap-2 rounded-xl border-border/80 bg-background px-2.5 shadow-none hover:bg-muted sm:px-3" aria-label="계정 메뉴 열기" />
                   }
                 >
-                  <Avatar size="sm">
-                    {userProfile?.photoURL ? (
-                      <AvatarImage
-                        src={userProfile.photoURL}
-                        alt={`${userProfile.displayName} 프로필 사진`}
-                      />
-                    ) : null}
-                    <AvatarFallback>
-                      {(userProfile?.displayName ?? user.email ?? "G").slice(
-                        0,
-                        1
-                      )}
-                    </AvatarFallback>
+                  <Avatar size="sm" className="size-7">
+                    {userProfile?.photoURL ? <AvatarImage src={userProfile.photoURL} alt="계정 프로필 사진" /> : null}
+                    <AvatarFallback>{(userProfile?.displayName ?? user.email ?? "G").slice(0, 1)}</AvatarFallback>
                   </Avatar>
+                  <span className="hidden max-w-28 truncate text-xs font-semibold sm:inline">{userProfile?.displayName ?? "내 계정"}</span>
+                  <ChevronDown aria-hidden="true" className="size-3.5 text-muted-foreground" />
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>
-                    <span className="block max-w-56 truncate">
-                      {userProfile?.displayName ?? "Google 사용자"}
-                    </span>
-                    {userProfile?.email ? (
-                      <span className="block max-w-56 truncate text-caption text-muted-foreground">
-                        {userProfile.email}
-                      </span>
-                    ) : null}
+                <DropdownMenuContent align="end" className="min-w-56 rounded-xl p-2">
+                  <DropdownMenuLabel className="px-2 py-2">
+                    <span className="block truncate text-sm font-semibold text-foreground">{userProfile?.displayName ?? "Google 사용자"}</span>
+                    <span className="mt-0.5 block max-w-60 truncate text-xs text-muted-foreground">{userProfile?.email ?? user.email}</span>
                   </DropdownMenuLabel>
-                  {userProfile?.username ? (
-                    <>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        render={
-                          <NextLink
-                            href={`/${encodeURIComponent(userProfile.username)}`}
-                          />
-                        }
-                      >
-                        내 공개 페이지
-                      </DropdownMenuItem>
-                    </>
-                  ) : null}
                   <DropdownMenuSeparator />
+                  {userProfile?.username ? (
+                    <DropdownMenuItem render={<NextLink href={`/${encodeURIComponent(userProfile.username)}`} />} >
+                      <ArrowUpRight aria-hidden="true" /> 공개 페이지 보기
+                    </DropdownMenuItem>
+                  ) : null}
                   <DropdownMenuItem render={<NextLink href="/stats" />}>
-                    클릭 통계
+                    <ChartNoAxesColumn aria-hidden="true" /> 클릭 통계
                   </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => void handleGoogleSignOut()}
-                    disabled={isSigningOut}
-                  >
+                  <DropdownMenuItem onClick={openProfileEditor} disabled={!isProfileReady}>
+                    <Pencil aria-hidden="true" /> 프로필 수정
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => void handleGoogleSignOut()} disabled={isSigningOut}>
                     {isSigningOut ? "로그아웃 중..." : "로그아웃"}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              <div className="flex min-w-0 items-center gap-2">
-                <div className="hidden min-w-0 sm:block">
-                  <p className="truncate text-label-s">
-                    {userProfile?.displayName ?? "Google 사용자"}
-                  </p>
-                  {userProfile?.email ? (
-                    <p className="truncate text-caption-s text-muted-foreground">
-                      {userProfile.email}
-                    </p>
-                  ) : null}
-                </div>
-              </div>
             </>
           ) : (
             <Button onClick={handleGoogleSignIn} disabled={isSigningIn}>
@@ -610,30 +566,50 @@ export default function MyPage() {
 
       {user && isProfileReady && userProfile ? (
         <>
-          <div className="flex justify-end">
-            <Button variant="outline" onClick={openProfileEditor}>
-              프로필 수정
-            </Button>
-          </div>
-          {profileSaveSuccess ? (
-            <p role="status" className="text-sm text-primary">
-              프로필을 저장했어요.
-            </p>
-          ) : null}
-          <ProfileCard
-            profile={{
-              imageUrl: userProfile.photoURL || null,
-              imageAlt: `${userProfile.displayName} 프로필 사진`,
-              fallbackText: userProfile.displayName.slice(0, 1) || "?",
-              name: userProfile.displayName,
-              role: userProfile.username
-                ? `@${userProfile.username}`
-                : "Username을 설정해 주세요",
-              level: "Google 계정",
-              tagline: userProfile.email,
-              bio: userProfile.bio,
-            }}
-          />
+          <section className="relative overflow-hidden rounded-[28px] border border-border/70 bg-card shadow-tds-2">
+            <div aria-hidden="true" className="relative h-24 overflow-hidden bg-gradient-to-r from-[#E9F2FF] via-[#F0F6FF] to-[#EAFBFF] sm:h-28">
+              <div className="absolute -right-8 -top-24 size-64 rounded-full border-[34px] border-white/35" />
+              <div className="absolute left-12 top-9 size-24 rounded-full bg-white/30 blur-2xl" />
+            </div>
+            <div className="relative px-5 pb-6 sm:px-8 sm:pb-7">
+              <div className="-mt-10 flex items-end justify-between gap-3 sm:-mt-11">
+                <Avatar className="size-[84px] shrink-0 rounded-[24px] border-4 border-card bg-accent shadow-tds-2 sm:size-24">
+                  {userProfile.photoURL ? <AvatarImage src={userProfile.photoURL} alt={`${userProfile.displayName} 프로필 사진`} /> : null}
+                  <AvatarFallback className="text-2xl font-bold text-primary">{userProfile.displayName.slice(0, 1) || "?"}</AvatarFallback>
+                </Avatar>
+                <Button variant="outline" className="mb-1 h-9 gap-1.5 rounded-xl px-3 text-xs font-semibold" onClick={openProfileEditor}>
+                  <Pencil aria-hidden="true" className="size-3.5" /> 프로필 편집
+                </Button>
+              </div>
+              <div className="mt-4">
+                <p className="flex items-center gap-1.5 text-xs font-semibold text-primary">
+                  <Sparkles aria-hidden="true" className="size-3.5" /> 나만의 MyLink
+                </p>
+                <h1 className="mt-2 text-[clamp(1.55rem,4vw,2.15rem)] font-extrabold tracking-tight text-foreground">{userProfile.displayName}</h1>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <span className="rounded-full bg-accent px-3 py-1 text-xs font-semibold text-accent-foreground">
+                    {userProfile.username ? `@${userProfile.username}` : "Username 미설정"}
+                  </span>
+                  <span className="text-xs text-muted-foreground">공개 프로필</span>
+                </div>
+                <p className="mt-5 whitespace-pre-wrap break-words text-sm leading-7 text-secondary-foreground">
+                  {userProfile.bio || "나를 소개하는 한 줄을 작성해 보세요."}
+                </p>
+              </div>
+              <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-border/70 pt-4">
+                <span className="inline-flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                  <Link2 aria-hidden="true" className="size-4 text-primary" />
+                  등록한 링크 <strong className="font-bold text-foreground">{links.length}개</strong>
+                </span>
+                {userProfile.username ? (
+                  <NextLink href={`/${encodeURIComponent(userProfile.username)}`}
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
+                    내 공개 프로필 보기 <ArrowUpRight aria-hidden="true" className="size-3.5" />
+                  </NextLink>
+                ) : null}
+              </div>
+            </div>
+          </section>
           <Dialog
             open={isProfileDialogOpen}
             onOpenChange={setIsProfileDialogOpen}
@@ -742,16 +718,15 @@ export default function MyPage() {
         </section>
       ) : (
         <>
-          <section className="flex items-start justify-between gap-4">
-            <div className="space-y-2">
-              <h1 className="text-h1 text-foreground">마이페이지</h1>
-              <p className="text-body-2 text-muted-foreground">
-                내 페이지에 표시할 링크를 확인해요.
-              </p>
+          <section className="flex flex-wrap items-center justify-between gap-4 pt-2">
+            <div className="space-y-1">
+              <p className="text-xs font-bold tracking-[0.13em] text-primary">MY LINKS</p>
+              <h2 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-[28px]">내 링크 관리</h2>
+              <p className="text-sm text-muted-foreground">링크를 모으고 나만의 페이지에 공유해 보세요.</p>
             </div>
 
             <Dialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
-              <Button onClick={() => setIsDialogOpen(true)}>
+              <Button className="h-10 rounded-xl px-4 font-semibold" onClick={() => setIsDialogOpen(true)}>
                 <Plus aria-hidden="true" />
                 링크 추가
               </Button>
