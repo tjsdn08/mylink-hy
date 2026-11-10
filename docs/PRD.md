@@ -43,8 +43,10 @@ MyLink는 사용자가 자신만의 프로필 페이지를 만들고 여러 웹�
 |---|---|
 | Framework | Next.js 16 |
 | UI | React 19 |
+| UI Component System | shadcn/ui |
 | Language | TypeScript 5 |
-| Styling | Tailwind CSS v4 |
+| Styling | Tailwind CSS v4.3.5 (shadcn/ui 호환 안정 버전) |
+| Design Guidelines | `design.md` 기반 Toss 스타일 디자인 시스템 |
 | State Management | Zustand |
 | Authentication | Firebase Authentication |
 | Database | Cloud Firestore |
@@ -62,6 +64,24 @@ MyLink는 사용자가 자신만의 프로필 페이지를 만들고 여러 웹�
 Zustand에는 모든 Firestore 데이터를 중복 저장하지 말고, 저장 전 미리보기 상태와 공통 UI 상태를 중심으로 설계한다.
 
 기존 프로젝트의 실제 설치 버전과 구조를 먼저 확인한 후 개발한다.
+
+### 2.2 디자인 시스템 정책
+
+1. 모든 신규 UI는 shadcn/ui를 기반으로 개발한다.
+2. 시각적 디자인과 UX 기준은 기존 `design.md`를 따른다.
+3. shadcn/ui 컴포넌트는 재사용 가능한 형태로 구성한다.
+4. 컬러, 타이포그래피, 간격, 모서리 등은 일관된 디자인 토큰으로 관리한다.
+5. 기존 디자인의 화이트·블루 기반 스타일을 유지한다.
+6. 모바일·태블릿·데스크톱 반응형 디자인을 지원한다.
+7. 접근성과 사용성을 고려해 UI를 구현한다.
+8. 새 페이지와 기능에도 동일한 디자인 시스템을 적용한다.
+9. shadcn/ui는 UI 컴포넌트 구현 기반이며, `design.md`는 시각적 디자인과 UX의 기준 문서다.
+
+초기화 현황과 향후 구현 범위:
+- 현재 단계에서 shadcn/ui CLI 초기화, `components.json`, CSS 변수 기반 테마 설정, TypeScript 경로 별칭 및 필수 의존성 구성을 완료한다.
+- Tailwind CSS 및 기존 Turbopack 통합은 shadcn/ui와 호환되는 안정 버전을 사용한다.
+- 초기화 완료는 실제 화면이나 디자인 시스템 컴포넌트 적용 완료를 의미하지 않는다. 화면별 적용, 디자인 토큰 세부 조정 및 추가 컴포넌트 구현은 후속 개발 단계에서 진행한다.
+- 이번 단계에서는 기존 프로필 화면의 UI를 변경하지 않는다.
 
 ---
 
@@ -356,7 +376,7 @@ SNS URL에도 HTTP·HTTPS 검증 정책을 적용한다.
 
 ### FR-17. 디자인 시스템
 
-관리자 UI는 Toss 디자인을 참고한다.
+신규 UI는 shadcn/ui 컴포넌트를 기반으로 하며, 시각적 디자인과 UX는 기존 `design.md`의 Toss 스타일 기준을 따른다.
 
 기본 방향:
 - 화이트 배경
