@@ -10,7 +10,7 @@ import {
 } from "firebase/auth";
 import {
   ArrowRight, ArrowUpRight, BarChart3, BookOpen, CheckCircle2,
-  ChevronRight, Github, Globe2, Link2, MousePointerClick,
+  ChevronRight, CodeXml, Globe2, Link2, MousePointerClick,
   Palette, ShieldCheck, Sparkles, WandSparkles,
 } from "lucide-react";
 import Link from "next/link";
@@ -29,7 +29,7 @@ const highlights = [
   { icon: BarChart3, title: "관심도 알아보기", body: "어떤 링크가 인기 있는지 클릭 통계로 확인해요." },
 ];
 const demoLinks = [
-  { icon: Github, title: "GitHub", subtitle: "나의 프로젝트와 코드" },
+  { icon: CodeXml, title: "GitHub", subtitle: "나의 프로젝트와 코드" },
   { icon: BookOpen, title: "기술 블로그", subtitle: "배운 것을 차곡차곡" },
   { icon: Globe2, title: "포트폴리오", subtitle: "내 작업 한눈에" },
 ];
