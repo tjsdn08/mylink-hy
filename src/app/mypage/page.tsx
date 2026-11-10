@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import { Plus } from "lucide-react";
+import { ExternalLink, Plus } from "lucide-react";
 import {
   GoogleAuthProvider,
   onAuthStateChanged,
@@ -22,6 +22,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import {
   Dialog,
   DialogClose,
@@ -33,27 +34,51 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ProfileCard } from "@/components/profile/ProfileCard";
+import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from "@/components/ui/avatar";
-import { ProfileCard } from "@/components/profile/ProfileCard";
 import { LinkList } from "@/components/links/LinkList";
 import { getFirebaseAuth, getFirebaseFirestore } from "@/lib/firebase";
 import { validateLinkForm } from "@/lib/link-validation";
 import {
   ensureUserProfileDocument,
+  saveUserProfile,
+  type EditableUserProfile,
   type UserProfileDocument,
 } from "@/lib/user-profile";
 import type { Link } from "@/types/link";
 import { useRouter } from "next/navigation";
+import NextLink from "next/link";
 
 interface LinkFormValues {
   title: string;
   url: string;
 }
 
+interface ProfileFormValues {
+  username: string;
+  displayName: string;
+  bio: string;
+}
+
 const emptyForm: LinkFormValues = { title: "", url: "" };
+const reservedUsernames = new Set([
+  "api",
+  "dashboard",
+  "login",
+  "mypage",
+  "settings",
+]);
 
 export default function MyPage() {
   const router = useRouter();
@@ -63,6 +88,15 @@ export default function MyPage() {
   const [isProfileReady, setIsProfileReady] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfileDocument | null>(null);
   const [profileError, setProfileError] = useState("");
+  const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
+  const [isProfileSaving, setIsProfileSaving] = useState(false);
+  const [profileSaveError, setProfileSaveError] = useState("");
+  const [profileSaveSuccess, setProfileSaveSuccess] = useState(false);
+  const [profileForm, setProfileForm] = useState<ProfileFormValues>({
+    username: "",
+    displayName: "",
+    bio: "",
+  });
   const [firestoreLinks, setFirestoreLinks] = useState<Link[]>([]);
   const [linksUserId, setLinksUserId] = useState<string | null>(null);
   const [loadError, setLoadError] = useState("");
@@ -98,6 +132,9 @@ export default function MyPage() {
             setLinksUserId(null);
             setIsProfileReady(false);
             setUserProfile(null);
+            setIsProfileDialogOpen(false);
+            setProfileSaveError("");
+            setProfileSaveSuccess(false);
             setIsDialogOpen(false);
             setLinkToDelete(null);
             setForm(emptyForm);
@@ -112,6 +149,11 @@ export default function MyPage() {
               .then((profile) => {
                 if (isCancelled || activeUid !== authenticatedUser.uid) return;
                 setUserProfile(profile);
+                setProfileForm({
+                  username: profile.username,
+                  displayName: profile.displayName,
+                  bio: profile.bio,
+                });
                 setIsProfileReady(true);
                 setIsAuthLoading(false);
               })
@@ -271,6 +313,64 @@ export default function MyPage() {
     }
   }
 
+  function openProfileEditor() {
+    if (!userProfile) return;
+    setProfileForm({
+      username: userProfile.username,
+      displayName: userProfile.displayName,
+      bio: userProfile.bio,
+    });
+    setProfileSaveError("");
+    setProfileSaveSuccess(false);
+    setIsProfileDialogOpen(true);
+  }
+
+  async function handleProfileSave(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!user || !userProfile || !isProfileReady) return;
+
+    const profile: EditableUserProfile = {
+      username: profileForm.username.trim().toLowerCase(),
+      displayName: profileForm.displayName.trim(),
+      bio: profileForm.bio.trim(),
+    };
+
+    if (!/^[a-z0-9_]{3,20}$/.test(profile.username)) {
+      setProfileSaveError(
+        "Username은 영문 소문자, 숫자, 밑줄로 3~20자 입력해 주세요."
+      );
+      return;
+    }
+    if (reservedUsernames.has(profile.username)) {
+      setProfileSaveError("사용할 수 없는 Username이에요.");
+      return;
+    }
+    if (!profile.displayName) {
+      setProfileSaveError("이름을 입력해 주세요.");
+      return;
+    }
+
+    setIsProfileSaving(true);
+    setProfileSaveError("");
+    setProfileSaveSuccess(false);
+    try {
+      await saveUserProfile(user.uid, profile);
+      setUserProfile((currentProfile) =>
+        currentProfile ? { ...currentProfile, ...profile } : currentProfile
+      );
+      setIsProfileDialogOpen(false);
+      setProfileSaveSuccess(true);
+    } catch (saveError) {
+      setProfileSaveError(
+        saveError instanceof Error
+          ? saveError.message
+          : "프로필을 저장하지 못했어요. 다시 시도해 주세요."
+      );
+    } finally {
+      setIsProfileSaving(false);
+    }
+  }
+
   function resetForm() {
     setForm(emptyForm);
     setError("");
@@ -388,18 +488,75 @@ export default function MyPage() {
             </span>
           ) : user ? (
             <>
-              <div className="flex min-w-0 items-center gap-2">
-                <Avatar size="sm">
-                  {userProfile?.photoURL ? (
-                    <AvatarImage
-                      src={userProfile.photoURL}
-                      alt={`${userProfile.displayName} 프로필 사진`}
+              {userProfile?.username ? (
+                <NextLink
+                  href={`/${encodeURIComponent(userProfile.username)}`}
+                  className={buttonVariants({ variant: "outline", size: "sm" })}
+                >
+                  <ExternalLink aria-hidden="true" />
+                  내 공개 페이지
+                </NextLink>
+              ) : null}
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label="프로필 메뉴"
                     />
+                  }
+                >
+                  <Avatar size="sm">
+                    {userProfile?.photoURL ? (
+                      <AvatarImage
+                        src={userProfile.photoURL}
+                        alt={`${userProfile.displayName} 프로필 사진`}
+                      />
+                    ) : null}
+                    <AvatarFallback>
+                      {(userProfile?.displayName ?? user.email ?? "G").slice(
+                        0,
+                        1
+                      )}
+                    </AvatarFallback>
+                  </Avatar>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>
+                    <span className="block max-w-56 truncate">
+                      {userProfile?.displayName ?? "Google 사용자"}
+                    </span>
+                    {userProfile?.email ? (
+                      <span className="block max-w-56 truncate text-caption text-muted-foreground">
+                        {userProfile.email}
+                      </span>
+                    ) : null}
+                  </DropdownMenuLabel>
+                  {userProfile?.username ? (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        render={
+                          <NextLink
+                            href={`/${encodeURIComponent(userProfile.username)}`}
+                          />
+                        }
+                      >
+                        내 공개 페이지
+                      </DropdownMenuItem>
+                    </>
                   ) : null}
-                  <AvatarFallback>
-                    {(userProfile?.displayName ?? user.email ?? "G").slice(0, 1)}
-                  </AvatarFallback>
-                </Avatar>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => void handleGoogleSignOut()}
+                    disabled={isSigningOut}
+                  >
+                    {isSigningOut ? "로그아웃 중..." : "로그아웃"}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <div className="flex min-w-0 items-center gap-2">
                 <div className="hidden min-w-0 sm:block">
                   <p className="truncate text-label-s">
                     {userProfile?.displayName ?? "Google 사용자"}
@@ -411,14 +568,6 @@ export default function MyPage() {
                   ) : null}
                 </div>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleGoogleSignOut}
-                disabled={isSigningOut}
-              >
-                {isSigningOut ? "로그아웃 중..." : "로그아웃"}
-              </Button>
             </>
           ) : (
             <Button onClick={handleGoogleSignIn} disabled={isSigningIn}>
@@ -449,18 +598,120 @@ export default function MyPage() {
       ) : null}
 
       {user && isProfileReady && userProfile ? (
-        <ProfileCard
-          profile={{
-            imageUrl: userProfile.photoURL || null,
-            imageAlt: `${userProfile.displayName} 프로필 사진`,
-            fallbackText: userProfile.displayName.slice(0, 1) || "?",
-            name: userProfile.displayName,
-            role: "MyLink 사용자",
-            level: "Google 계정",
-            tagline: userProfile.email,
-            bio: userProfile.bio,
-          }}
-        />
+        <>
+          <div className="flex justify-end">
+            <Button variant="outline" onClick={openProfileEditor}>
+              프로필 수정
+            </Button>
+          </div>
+          {profileSaveSuccess ? (
+            <p role="status" className="text-sm text-primary">
+              프로필을 저장했어요.
+            </p>
+          ) : null}
+          <ProfileCard
+            profile={{
+              imageUrl: userProfile.photoURL || null,
+              imageAlt: `${userProfile.displayName} 프로필 사진`,
+              fallbackText: userProfile.displayName.slice(0, 1) || "?",
+              name: userProfile.displayName,
+              role: userProfile.username
+                ? `@${userProfile.username}`
+                : "Username을 설정해 주세요",
+              level: "Google 계정",
+              tagline: userProfile.email,
+              bio: userProfile.bio,
+            }}
+          />
+          <Dialog
+            open={isProfileDialogOpen}
+            onOpenChange={setIsProfileDialogOpen}
+          >
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>프로필 수정</DialogTitle>
+                <DialogDescription>
+                  Username, 이름, 소개글을 수정할 수 있어요.
+                </DialogDescription>
+              </DialogHeader>
+              <form className="space-y-4" onSubmit={handleProfileSave}>
+                <div className="space-y-2">
+                  <label htmlFor="profile-username" className="text-label-s">
+                    Username
+                  </label>
+                  <Input
+                    id="profile-username"
+                    autoComplete="username"
+                    value={profileForm.username}
+                    placeholder="sunwoo_08"
+                    onChange={(event) => {
+                      setProfileForm((current) => ({
+                        ...current,
+                        username: event.target.value.toLowerCase(),
+                      }));
+                      setProfileSaveError("");
+                    }}
+                    aria-invalid={Boolean(profileSaveError)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="profile-display-name" className="text-label-s">
+                    이름
+                  </label>
+                  <Input
+                    id="profile-display-name"
+                    autoComplete="name"
+                    value={profileForm.displayName}
+                    onChange={(event) => {
+                      setProfileForm((current) => ({
+                        ...current,
+                        displayName: event.target.value,
+                      }));
+                      setProfileSaveError("");
+                    }}
+                    aria-invalid={Boolean(
+                      profileSaveError && !profileForm.displayName.trim()
+                    )}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="profile-bio" className="text-label-s">
+                    소개글
+                  </label>
+                  <textarea
+                    id="profile-bio"
+                    rows={4}
+                    value={profileForm.bio}
+                    onChange={(event) => {
+                      setProfileForm((current) => ({
+                        ...current,
+                        bio: event.target.value,
+                      }));
+                      setProfileSaveError("");
+                    }}
+                    className="w-full resize-y rounded-xl border border-input bg-background px-3 py-2 text-body-2 outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  />
+                </div>
+                {profileSaveError ? (
+                  <p role="alert" className="text-sm text-destructive">
+                    {profileSaveError}
+                  </p>
+                ) : null}
+                <DialogFooter>
+                  <DialogClose
+                    render={<Button type="button" variant="outline" />}
+                    disabled={isProfileSaving}
+                  >
+                    취소
+                  </DialogClose>
+                  <Button type="submit" disabled={isProfileSaving}>
+                    {isProfileSaving ? "저장 중..." : "저장"}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </>
       ) : null}
 
       {isAuthLoading ? (

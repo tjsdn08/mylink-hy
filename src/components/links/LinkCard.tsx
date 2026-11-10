@@ -158,7 +158,10 @@ export function LinkCard({ link, onUpdate, onDelete }: LinkCardProps) {
             </p>
             {link.updatedAt ? (
               <p className="mt-1 text-caption-s text-muted-foreground">
-                수정 {link.updatedAt.toLocaleString("ko-KR")}
+                수정 {link.updatedAt.toLocaleString("ko-KR", {
+                  timeZone: "Asia/Seoul",
+                  hourCycle: "h23",
+                })}
               </p>
             ) : null}
           </div>

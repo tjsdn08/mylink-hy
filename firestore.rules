@@ -1,0 +1,81 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedInAs(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function profileUsernameAfterWrite(uid, username) {
+      return getAfter(
+        /databases/$(database)/documents/users/$(uid)/profile/main
+      ).data.uid == uid
+        && getAfter(
+          /databases/$(database)/documents/users/$(uid)/profile/main
+        ).data.username == username;
+    }
+
+    match /users/{uid} {
+      allow get, list: if signedInAs(uid);
+      allow create, update: if signedInAs(uid)
+        && request.resource.data.uid == uid
+        && request.resource.data.email is string
+        && request.resource.data.displayName is string
+        && request.resource.data.photoURL is string
+        && request.resource.data.username is string
+        && request.resource.data.bio is string;
+      allow delete: if signedInAs(uid);
+
+      match /profile/{profileId} {
+        allow get: if profileId == 'main'
+          && (
+            signedInAs(uid)
+            || resource == null
+            || !resource.data.keys().hasAny(['email'])
+          );
+        allow list: if false;
+
+        allow create, update: if signedInAs(uid)
+          && profileId == 'main'
+          && request.resource.data.uid == uid
+          && request.resource.data.username is string
+          && request.resource.data.displayName is string
+          && request.resource.data.photoURL is string
+          && request.resource.data.bio is string
+          && !request.resource.data.keys().hasAny(['email'])
+          && request.resource.data.keys().hasOnly([
+            'uid',
+            'username',
+            'displayName',
+            'photoURL',
+            'bio',
+            'createdAt',
+            'updatedAt'
+          ]);
+
+        allow delete: if signedInAs(uid) && profileId == 'main';
+      }
+
+      match /links/{linkId} {
+        allow read: if true;
+        allow create, update, delete: if signedInAs(uid);
+      }
+    }
+
+    match /usernames/{username} {
+      allow get: if true;
+      allow list: if false;
+
+      allow create, update: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.username == username
+        && profileUsernameAfterWrite(request.auth.uid, username);
+
+      allow delete: if request.auth != null
+        && resource.data.uid == request.auth.uid
+        && getAfter(
+          /databases/$(database)/documents/users/$(request.auth.uid)/profile/main
+        ).data.username != username;
+    }
+  }
+}
