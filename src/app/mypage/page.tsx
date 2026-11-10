@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import { ArrowUpRight, ChartNoAxesColumn, ChevronDown, ExternalLink, Link2, Pencil, Plus, Sparkles } from "lucide-react";
+import { ArrowUpRight, ChartNoAxesColumn, ChevronDown, Link2, Pencil, Plus, Sparkles } from "lucide-react";
 import {
   GoogleAuthProvider,
   onAuthStateChanged,
@@ -22,7 +22,6 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { Button } from "@/components/ui/button";
-import { buttonVariants } from "@/components/ui/button";
 import {
   Dialog,
   DialogClose,

@@ -7,11 +7,9 @@ import { TOAST_EVENT, type ToastKind } from "@/lib/toast";
 
 type Notice = { message: string; kind: ToastKind };
 export function ToastViewport() {
-  const [mounted, setMounted] = useState(false);
   const [notice, setNotice] = useState<Notice | null>(null);
 
   useEffect(() => {
-    setMounted(true);
     let timer: ReturnType<typeof setTimeout> | undefined;
     const handleToast = (event: Event) => {
       const detail = (event as CustomEvent<Notice>).detail;
@@ -27,7 +25,7 @@ export function ToastViewport() {
     };
   }, []);
 
-  if (!mounted || !notice) return null;
+  if (!notice) return null;
   const NoticeIcon = notice.kind === "success" ? CheckCircle2 : CircleAlert;
   return createPortal(
     <div className="pointer-events-none fixed inset-x-4 bottom-5 z-[9999] flex justify-center sm:inset-x-auto sm:right-6 sm:bottom-6" role="status" aria-live="polite">
