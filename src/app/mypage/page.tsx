@@ -3,6 +3,13 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Plus } from "lucide-react";
 import {
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  signInWithPopup,
+  signOut,
+  type User,
+} from "firebase/auth";
+import {
   addDoc,
   collection,
   deleteDoc,
@@ -25,10 +32,21 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar";
+import { ProfileCard } from "@/components/profile/ProfileCard";
 import { LinkList } from "@/components/links/LinkList";
-import { getFirebaseFirestore } from "@/lib/firebase";
+import { getFirebaseAuth, getFirebaseFirestore } from "@/lib/firebase";
 import { validateLinkForm } from "@/lib/link-validation";
+import {
+  ensureUserProfileDocument,
+  type UserProfileDocument,
+} from "@/lib/user-profile";
 import type { Link } from "@/types/link";
+import { useRouter } from "next/navigation";
 
 interface LinkFormValues {
   title: string;
@@ -38,26 +56,110 @@ interface LinkFormValues {
 const emptyForm: LinkFormValues = { title: "", url: "" };
 
 export default function MyPage() {
+  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const [authError, setAuthError] = useState("");
+  const [isProfileReady, setIsProfileReady] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfileDocument | null>(null);
+  const [profileError, setProfileError] = useState("");
   const [firestoreLinks, setFirestoreLinks] = useState<Link[]>([]);
+  const [linksUserId, setLinksUserId] = useState<string | null>(null);
   const [loadError, setLoadError] = useState("");
+  const [isSigningIn, setIsSigningIn] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [linkToDelete, setLinkToDelete] = useState<Link | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [form, setForm] = useState<LinkFormValues>(emptyForm);
   const [error, setError] = useState("");
-  const links = firestoreLinks;
+  const links =
+    user && isProfileReady && linksUserId === user.uid ? firestoreLinks : [];
 
   useEffect(() => {
     let isCancelled = false;
+    let activeUid: string | null = null;
     let unsubscribe: (() => void) | undefined;
+
+    void Promise.resolve()
+      .then(() => {
+        if (isCancelled) return;
+
+        unsubscribe = onAuthStateChanged(
+          getFirebaseAuth(),
+          (authenticatedUser) => {
+            activeUid = authenticatedUser?.uid ?? null;
+            setUser(authenticatedUser);
+            setAuthError("");
+            setProfileError("");
+            setLoadError("");
+            setFirestoreLinks([]);
+            setLinksUserId(null);
+            setIsProfileReady(false);
+            setUserProfile(null);
+            setIsDialogOpen(false);
+            setLinkToDelete(null);
+            setForm(emptyForm);
+            setError("");
+            if (!authenticatedUser) {
+              setIsAuthLoading(false);
+              router.replace("/");
+              return;
+            }
+
+            void ensureUserProfileDocument(authenticatedUser)
+              .then((profile) => {
+                if (isCancelled || activeUid !== authenticatedUser.uid) return;
+                setUserProfile(profile);
+                setIsProfileReady(true);
+                setIsAuthLoading(false);
+              })
+              .catch((profileSaveError: unknown) => {
+                if (isCancelled || activeUid !== authenticatedUser.uid) return;
+                setProfileError(
+                  profileSaveError instanceof Error
+                    ? `로그인은 성공했지만 Firestore 프로필 저장에 실패했어요: ${profileSaveError.message}`
+                    : "로그인은 성공했지만 Firestore 프로필 저장에 실패했어요. 권한과 연결을 확인해 주세요."
+                );
+                setIsAuthLoading(false);
+              });
+          },
+          (observerError) => {
+            setAuthError(`로그인 상태를 확인하지 못했어요: ${observerError.message}`);
+            setIsAuthLoading(false);
+          }
+        );
+      })
+      .catch((initializationError: unknown) => {
+        if (isCancelled) return;
+        setAuthError(
+          initializationError instanceof Error
+            ? `Firebase 인증을 초기화하지 못했어요: ${initializationError.message}`
+            : "Firebase 인증을 초기화하지 못했어요. 설정을 확인해 주세요."
+        );
+        setIsAuthLoading(false);
+      });
+
+    return () => {
+      isCancelled = true;
+      unsubscribe?.();
+    };
+  }, [router]);
+
+  useEffect(() => {
+    if (!user || !isProfileReady) return;
+
+    let isCancelled = false;
+    let unsubscribe: (() => void) | undefined;
+    const userId = user.uid;
 
     void Promise.resolve()
       .then(() => {
         const linksCollection = collection(
           getFirebaseFirestore(),
           "users",
-          "anonymous",
+          userId,
           "links"
         );
 
@@ -66,6 +168,8 @@ export default function MyPage() {
         unsubscribe = onSnapshot(
           query(linksCollection, orderBy("createdAt", "desc")),
           (snapshot) => {
+            if (isCancelled) return;
+
             const savedLinks = snapshot.docs.flatMap((document) => {
               const data = document.data();
               if (
@@ -100,9 +204,11 @@ export default function MyPage() {
             });
 
             setFirestoreLinks(savedLinks);
+            setLinksUserId(userId);
             setLoadError("");
           },
           (snapshotError) => {
+            if (isCancelled) return;
             setLoadError(`링크를 불러오지 못했어요: ${snapshotError.message}`);
           }
         );
@@ -121,7 +227,49 @@ export default function MyPage() {
       isCancelled = true;
       unsubscribe?.();
     };
-  }, []);
+  }, [user, isProfileReady]);
+
+  async function handleGoogleSignIn() {
+    setAuthError("");
+    setIsSigningIn(true);
+    try {
+      await signInWithPopup(getFirebaseAuth(), new GoogleAuthProvider());
+    } catch (signInError) {
+      const errorCode =
+        typeof signInError === "object" &&
+        signInError !== null &&
+        "code" in signInError
+          ? signInError.code
+          : undefined;
+      setAuthError(
+        errorCode === "auth/popup-closed-by-user"
+          ? "로그인을 취소했어요. 다시 시도해 주세요."
+          : signInError instanceof Error
+            ? `Google 로그인에 실패했어요: ${signInError.message}`
+            : "Google 로그인에 실패했어요. 다시 시도해 주세요."
+      );
+    } finally {
+      setIsSigningIn(false);
+    }
+  }
+
+  async function handleGoogleSignOut() {
+    setAuthError("");
+    setIsSigningOut(true);
+    try {
+      await signOut(getFirebaseAuth());
+      setFirestoreLinks([]);
+      setLinksUserId(null);
+    } catch (signOutError) {
+      setAuthError(
+        signOutError instanceof Error
+          ? `로그아웃하지 못했어요: ${signOutError.message}`
+          : "로그아웃하지 못했어요. 다시 시도해 주세요."
+      );
+    } finally {
+      setIsSigningOut(false);
+    }
+  }
 
   function resetForm() {
     setForm(emptyForm);
@@ -135,6 +283,11 @@ export default function MyPage() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (!user || !isProfileReady) {
+      setError("로그인과 프로필 준비가 완료된 후 링크를 추가할 수 있어요.");
+      return;
+    }
 
     const title = form.title.trim();
     const url = form.url.trim();
@@ -150,7 +303,7 @@ export default function MyPage() {
 
     try {
       await addDoc(
-        collection(getFirebaseFirestore(), "users", "anonymous", "links"),
+        collection(getFirebaseFirestore(), "users", user.uid, "links"),
         {
           title,
           url,
@@ -174,8 +327,12 @@ export default function MyPage() {
   }
 
   async function handleUpdateLink(link: Link) {
+    if (!user || !isProfileReady) {
+      throw new Error("로그인과 프로필 준비가 필요해요.");
+    }
+
     await updateDoc(
-      doc(getFirebaseFirestore(), "users", "anonymous", "links", link.id),
+      doc(getFirebaseFirestore(), "users", user.uid, "links", link.id),
       {
         title: link.title,
         url: link.url,
@@ -186,6 +343,11 @@ export default function MyPage() {
 
   async function handleDeleteLink() {
     if (!linkToDelete) return;
+    if (!user || !isProfileReady) {
+      setLoadError("로그인과 프로필 준비가 완료된 후 링크를 삭제할 수 있어요.");
+      setLinkToDelete(null);
+      return;
+    }
 
     setIsDeleting(true);
     setLoadError("");
@@ -194,7 +356,7 @@ export default function MyPage() {
         doc(
           getFirebaseFirestore(),
           "users",
-          "anonymous",
+          user.uid,
           "links",
           linkToDelete.id
         )
@@ -214,97 +376,217 @@ export default function MyPage() {
   return (
     <main className="mx-auto w-full max-w-3xl space-y-6 px-4 py-8 sm:px-6">
       <header className="flex items-start justify-between gap-4">
-        <div className="space-y-2">
-          <h1 className="text-h1 text-foreground">마이페이지</h1>
-          <p className="text-body-2 text-muted-foreground">
-            내 페이지에 표시할 링크를 확인하고 추가해요.
-          </p>
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="size-2.5 rounded-full bg-primary" />
+          <span className="text-title-2 font-bold text-foreground">MyLink</span>
         </div>
 
-        <Dialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
-          <Button onClick={() => setIsDialogOpen(true)}>
-            <Plus aria-hidden="true" />
-            링크 추가
-          </Button>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>링크 추가</DialogTitle>
-              <DialogDescription>
-                제목과 연결할 웹사이트 주소를 입력해 주세요.
-              </DialogDescription>
-            </DialogHeader>
-
-            <form className="space-y-4" noValidate onSubmit={handleSubmit}>
-              <div className="space-y-2">
-                <label htmlFor="link-title" className="text-label-s">
-                  링크 제목
-                </label>
-                <Input
-                  id="link-title"
-                  autoFocus
-                  value={form.title}
-                  placeholder="예: 나의 포트폴리오"
-                  aria-invalid={Boolean(error && !form.title.trim())}
-                  onChange={(event) => {
-                    setForm((current) => ({
-                      ...current,
-                      title: event.target.value,
-                    }));
-                    setError("");
-                  }}
-                />
+        <div className="flex min-w-0 items-center gap-3">
+          {isAuthLoading || (user && !isProfileReady && !profileError) ? (
+            <span className="text-caption text-muted-foreground">
+              {user ? "프로필 확인 중..." : "로그인 확인 중..."}
+            </span>
+          ) : user ? (
+            <>
+              <div className="flex min-w-0 items-center gap-2">
+                <Avatar size="sm">
+                  {userProfile?.photoURL ? (
+                    <AvatarImage
+                      src={userProfile.photoURL}
+                      alt={`${userProfile.displayName} 프로필 사진`}
+                    />
+                  ) : null}
+                  <AvatarFallback>
+                    {(userProfile?.displayName ?? user.email ?? "G").slice(0, 1)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="hidden min-w-0 sm:block">
+                  <p className="truncate text-label-s">
+                    {userProfile?.displayName ?? "Google 사용자"}
+                  </p>
+                  {userProfile?.email ? (
+                    <p className="truncate text-caption-s text-muted-foreground">
+                      {userProfile.email}
+                    </p>
+                  ) : null}
+                </div>
               </div>
-
-              <div className="space-y-2">
-                <label htmlFor="link-url" className="text-label-s">
-                  URL
-                </label>
-                <Input
-                  id="link-url"
-                  type="url"
-                  value={form.url}
-                  placeholder="https://example.com"
-                  aria-invalid={Boolean(error && form.title.trim())}
-                  onChange={(event) => {
-                    setForm((current) => ({
-                      ...current,
-                      url: event.target.value,
-                    }));
-                    setError("");
-                  }}
-                />
-              </div>
-
-              {error ? (
-                <p role="alert" className="text-sm text-destructive">
-                  {error}
-                </p>
-              ) : null}
-
-              <DialogFooter>
-                <DialogClose render={<Button variant="outline" type="button" />}>
-                  취소
-                </DialogClose>
-                <Button type="submit" disabled={isSaving}>
-                  {isSaving ? "저장 중..." : "추가"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleGoogleSignOut}
+                disabled={isSigningOut}
+              >
+                {isSigningOut ? "로그아웃 중..." : "로그아웃"}
+              </Button>
+            </>
+          ) : (
+            <Button onClick={handleGoogleSignIn} disabled={isSigningIn}>
+              {isSigningIn ? "로그인 중..." : "Google로 계속하기"}
+            </Button>
+          )}
+        </div>
       </header>
 
-      {loadError ? (
+      {authError ? (
         <p role="alert" className="text-sm text-destructive">
-          {loadError}
+          {authError}
         </p>
       ) : null}
+      {profileError ? (
+        <section className="space-y-3 rounded-3xl border border-destructive/30 bg-card p-6">
+          <p role="alert" className="text-sm text-destructive">
+            {profileError}
+          </p>
+          <Button
+            variant="outline"
+            onClick={() => void handleGoogleSignOut()}
+            disabled={isSigningOut}
+          >
+            프로필 저장 문제로 로그아웃
+          </Button>
+        </section>
+      ) : null}
 
-      <LinkList
-        links={links}
-        onUpdate={handleUpdateLink}
-        onDelete={setLinkToDelete}
-      />
+      {user && isProfileReady && userProfile ? (
+        <ProfileCard
+          profile={{
+            imageUrl: userProfile.photoURL || null,
+            imageAlt: `${userProfile.displayName} 프로필 사진`,
+            fallbackText: userProfile.displayName.slice(0, 1) || "?",
+            name: userProfile.displayName,
+            role: "MyLink 사용자",
+            level: "Google 계정",
+            tagline: userProfile.email,
+            bio: userProfile.bio,
+          }}
+        />
+      ) : null}
+
+      {isAuthLoading ? (
+        <p role="status" className="text-body-2 text-muted-foreground">
+          로그인 상태를 확인하고 있어요.
+        </p>
+      ) : profileError ? null : user && !isProfileReady ? (
+        <p role="status" className="text-body-2 text-muted-foreground">
+          로그인은 완료됐어요. 프로필을 준비하고 있어요.
+        </p>
+      ) : !user ? (
+        <section className="mx-auto w-full max-w-xl space-y-3 rounded-3xl border border-border bg-card p-6 text-center shadow-tds-1 sm:p-8">
+          <h1 className="text-h2 text-foreground">로그인 화면으로 이동하고 있어요</h1>
+          <p className="text-body-2 leading-relaxed text-muted-foreground">
+            마이페이지는 Google 로그인 후 이용할 수 있어요.
+          </p>
+        </section>
+      ) : (
+        <>
+          <section className="flex items-start justify-between gap-4">
+            <div className="space-y-2">
+              <h1 className="text-h1 text-foreground">마이페이지</h1>
+              <p className="text-body-2 text-muted-foreground">
+                내 페이지에 표시할 링크를 확인해요.
+              </p>
+            </div>
+
+            <Dialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
+              <Button onClick={() => setIsDialogOpen(true)}>
+                <Plus aria-hidden="true" />
+                링크 추가
+              </Button>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>링크 추가</DialogTitle>
+                  <DialogDescription>
+                    제목과 연결할 웹사이트 주소를 입력해 주세요.
+                  </DialogDescription>
+                </DialogHeader>
+
+                <form className="space-y-4" noValidate onSubmit={handleSubmit}>
+                  <div className="space-y-2">
+                    <label htmlFor="link-title" className="text-label-s">
+                      링크 제목
+                    </label>
+                    <Input
+                      id="link-title"
+                      autoFocus
+                      value={form.title}
+                      placeholder="예: 나의 포트폴리오"
+                      aria-invalid={Boolean(error && !form.title.trim())}
+                      onChange={(event) => {
+                        setForm((current) => ({
+                          ...current,
+                          title: event.target.value,
+                        }));
+                        setError("");
+                      }}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label htmlFor="link-url" className="text-label-s">
+                      URL
+                    </label>
+                    <Input
+                      id="link-url"
+                      type="url"
+                      value={form.url}
+                      placeholder="https://example.com"
+                      aria-invalid={Boolean(error && form.title.trim())}
+                      onChange={(event) => {
+                        setForm((current) => ({
+                          ...current,
+                          url: event.target.value,
+                        }));
+                        setError("");
+                      }}
+                    />
+                  </div>
+
+                  {error ? (
+                    <p role="alert" className="text-sm text-destructive">
+                      {error}
+                    </p>
+                  ) : null}
+
+                  <DialogFooter>
+                    <DialogClose
+                      render={<Button variant="outline" type="button" />}
+                    >
+                      취소
+                    </DialogClose>
+                    <Button type="submit" disabled={isSaving}>
+                      {isSaving ? "저장 중..." : "추가"}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </section>
+
+          {loadError ? (
+            <p role="alert" className="text-sm text-destructive">
+              {loadError}
+            </p>
+          ) : null}
+
+          {links.length === 0 ? (
+            <section className="space-y-2 rounded-3xl border border-border bg-card px-6 py-10 text-center">
+              <h2 className="text-title-1 text-foreground">
+                아직 등록된 링크가 없어요
+              </h2>
+              <p className="text-body-2 text-muted-foreground">
+                링크 추가 버튼을 눌러 첫 링크를 등록해 보세요.
+              </p>
+            </section>
+          ) : (
+            <LinkList
+              links={links}
+              onUpdate={handleUpdateLink}
+              onDelete={setLinkToDelete}
+            />
+          )}
+        </>
+      )}
 
       <Dialog
         open={linkToDelete !== null}
