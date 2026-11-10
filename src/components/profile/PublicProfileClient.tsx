@@ -30,12 +30,6 @@ export function PublicProfileClient({ username }: { username: string }) {
     let unsubscribeLinks: (() => void) | undefined;
     let step: LoadStep = "username";
 
-    setState("loading");
-    setProfile(null);
-    setLinks([]);
-    setOwnerId("");
-    setError(null);
-
     async function loadProfile() {
       try {
         const firestore = getFirebaseFirestore();
@@ -112,7 +106,15 @@ export function PublicProfileClient({ username }: { username: string }) {
       }
     }
 
-    void loadProfile();
+    void Promise.resolve().then(() => {
+      if (cancelled) return;
+      setState("loading");
+      setProfile(null);
+      setLinks([]);
+      setOwnerId("");
+      setError(null);
+      void loadProfile();
+    });
     return () => {
       cancelled = true;
       unsubscribeLinks?.();
