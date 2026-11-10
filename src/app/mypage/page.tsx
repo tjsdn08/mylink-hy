@@ -1,7 +1,13 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Plus } from "lucide-react";
+import {
+  addDoc,
+  collection,
+  onSnapshot,
+  serverTimestamp,
+} from "firebase/firestore";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,6 +21,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { LinkList } from "@/components/links/LinkList";
 import { mockLinks } from "@/data/mockLinks";
+import { getFirebaseFirestore } from "@/lib/firebase";
 import type { Link } from "@/types/link";
 
 interface LinkFormValues {
@@ -37,10 +44,84 @@ function validateUrl(value: string): string | null {
 }
 
 export default function MyPage() {
-  const [links, setLinks] = useState<Link[]>(mockLinks);
+  const [firestoreLinks, setFirestoreLinks] = useState<Link[]>([]);
+  const [loadError, setLoadError] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [form, setForm] = useState<LinkFormValues>(emptyForm);
   const [error, setError] = useState("");
+  const links = [...mockLinks, ...firestoreLinks];
+
+  useEffect(() => {
+    let isCancelled = false;
+    let unsubscribe: (() => void) | undefined;
+
+    void Promise.resolve()
+      .then(() => {
+        const linksCollection = collection(
+          getFirebaseFirestore(),
+          "users",
+          "anonymous",
+          "links"
+        );
+
+        if (isCancelled) return;
+
+        unsubscribe = onSnapshot(
+          linksCollection,
+          (snapshot) => {
+            const savedLinks = snapshot.docs.flatMap((document) => {
+              const data = document.data();
+              if (
+                typeof data.title !== "string" ||
+                typeof data.url !== "string"
+              ) {
+                return [];
+              }
+
+              return [
+                {
+                  id: document.id,
+                  title: data.title,
+                  url: data.url,
+                  description:
+                    typeof data.description === "string"
+                      ? data.description
+                      : "",
+                  category:
+                    typeof data.category === "string" &&
+                    ["github", "blog", "portfolio", "project", "other"].includes(
+                      data.category
+                    )
+                      ? (data.category as Link["category"])
+                      : "other",
+                },
+              ];
+            });
+
+            setFirestoreLinks(savedLinks);
+            setLoadError("");
+          },
+          (snapshotError) => {
+            setLoadError(`링크를 불러오지 못했어요: ${snapshotError.message}`);
+          }
+        );
+      })
+      .catch((initializationError: unknown) => {
+        if (isCancelled) return;
+
+        setLoadError(
+          initializationError instanceof Error
+            ? `Firebase를 초기화하지 못했어요: ${initializationError.message}`
+            : "Firebase를 초기화하지 못했어요. 설정을 확인해 주세요."
+        );
+      });
+
+    return () => {
+      isCancelled = true;
+      unsubscribe?.();
+    };
+  }, []);
 
   function resetForm() {
     setForm(emptyForm);
@@ -52,7 +133,7 @@ export default function MyPage() {
     if (!open) resetForm();
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const title = form.title.trim();
@@ -74,17 +155,31 @@ export default function MyPage() {
       return;
     }
 
-    const addedLink: Link = {
-      id: crypto.randomUUID(),
-      title,
-      url,
-      description: "",
-      category: "other",
-    };
+    setIsSaving(true);
+    setError("");
 
-    setLinks((currentLinks) => [addedLink, ...currentLinks]);
-    resetForm();
-    setIsDialogOpen(false);
+    try {
+      await addDoc(
+        collection(getFirebaseFirestore(), "users", "anonymous", "links"),
+        {
+          title,
+          url,
+          description: "",
+          category: "other",
+          createdAt: serverTimestamp(),
+        }
+      );
+      resetForm();
+      setIsDialogOpen(false);
+    } catch (saveError) {
+      setError(
+        saveError instanceof Error
+          ? `링크를 저장하지 못했어요: ${saveError.message}`
+          : "링크를 저장하지 못했어요. 다시 시도해 주세요."
+      );
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   return (
@@ -161,12 +256,20 @@ export default function MyPage() {
                 <DialogClose render={<Button variant="outline" type="button" />}>
                   취소
                 </DialogClose>
-                <Button type="submit">추가</Button>
+                <Button type="submit" disabled={isSaving}>
+                  {isSaving ? "저장 중..." : "추가"}
+                </Button>
               </DialogFooter>
             </form>
           </DialogContent>
         </Dialog>
       </header>
+
+      {loadError ? (
+        <p role="alert" className="text-sm text-destructive">
+          {loadError}
+        </p>
+      ) : null}
 
       <LinkList links={links} />
     </main>
