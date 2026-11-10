@@ -47,9 +47,11 @@ export function LinkCard({ link }: LinkCardProps) {
 
           <div className="min-w-0 flex-1">
             <CardTitle className="text-title-2">{link.title}</CardTitle>
-            <CardDescription className="mt-1 text-body-3 leading-relaxed">
-              {link.description}
-            </CardDescription>
+            {link.description ? (
+              <CardDescription className="mt-1 text-body-3 leading-relaxed">
+                {link.description}
+              </CardDescription>
+            ) : null}
             <p className="mt-2 break-all text-caption text-muted-foreground">
               {link.url}
             </p>
