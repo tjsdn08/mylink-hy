@@ -6,6 +6,8 @@ import {
   addDoc,
   collection,
   onSnapshot,
+  orderBy,
+  query,
   serverTimestamp,
 } from "firebase/firestore";
 import { Button } from "@/components/ui/button";
@@ -50,7 +52,7 @@ export default function MyPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [form, setForm] = useState<LinkFormValues>(emptyForm);
   const [error, setError] = useState("");
-  const links = [...mockLinks, ...firestoreLinks];
+  const links = [...firestoreLinks, ...mockLinks];
 
   useEffect(() => {
     let isCancelled = false;
@@ -68,7 +70,7 @@ export default function MyPage() {
         if (isCancelled) return;
 
         unsubscribe = onSnapshot(
-          linksCollection,
+          query(linksCollection, orderBy("createdAt", "desc")),
           (snapshot) => {
             const savedLinks = snapshot.docs.flatMap((document) => {
               const data = document.data();
