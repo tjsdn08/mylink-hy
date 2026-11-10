@@ -49,6 +49,7 @@ import {
 } from "@/components/ui/avatar";
 import { LinkList } from "@/components/links/LinkList";
 import { getFirebaseAuth, getFirebaseFirestore } from "@/lib/firebase";
+import { showToast } from "@/lib/toast";
 import { validateLinkForm } from "@/lib/link-validation";
 import {
   ensureUserProfileDocument,
@@ -362,6 +363,7 @@ export default function MyPage() {
       );
       setIsProfileDialogOpen(false);
       setProfileSaveSuccess(true);
+      showToast("프로필이 저장되었어요.");
     } catch (saveError) {
       setProfileSaveError(
         saveError instanceof Error
@@ -418,6 +420,7 @@ export default function MyPage() {
       );
       resetForm();
       setIsDialogOpen(false);
+      showToast("링크가 추가되었어요.");
     } catch (saveError) {
       setError(
         saveError instanceof Error
@@ -442,6 +445,7 @@ export default function MyPage() {
         updatedAt: serverTimestamp(),
       }
     );
+    showToast("링크가 수정되었어요.");
   }
 
   async function handleDeleteLink() {
@@ -465,6 +469,7 @@ export default function MyPage() {
         )
       );
       setLinkToDelete(null);
+      showToast("링크가 삭제되었어요.");
     } catch (deleteError) {
       setLoadError(
         deleteError instanceof Error

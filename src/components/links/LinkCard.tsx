@@ -105,7 +105,7 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId }: LinkCardP
   }
 
   return (
-    <Card className="h-full rounded-3xl border-border/70 bg-card p-5 shadow-tds-1 sm:p-6">
+    <Card className="h-full rounded-2xl border-border/70 bg-card p-4 shadow-tds-1 transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-tds-2 sm:p-5">
       {isEditing ? (
         <form className="space-y-4" noValidate onSubmit={handleUpdate}>
           <CardHeader className="px-0">
@@ -163,23 +163,23 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId }: LinkCardP
         </form>
       ) : (
         <>
-        <CardContent className="flex items-start gap-4 px-0">
-          <span className="flex size-11 shrink-0 items-center justify-center rounded-[14px] bg-muted text-secondary-foreground">
+        <CardContent className="flex items-start gap-3 px-0">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-foreground">
             <Icon aria-hidden="true" className="size-5" />
           </span>
 
           <div className="min-w-0 flex-1">
-            <CardTitle className="text-title-2">{link.title}</CardTitle>
+            <CardTitle className="line-clamp-2 text-[15px] font-bold leading-snug">{link.title}</CardTitle>
             {link.description ? (
-              <CardDescription className="mt-1 text-body-3 leading-relaxed">
+              <CardDescription className="mt-1 line-clamp-2 text-body-3 leading-relaxed">
                 {link.description}
               </CardDescription>
             ) : null}
-            <p className="mt-2 break-all text-caption text-muted-foreground">
+            <p className="mt-1.5 truncate text-caption text-muted-foreground" title={link.url}>
               {link.url}
             </p>
             <p
-              className="mt-1 flex items-center gap-1 text-caption text-muted-foreground"
+              className="mt-2 inline-flex items-center gap-1 rounded-lg bg-muted px-2 py-1 text-caption text-muted-foreground"
               aria-label={`${link.title} 링크 클릭 ${clickCount.toLocaleString("ko-KR")}회`}
             >
               <MousePointerClick aria-hidden="true" className="size-3.5" />
@@ -195,12 +195,12 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId }: LinkCardP
             ) : null}
           </div>
 
-          <div className="flex shrink-0 items-center gap-1">
+          <div className="flex shrink-0 items-center gap-0.5">
             {onUpdate ? (
               <Button
                 type="button"
                 variant="outline"
-                size="icon"
+                size="icon-sm"
                 aria-label={`${link.title} 수정`}
                 title="수정"
                 onClick={() => setIsEditing(true)}
@@ -212,7 +212,7 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId }: LinkCardP
               <Button
                 type="button"
                 variant="outline"
-                size="icon"
+                size="icon-sm"
                 aria-label={`${link.title} 삭제`}
                 title="삭제"
                 onClick={() => onDelete(link)}

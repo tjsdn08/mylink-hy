@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
-import { ArrowLeft, ChartNoAxesColumn, MousePointerClick } from "lucide-react";
+import { ArrowLeft, ChartNoAxesColumn, MousePointerClick, Link2, Trophy } from "lucide-react";
 import NextLink from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -128,6 +128,7 @@ export default function StatsPage() {
     () => [...links].sort((a, b) => b.clickCount - a.clickCount || a.title.localeCompare(b.title)),
     [links]
   );
+  const topLink = sortedLinks[0];
   const chartData = useMemo(
     () => sortedLinks.slice(0, 10).map((link) => ({ ...link, label: link.title.length > 12 ? `${link.title.slice(0, 12)}…` : link.title })),
     [sortedLinks]
@@ -156,20 +157,25 @@ export default function StatsPage() {
 
       {status === "ready" ? (
         <>
-          <Card className="rounded-3xl border-border/70 bg-card shadow-tds-1">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-title-2">
-                <MousePointerClick aria-hidden="true" className="size-5 text-primary" />
-                총 클릭 수
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-display-2 font-bold tabular-nums text-foreground">
-                {formatCount(totalClicks)} <span className="text-body-2 font-normal text-muted-foreground">회</span>
-              </p>
-              <p className="mt-1 text-caption text-muted-foreground">내 링크 {links.length}개 합계</p>
-            </CardContent>
-          </Card>
+          <section aria-label="클릭 통계 요약" className="grid gap-3 sm:grid-cols-2">
+            <Card className="relative overflow-hidden rounded-3xl border-0 bg-gradient-to-br from-[#3182F6] via-[#2878EC] to-[#155CCB] p-6 text-white shadow-tds-3 sm:col-span-2">
+              <div aria-hidden="true" className="pointer-events-none absolute -right-12 -top-20 size-60 rounded-full border-[35px] border-white/10" />
+              <div className="relative space-y-4">
+                <div className="flex items-center gap-2 text-sm font-semibold text-white/85"><MousePointerClick aria-hidden="true" className="size-5" /> 전체 링크 클릭 수</div>
+                <p className="text-5xl font-extrabold tracking-tight tabular-nums sm:text-6xl">{formatCount(totalClicks)} <span className="text-lg font-medium text-white/80">회</span></p>
+                <p className="text-sm text-white/80">내 링크의 방문 기록을 한눈에 확인해요.</p>
+              </div>
+            </Card>
+            <Card className="rounded-2xl border-border/70 bg-card p-5 shadow-tds-1">
+              <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground"><Link2 aria-hidden="true" className="size-4 text-primary" /> 등록한 링크</div>
+              <p className="mt-3 text-3xl font-bold tabular-nums">{formatCount(links.length)}<span className="ml-1 text-sm font-normal text-muted-foreground">개</span></p>
+            </Card>
+            <Card className="rounded-2xl border-border/70 bg-card p-5 shadow-tds-1">
+              <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground"><Trophy aria-hidden="true" className="size-4 text-primary" /> 가장 인기 있는 링크</div>
+              <p className="mt-3 truncate text-lg font-bold" title={topLink?.title ?? ""}>{topLink?.title ?? "아직 등록한 링크가 없어요"}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{formatCount(topLink?.clickCount ?? 0)}회 클릭</p>
+            </Card>
+          </section>
 
           <Card className="rounded-3xl border-border/70 bg-card shadow-tds-1">
             <CardHeader>
