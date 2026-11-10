@@ -5,37 +5,26 @@ export const contentType = "image/png";
 
 export type OgProfile = { username: string; displayName: string; bio: string };
 
-function hasKorean(text: string) {
-  return /[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(text);
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
+
+// 빌드·개발 서버 시작 전에 로컬로 복사한 폰트만 읽습니다.
+// OG 이미지 요청에서는 Google Fonts나 CDN에 접속하지 않습니다.
+let fontCache: Promise<ArrayBuffer> | undefined;
+function getOgFont(): Promise<ArrayBuffer> {
+  fontCache ??= readFile(join(process.cwd(), "public", "fonts", "noto-sans-kr-700.woff"))
+    .then((buffer) => Uint8Array.from(buffer).buffer)
+    .catch((error: unknown) => {
+      fontCache = undefined;
+      throw new Error("로컬 OG 폰트가 없습니다. npm install 후 npm run dev 또는 npm run build를 실행하세요.", { cause: error });
+    });
+  return fontCache;
 }
 
-// 한글이 포함된 프로필을 공유할 때 필요한 문자만 폰트로 불러옵니다.
-async function getKoreanFont(text: string): Promise<ArrayBuffer | null> {
-  // ImageResponse는 이미지 레이아웃 계산을 위해 영문에도 폰트가 필요합니다.
-  try {
-    const response = await fetch(
-      "https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@700&text=" + encodeURIComponent(text),
-      {
-        signal: AbortSignal.timeout(4500),
-        headers: { "User-Agent": "Mozilla/5.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0)" },
-      }
-    );
-    if (!response.ok) return null;
-    const css = await response.text();
-    const source = css.match(/src:\s*url\((https:\/\/fonts\.gstatic\.com\/[^)]+)\)\s*format\(['"]?(?:truetype|opentype|woff)['"]?\)/);
-    if (!source) return null;
-    const font = await fetch(source[1], { signal: AbortSignal.timeout(4500) });
-    return font.ok ? font.arrayBuffer() : null;
-  } catch {
-    return null;
-  }
-}
 
 export async function generateOgImage(profile?: OgProfile) {
-  const koreanText = profile ? [profile.displayName, profile.bio].join(" ").slice(0, 170) : "";
-  const font = await getKoreanFont(koreanText || "MyLink One link. All of you. Projects Blog Portfolio");
-  if (!font) throw new Error("OG 이미지 폰트를 불러오지 못했어요.");
-  const showKorean = !hasKorean(koreanText) || Boolean(font);
+  const font = await getOgFont();
+  const showKorean = true;
   const name = profile ? (showKorean ? profile.displayName.slice(0, 20) : profile.username) : "One link.";
   const subline = profile ? (showKorean ? profile.bio.slice(0, 65) || "My links, all in one place." : "My links, all in one place.") : "Your story, beautifully connected.";
   return new ImageResponse(
