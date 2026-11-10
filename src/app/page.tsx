@@ -19,7 +19,7 @@ export default function Home() {
 
         {/* 소개글 */}
         <p className="mt-4 text-zinc-600 dark:text-zinc-400 text-base leading-relaxed break-keep">
-          안녕하세요! 바이브 코딩을 배우고 있는 대학생입니다.
+          Java와 Spring Boot 기반의 백엔드 개발에 관심을 두고 지속적으로 성장하고 있습니다. 탄탄한 기술을 바탕으로 사용자에게 실질적인 가치를 제공하는 서비스를 만드는 개발자를 지향합니다.
         </p>
 
         {/* 링크 / 액션 */}
