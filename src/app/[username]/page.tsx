@@ -166,6 +166,7 @@ async function PublicProfileContent({
           )
             ? (data.category as Link["category"])
             : "other",
+        clickCount: typeof data.clickCount === "number" ? data.clickCount : 0,
         updatedAt:
           data.updatedAt instanceof Timestamp
             ? data.updatedAt.toDate()
@@ -198,7 +199,7 @@ async function PublicProfileContent({
           링크
         </h2>
         {links.length > 0 ? (
-          <LinkList links={links} />
+          <LinkList links={links} trackingUserId={userId} />
         ) : (
           <p className="rounded-2xl border border-border bg-card px-5 py-8 text-center text-body-2 text-muted-foreground">
             아직 공개된 링크가 없어요.

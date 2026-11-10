@@ -237,6 +237,7 @@ export default function MyPage() {
                     )
                       ? (data.category as Link["category"])
                       : "other",
+                  clickCount: typeof data.clickCount === "number" ? data.clickCount : 0,
                   updatedAt:
                     data.updatedAt instanceof Timestamp
                       ? data.updatedAt.toDate()
@@ -409,6 +410,7 @@ export default function MyPage() {
           url,
           description: "",
           category: "other",
+          clickCount: 0,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         }
@@ -834,6 +836,7 @@ export default function MyPage() {
               links={links}
               onUpdate={handleUpdateLink}
               onDelete={setLinkToDelete}
+              trackingUserId={user.uid}
             />
           )}
         </>

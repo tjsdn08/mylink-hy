@@ -29,6 +29,7 @@ export interface LinkCategoryProps {
   links: LinkItem[];
   onUpdate?: (link: LinkItem) => Promise<void>;
   onDelete?: (link: LinkItem) => void;
+  trackingUserId?: string;
 }
 
 export function LinkCategory({
@@ -36,6 +37,7 @@ export function LinkCategory({
   links,
   onUpdate,
   onDelete,
+  trackingUserId,
 }: LinkCategoryProps) {
   const { title, icon: Icon } = categoryDetails[category];
 
@@ -61,7 +63,7 @@ export function LinkCategory({
       <ul className="grid gap-3 sm:grid-cols-2">
         {links.map((link) => (
           <li key={link.id}>
-            <LinkCard link={link} onUpdate={onUpdate} onDelete={onDelete} />
+            <LinkCard link={link} onUpdate={onUpdate} onDelete={onDelete} trackingUserId={trackingUserId} />
           </li>
         ))}
       </ul>

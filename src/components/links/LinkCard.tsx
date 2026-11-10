@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { doc, increment, updateDoc } from "firebase/firestore";
 import {
   ArrowUpRight,
   BookOpen,
@@ -10,6 +11,7 @@ import {
   Pencil,
   Package,
   Trash2,
+  MousePointerClick,
   type LucideIcon,
 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
@@ -24,6 +26,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { validateLinkForm } from "@/lib/link-validation";
+import { getFirebaseFirestore } from "@/lib/firebase";
 import type { Link as LinkItem, LinkCategory as LinkCategoryId } from "@/types/link";
 
 const categoryIcons: Record<LinkCategoryId, LucideIcon> = {
@@ -38,15 +41,34 @@ export interface LinkCardProps {
   link: LinkItem;
   onUpdate?: (link: LinkItem) => Promise<void>;
   onDelete?: (link: LinkItem) => void;
+  trackingUserId?: string;
 }
 
-export function LinkCard({ link, onUpdate, onDelete }: LinkCardProps) {
+export function LinkCard({ link, onUpdate, onDelete, trackingUserId }: LinkCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(link.title);
   const [url, setUrl] = useState(link.url);
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const Icon = categoryIcons[link.category];
+  const clickCount = link.clickCount ?? 0;
+
+  // Firestore의 원자적 증가 연산으로 동시 클릭 시 덮어쓰기 문제를 방지합니다.
+  // 외부 링크는 새 탭으로 바로 열고, 클릭 기록은 현재 페이지에서 비동기 저장합니다.
+  function handleLinkClick() {
+    if (!trackingUserId) return;
+
+    try {
+      void updateDoc(
+        doc(getFirebaseFirestore(), "users", trackingUserId, "links", link.id),
+        { clickCount: increment(1) }
+      ).catch((clickError: unknown) => {
+        console.error("링크 클릭 수 저장 실패:", clickError);
+      });
+    } catch (clickError) {
+      console.error("링크 클릭 수 저장 실패:", clickError);
+    }
+  }
 
   function cancelEdit() {
     setTitle(link.title);
@@ -156,6 +178,13 @@ export function LinkCard({ link, onUpdate, onDelete }: LinkCardProps) {
             <p className="mt-2 break-all text-caption text-muted-foreground">
               {link.url}
             </p>
+            <p
+              className="mt-1 flex items-center gap-1 text-caption text-muted-foreground"
+              aria-label={`${link.title} 링크 클릭 ${clickCount.toLocaleString("ko-KR")}회`}
+            >
+              <MousePointerClick aria-hidden="true" className="size-3.5" />
+              <span aria-hidden="true">{clickCount.toLocaleString("ko-KR")}</span>
+            </p>
             {link.updatedAt ? (
               <p className="mt-1 text-caption-s text-muted-foreground">
                 수정 {link.updatedAt.toLocaleString("ko-KR", {
@@ -197,6 +226,7 @@ export function LinkCard({ link, onUpdate, onDelete }: LinkCardProps) {
               rel="noopener noreferrer"
               aria-label={`${link.title} 새 탭에서 열기`}
               title="새 탭에서 열기"
+              onClick={handleLinkClick}
               className={buttonVariants({
                 variant: "ghost",
                 size: "icon",

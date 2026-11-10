@@ -16,9 +16,10 @@ export interface LinkListProps {
   links: LinkItem[];
   onUpdate?: (link: LinkItem) => Promise<void>;
   onDelete?: (link: LinkItem) => void;
+  trackingUserId?: string;
 }
 
-export function LinkList({ links, onUpdate, onDelete }: LinkListProps) {
+export function LinkList({ links, onUpdate, onDelete, trackingUserId }: LinkListProps) {
   const categories = categoryOrder
     .map((category) => ({
       category,
@@ -35,6 +36,7 @@ export function LinkList({ links, onUpdate, onDelete }: LinkListProps) {
           links={group.links}
           onUpdate={onUpdate}
           onDelete={onDelete}
+          trackingUserId={trackingUserId}
         />
       ))}
     </div>
