@@ -686,6 +686,73 @@ export default function MyPage() {
               }}
             />
           ) : null}
+          {activeTab === "links" ? (
+        <div className="space-y-6">
+          <section className="w-full rounded-[26px] border border-[#252823]/10 bg-white p-5 shadow-[0_8px_30px_rgba(32,33,30,0.04)] dark:border-white/10 dark:bg-[#282E29] sm:p-6" aria-label="내 링크 추가">
+            {isDialogOpen ? (
+              <form onSubmit={handleSubmit} noValidate className="space-y-3 rounded-xl border border-border bg-card p-4 shadow-sm">
+                <Input
+                  id="link-title"
+                  autoFocus
+                  value={form.title}
+                  placeholder="링크 제목 (예: 인스타그램)"
+                  maxLength={100}
+                  aria-label="링크 제목"
+                  aria-invalid={Boolean(linkFieldErrors.title)}
+                  onChange={(event) => { setForm((current) => ({ ...current, title: event.target.value })); setError(""); setLinkFieldErrors((current) => ({ ...current, title: undefined })); }}
+                  className="h-11 text-left font-medium"
+                />
+                <Input
+                  id="link-url"
+                  type="url"
+                  value={form.url}
+                  placeholder="https://example.com"
+                  aria-label="링크 URL"
+                  aria-invalid={Boolean(linkFieldErrors.url)}
+                  onBlur={() => setForm((current) => ({ ...current, url: normalizeExternalUrl(current.url) }))}
+                  onChange={(event) => { setForm((current) => ({ ...current, url: event.target.value })); setError(""); setLinkFieldErrors((current) => ({ ...current, url: undefined })); }}
+                  className="h-11 text-left text-sm"
+                />
+                <Input value={form.group} maxLength={40} aria-label="링크 그룹" placeholder="그룹 이름 (선택): 프로젝트, SNS 등"
+                  onChange={(event) => setForm((current) => ({ ...current, group: event.target.value }))}
+                  className="h-11 text-left text-sm" />
+                {linkFieldErrors.title ? <p role="alert" className="text-xs text-destructive">{linkFieldErrors.title}</p> : null}
+                {linkFieldErrors.url ? <p role="alert" className="text-xs text-destructive">{linkFieldErrors.url}</p> : null}
+                {error && !linkFieldErrors.title && !linkFieldErrors.url ? <p role="alert" className="text-center text-xs font-medium text-destructive">{error}</p> : null}
+                <div className="flex justify-center gap-2 pt-1">
+                  <Button variant="outline" size="sm" type="button" disabled={isSaving} onClick={() => handleDialogOpenChange(false)}>취소</Button>
+                  <Button size="sm" type="submit" disabled={isSaving} className="bg-[#252823] text-white hover:bg-[#41483A]">
+                    <Save className="size-3.5" aria-hidden="true" /> {isSaving ? "추가 중..." : "추가하기"}
+                  </Button>
+                </div>
+              </form>
+            ) : (
+              <button type="button" onClick={() => handleDialogOpenChange(true)}
+                className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-[#879C56] bg-[#EFF5D6] px-4 py-3 text-sm font-extrabold text-[#3E5529] transition-all hover:border-[#252823] hover:bg-[#DDF76B] focus-visible:outline-2 focus-visible:outline-[#252823] active:scale-[0.98] dark:border-[#DDF76B]/40 dark:bg-[#DDF76B]/10 dark:text-[#DDF76B]">
+                <Plus aria-hidden="true" className="size-5" /> 새로운 링크 추가하기
+              </button>
+            )}
+          </section>
+          {loadError ? <p role="alert" className="text-sm text-destructive">{loadError}</p> : null}
+          <section aria-label="내 링크" className="w-full rounded-[26px] border border-[#252823]/10 bg-white p-5 shadow-[0_8px_30px_rgba(32,33,30,0.04)] dark:border-white/10 dark:bg-[#282E29] sm:p-6">
+            <div className="mb-5 flex items-end justify-between gap-3">
+              <div>
+                <p className="text-[11px] font-extrabold tracking-[0.16em] text-[#E77955]">MY COLLECTION</p>
+                <h2 className="mt-1 text-xl font-black tracking-[-0.04em]">등록한 링크</h2>
+              </div>
+              <span className="rounded-full bg-[#EFF5D6] px-3 py-1 text-xs font-extrabold text-[#4F6431] dark:bg-white/10 dark:text-[#DDF76B]">{links.length}개</span>
+            </div>
+            {links.length === 0 ? (
+              <div className="flex flex-col items-center py-10 text-center">
+                <Link2 className="mb-3 size-8 text-muted-foreground/30" aria-hidden="true" />
+                <p className="text-sm text-muted-foreground">아직 등록된 링크가 없습니다.</p>
+              </div>
+            ) : (
+              <LinkList links={links} onUpdate={handleUpdateLink} onDelete={setLinkToDelete} onReorder={handleReorder} trackingUserId={user.uid} compact />
+            )}
+          </section>
+        </div>
+          ) : null}
           <Dialog
             open={isProfileDialogOpen}
             onOpenChange={setIsProfileDialogOpen}
@@ -806,73 +873,7 @@ export default function MyPage() {
             마이페이지는 Google 로그인 후 이용할 수 있어요.
           </p>
         </section>
-      ) : (
-        <div className={activeTab === "links" ? "space-y-6" : "hidden"}>
-          <section className="w-full rounded-[26px] border border-[#252823]/10 bg-white p-5 shadow-[0_8px_30px_rgba(32,33,30,0.04)] dark:border-white/10 dark:bg-[#282E29] sm:p-6" aria-label="내 링크 추가">
-            {isDialogOpen ? (
-              <form onSubmit={handleSubmit} noValidate className="space-y-3 rounded-xl border border-border bg-card p-4 shadow-sm">
-                <Input
-                  id="link-title"
-                  autoFocus
-                  value={form.title}
-                  placeholder="링크 제목 (예: 인스타그램)"
-                  maxLength={100}
-                  aria-label="링크 제목"
-                  aria-invalid={Boolean(linkFieldErrors.title)}
-                  onChange={(event) => { setForm((current) => ({ ...current, title: event.target.value })); setError(""); setLinkFieldErrors((current) => ({ ...current, title: undefined })); }}
-                  className="h-11 text-left font-medium"
-                />
-                <Input
-                  id="link-url"
-                  type="url"
-                  value={form.url}
-                  placeholder="https://example.com"
-                  aria-label="링크 URL"
-                  aria-invalid={Boolean(linkFieldErrors.url)}
-                  onBlur={() => setForm((current) => ({ ...current, url: normalizeExternalUrl(current.url) }))}
-                  onChange={(event) => { setForm((current) => ({ ...current, url: event.target.value })); setError(""); setLinkFieldErrors((current) => ({ ...current, url: undefined })); }}
-                  className="h-11 text-left text-sm"
-                />
-                <Input value={form.group} maxLength={40} aria-label="링크 그룹" placeholder="그룹 이름 (선택): 프로젝트, SNS 등"
-                  onChange={(event) => setForm((current) => ({ ...current, group: event.target.value }))}
-                  className="h-11 text-left text-sm" />
-                {linkFieldErrors.title ? <p role="alert" className="text-xs text-destructive">{linkFieldErrors.title}</p> : null}
-                {linkFieldErrors.url ? <p role="alert" className="text-xs text-destructive">{linkFieldErrors.url}</p> : null}
-                {error && !linkFieldErrors.title && !linkFieldErrors.url ? <p role="alert" className="text-center text-xs font-medium text-destructive">{error}</p> : null}
-                <div className="flex justify-center gap-2 pt-1">
-                  <Button variant="outline" size="sm" type="button" disabled={isSaving} onClick={() => handleDialogOpenChange(false)}>취소</Button>
-                  <Button size="sm" type="submit" disabled={isSaving} className="bg-[#252823] text-white hover:bg-[#41483A]">
-                    <Save className="size-3.5" aria-hidden="true" /> {isSaving ? "추가 중..." : "추가하기"}
-                  </Button>
-                </div>
-              </form>
-            ) : (
-              <button type="button" onClick={() => handleDialogOpenChange(true)}
-                className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-[#879C56] bg-[#EFF5D6] px-4 py-3 text-sm font-extrabold text-[#3E5529] transition-all hover:border-[#252823] hover:bg-[#DDF76B] focus-visible:outline-2 focus-visible:outline-[#252823] active:scale-[0.98] dark:border-[#DDF76B]/40 dark:bg-[#DDF76B]/10 dark:text-[#DDF76B]">
-                <Plus aria-hidden="true" className="size-5" /> 새로운 링크 추가하기
-              </button>
-            )}
-          </section>
-          {loadError ? <p role="alert" className="text-sm text-destructive">{loadError}</p> : null}
-          <section aria-label="내 링크" className="w-full rounded-[26px] border border-[#252823]/10 bg-white p-5 shadow-[0_8px_30px_rgba(32,33,30,0.04)] dark:border-white/10 dark:bg-[#282E29] sm:p-6">
-            <div className="mb-5 flex items-end justify-between gap-3">
-              <div>
-                <p className="text-[11px] font-extrabold tracking-[0.16em] text-[#E77955]">MY COLLECTION</p>
-                <h2 className="mt-1 text-xl font-black tracking-[-0.04em]">등록한 링크</h2>
-              </div>
-              <span className="rounded-full bg-[#EFF5D6] px-3 py-1 text-xs font-extrabold text-[#4F6431] dark:bg-white/10 dark:text-[#DDF76B]">{links.length}개</span>
-            </div>
-            {links.length === 0 ? (
-              <div className="flex flex-col items-center py-10 text-center">
-                <Link2 className="mb-3 size-8 text-muted-foreground/30" aria-hidden="true" />
-                <p className="text-sm text-muted-foreground">아직 등록된 링크가 없습니다.</p>
-              </div>
-            ) : (
-              <LinkList links={links} onUpdate={handleUpdateLink} onDelete={setLinkToDelete} onReorder={handleReorder} trackingUserId={user.uid} compact />
-            )}
-          </section>
-        </div>
-      )}
+      ) : null}
 
       <footer className="py-8 text-center text-xs font-semibold tracking-wide text-[#898D7C]">
         <Globe2 aria-hidden="true" className="mr-1 inline size-3" /> Powered by MyLink
