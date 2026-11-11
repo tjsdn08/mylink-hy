@@ -25,19 +25,48 @@ export interface LinkListProps {
 export function LinkList({ links, onUpdate, onDelete, trackingUserId, compact = false, onReorder }: LinkListProps) {
   if (compact) {
     if (!onReorder) {
-      const names = [...new Set(links.map((link) => link.group?.trim() || ""))];
+      const featured = links.filter((link) => link.isFeatured);
+      const remaining = links.filter((link) => !link.isFeatured);
+      const categoryNames: Partial<Record<LinkCategoryId, string>> = {
+        github: "개발과 코드",
+        blog: "글과 기록",
+        portfolio: "포트폴리오",
+        project: "프로젝트",
+      };
+      const sectionName = (link: LinkItem) =>
+        link.group?.trim() || (link.category !== "other" ? categoryNames[link.category] ?? "다른 링크" : "다른 링크");
+      const names = [...new Set(remaining.map(sectionName))];
+      const renderCard = (link: LinkItem, index: number) => (
+        <li key={link.id} className="motion-safe:animate-[mylink-rise_450ms_ease-out_both]"
+          style={{ animationDelay: `${Math.min(index * 60, 420)}ms` }}>
+          <LinkCard link={link} trackingUserId={trackingUserId} compact />
+        </li>
+      );
+
       return (
         <div className="space-y-7">
+          {featured.length > 0 ? (
+            <section aria-label="추천 링크" className="space-y-3">
+              <div className="flex items-center justify-between gap-3 px-1">
+                <h3 className="text-base font-black tracking-tight">✳ 가장 먼저 소개할게요</h3>
+                <span className="text-[10px] font-bold uppercase tracking-[.15em] opacity-60">FEATURED</span>
+              </div>
+              <ul className="profile-link-list profile-featured-list flex flex-col gap-3">
+                {featured.map(renderCard)}
+              </ul>
+            </section>
+          ) : null}
           {names.map((name) => (
-            <section key={name || "ungrouped"} className="space-y-3" aria-label={name || "기타 링크"}>
-              {name ? <h3 className="px-1 text-base font-extrabold tracking-tight">{name}</h3> : null}
+            <section key={name} className="space-y-3" aria-label={name}>
+              <div className="flex items-center gap-3 px-1">
+                <span aria-hidden="true" className="h-px w-5 bg-current opacity-35" />
+                <h3 className="text-[15px] font-extrabold tracking-tight">{name}</h3>
+                <span className="ml-auto text-[11px] font-semibold opacity-55">
+                  {remaining.filter((link) => sectionName(link) === name).length.toString().padStart(2, "0")}
+                </span>
+              </div>
               <ul className="profile-link-list flex flex-col gap-3">
-                {links.filter((link) => (link.group?.trim() || "") === name).map((link, index) => (
-                  <li key={link.id} className="motion-safe:animate-[mylink-rise_450ms_ease-out_both]"
-                    style={{ animationDelay: `${Math.min(index * 70, 490)}ms` }}>
-                    <LinkCard link={link} trackingUserId={trackingUserId} compact />
-                  </li>
-                ))}
+                {remaining.filter((link) => sectionName(link) === name).map(renderCard)}
               </ul>
             </section>
           ))}
