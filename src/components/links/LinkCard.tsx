@@ -164,16 +164,16 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId, compact = f
           </div>
           <div className="flex justify-end gap-2">
             <Button variant="outline" size="sm" type="button" onClick={cancelEdit} disabled={isSaving}>취소</Button>
-            <Button size="sm" type="submit" disabled={isSaving} className="bg-[#6B8544] text-white hover:bg-[#536C33]">{isSaving ? "저장 중..." : "저장"}</Button>
+            <Button size="sm" type="submit" disabled={isSaving} className="bg-[#405B2C] text-white hover:bg-[#304821] dark:bg-[#DDF76B] dark:text-[#252823] dark:hover:bg-[#C4E455]">{isSaving ? "저장 중..." : "저장"}</Button>
           </div>
         </form>
       );
     }
     return (
-      <div className="group flex w-full items-stretch transition-transform duration-200 hover:-translate-y-[2px]">
+      <div className="group flex w-full items-stretch text-[#252823] transition-transform duration-200 hover:-translate-y-[2px] dark:text-[#F8F6F1]">
         <a href={link.url} target="_blank" rel="noopener noreferrer" onClick={handleLinkClick}
           aria-label={`${link.title} 링크 열기`}
-          className={`public-link-button min-w-0 flex-1 overflow-hidden rounded-[18px] border border-[#252823]/10 bg-white transition-all duration-200 hover:border-[#7F9856] hover:bg-[#F8FAEE] hover:shadow-[0_6px_0_rgba(65,77,45,0.08)] dark:border-white/10 dark:bg-[#323A33] dark:hover:bg-[#3E463E] ${onUpdate || onDelete ? "rounded-r-none border-r-0" : ""}`}>
+          className={`public-link-button min-w-0 flex-1 overflow-hidden rounded-[18px] border border-[#252823]/10 bg-white text-[#252823] transition-all duration-200 hover:border-[#7F9856] hover:bg-[#F8FAEE] hover:shadow-[0_6px_0_rgba(65,77,45,0.08)] dark:border-white/10 dark:bg-[#323A33] dark:text-[#F8F6F1] dark:hover:bg-[#3E463E] ${onUpdate || onDelete ? "rounded-r-none border-r-0" : ""}`}>
           {link.isFeatured && link.thumbnailUrl && safeHttpUrl(link.thumbnailUrl) && !thumbnailFailed ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={link.thumbnailUrl} alt="" loading="lazy" referrerPolicy="no-referrer"
@@ -200,7 +200,7 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId, compact = f
           </div>
         </a>
         {onUpdate || onDelete ? (
-          <div className="flex shrink-0 flex-col overflow-hidden rounded-r-[18px] border border-[#252823]/10 bg-white dark:border-white/10 dark:bg-[#323A33]">
+          <div className="flex shrink-0 flex-col overflow-hidden rounded-r-[18px] border border-[#252823]/10 bg-white text-[#252823] dark:border-white/10 dark:bg-[#323A33] dark:text-[#F8F6F1]">
             {onUpdate ? (
               <button type="button" title="수정" aria-label={`${link.title} 수정`} onClick={() => setIsEditing(true)}
                 className="flex min-h-11 w-12 flex-1 items-center justify-center border-b border-border/70 text-muted-foreground transition-colors hover:bg-[#6B8544]/10 hover:text-[#6B8544]">

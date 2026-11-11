@@ -213,7 +213,7 @@ export function PublicProfileClient({ username }: { username: string }) {
           mylink<span className="text-[#F06D4E]">.</span>
         </NextLink>
         <button type="button" onClick={() => void shareProfile()}
-          className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[#262920]/15 bg-white/85 px-5 text-sm font-extrabold text-[#252823] transition-transform hover:-translate-y-0.5 dark:border-white/20 dark:bg-[#282E29] dark:text-white">
+          className="inline-flex min-h-11 items-center gap-2 rounded-full border border-current/20 bg-transparent px-5 text-sm font-extrabold transition-transform hover:-translate-y-0.5 hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-current">
           <Share2 className="size-4" aria-hidden="true" /> 공유하기
         </button>
       </header>
@@ -236,20 +236,20 @@ export function PublicProfileClient({ username }: { username: string }) {
               <span className="size-1.5 rounded-full bg-[#839D50]" /> @{profile.username}
             </div>
             <h1 className="break-words text-[clamp(1.9rem,5vw,2.7rem)] font-black leading-tight tracking-[-0.065em]">{profile.displayName}</h1>
-            {profile.bio ? <p className="mx-auto mt-4 max-w-md whitespace-pre-wrap break-words text-sm leading-7 text-[#656B60] dark:text-white/70">{profile.bio}</p> : null}
+            {profile.bio ? <p className="mx-auto mt-4 max-w-md whitespace-pre-wrap break-words text-sm leading-7 opacity-85">{profile.bio}</p> : null}
             {profile.socialLinks && profile.socialLinks.length > 0 ? (
               <nav aria-label="SNS 프로필" className="mt-5 flex flex-wrap justify-center gap-2">
                 {profile.socialLinks.map((item) => (
                   <a key={item.platform} href={item.url} target="_blank" rel="noopener noreferrer"
                     aria-label={`${item.platform} 열기`} title={item.platform}
-                    className="flex size-11 items-center justify-center rounded-full border border-[#252823]/10 bg-[#F3F6E7] text-[#252823] transition-transform hover:-translate-y-1 dark:bg-white/10 dark:text-white">
+                    className="flex size-11 items-center justify-center rounded-full border border-current/20 bg-transparent transition-transform hover:-translate-y-1 hover:bg-black/5">
                     <LinkFavicon url={item.url} className="size-5" />
                   </a>
                 ))}
               </nav>
             ) : null}
             <button type="button" onClick={() => void copyPublicUrl()}
-              className="mt-6 inline-flex min-h-10 items-center gap-2 rounded-full border border-[#252823]/15 bg-[#F7F6F0] px-4 text-xs font-bold text-[#444A3F] transition-colors hover:bg-[#DDF76B] dark:border-white/20 dark:bg-white/10 dark:text-white">
+              className="mt-6 inline-flex min-h-10 items-center gap-2 rounded-full border border-current/25 bg-transparent px-4 text-xs font-bold transition-colors hover:bg-black/10 focus-visible:outline-2 focus-visible:outline-current">
               {copied ? <Check className="size-4" aria-hidden="true" /> : <Copy className="size-4" aria-hidden="true" />}
               {copied ? "주소 복사 완료" : "내 페이지 주소 복사"}
             </button>
@@ -259,7 +259,7 @@ export function PublicProfileClient({ username }: { username: string }) {
         <section className="mt-9 w-full" aria-label="공개 링크">
           <div className="mb-5 flex items-center justify-between gap-3">
             <div>
-              <p className="text-[11px] font-extrabold tracking-[0.18em] text-[#D97757]">DISCOVER MORE</p>
+              <p className="text-[11px] font-extrabold tracking-[0.18em] opacity-75">DISCOVER MORE</p>
               <h2 className="mt-1 text-[23px] font-black tracking-[-0.05em]">여기서 더 만나보세요.</h2>
             </div>
             <span className="rounded-full border border-[#262920]/15 px-3 py-1 text-xs font-bold dark:border-white/15">{links.length} links</span>
@@ -267,9 +267,9 @@ export function PublicProfileClient({ username }: { username: string }) {
           {links.length > 0 ? (
             <LinkList links={links} trackingUserId={ownerId} compact />
           ) : (
-            <div className="rounded-[24px] border border-dashed border-[#262920]/20 bg-white/60 px-6 py-12 text-center dark:border-white/20 dark:bg-white/5">
+            <div className="rounded-[24px] border border-dashed border-current/25 bg-white/10 px-6 py-12 text-center">
               <Link2 aria-hidden="true" className="mx-auto mb-3 size-8 text-[#89917D]" />
-              <p className="text-sm text-[#73796D] dark:text-white/70">아직 등록된 링크가 없어요.</p>
+              <p className="text-sm opacity-75">아직 등록된 링크가 없어요.</p>
             </div>
           )}
         </section>
@@ -283,13 +283,13 @@ export function PublicProfileClient({ username }: { username: string }) {
           onClose={() => setQrOpen(false)} /> : null}
         <div className="mt-12 flex items-center justify-center">
           <button type="button" onClick={() => void shareProfile()}
-            className="inline-flex min-h-12 items-center gap-2 rounded-full bg-[#252823] px-6 text-sm font-bold text-white transition-transform hover:-translate-y-1 dark:bg-[#DDF76B] dark:text-[#252823]">
+            className="inline-flex min-h-12 items-center gap-2 rounded-full border border-current/25 bg-transparent px-6 text-sm font-bold transition-transform hover:-translate-y-1 hover:bg-black/10">
             이 페이지 공유하기 <ArrowUpRight className="size-4" aria-hidden="true" />
           </button>
         </div>
       </main>
-      <footer className="relative mx-auto mt-12 max-w-[620px] border-t border-[#262920]/10 px-5 py-8 text-center text-xs font-medium text-[#8A8D80] dark:border-white/10">
-        <NextLink href="/" className="font-black tracking-tight text-[#4D5840] hover:underline dark:text-[#DDF76B]">made with mylink.</NextLink>
+      <footer className="relative mx-auto mt-12 max-w-[620px] border-t border-current/20 px-5 py-8 text-center text-xs font-medium opacity-80">
+        <NextLink href="/" className="font-black tracking-tight hover:underline">made with mylink.</NextLink>
         <p className="mt-1">내 링크를 위한 작은 공간.</p>
       </footer>
     </div>

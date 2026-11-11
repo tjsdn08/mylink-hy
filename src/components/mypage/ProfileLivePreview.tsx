@@ -40,8 +40,8 @@ export function ProfileLivePreview({ username, displayName, bio, photoURL, appea
             <AvatarFallback className="text-xl font-bold">{displayName.slice(0, 1) || "?"}</AvatarFallback>
           </Avatar>
           <p className="mt-3 break-words text-lg font-extrabold">{displayName || "이름을 입력해 주세요"}</p>
-          <p className="mt-1 text-xs opacity-65">@{username || "username"}</p>
-          {bio ? <p className="mt-2 whitespace-pre-wrap break-words text-xs leading-5 opacity-75">{bio}</p> : null}
+          <p className="mt-1 text-xs opacity-80">@{username || "username"}</p>
+          {bio ? <p className="mt-2 whitespace-pre-wrap break-words text-xs leading-5 opacity-90">{bio}</p> : null}
           {social.length > 0 ? (
             <div className="mt-4 flex flex-wrap justify-center gap-2">
               {social.map((item) => <span key={item.platform} className="inline-flex size-9 items-center justify-center rounded-full border border-current/15 bg-white/10" title={item.platform}>

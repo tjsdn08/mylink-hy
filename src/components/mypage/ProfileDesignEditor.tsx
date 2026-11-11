@@ -75,7 +75,7 @@ export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange
   }
 
   return (
-    <section className="w-full space-y-6 rounded-[26px] border border-[#252823]/10 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-[#282E29] sm:p-7" aria-label="프로필 디자인 설정">
+    <section className="w-full space-y-6 rounded-[26px] border border-[#252823]/10 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-[#282E29] dark:text-[#F8F6F1] sm:p-7" aria-label="프로필 디자인 설정">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-[11px] font-extrabold tracking-[0.16em] text-[#B95C45]">PERSONALIZE</p>
@@ -95,12 +95,12 @@ export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange
             return (
               <button type="button" key={key} aria-pressed={theme === key}
                 onClick={() => { setTheme(key); setBackgroundColor(""); updateDraft({ theme: key, backgroundColor: "" }); }}
-                className={`rounded-2xl border-2 p-2 text-left transition-colors ${theme === key ? "border-[#637D40]" : "border-transparent hover:border-[#B3C18F]"}`}>
+                className={`rounded-2xl border-2 p-2 text-left text-foreground transition-colors ${theme === key ? "border-[#637D40]" : "border-transparent hover:border-[#B3C18F]"}`}>
                 <span className="relative block h-20 rounded-xl" style={{ backgroundColor: item.background }}>
                   <span className="absolute bottom-3 left-3 right-3 h-6 rounded-md" style={{ backgroundColor: item.button }} />
                   {theme === key ? <Check className="absolute right-2 top-2 size-5 text-[#637D40]" aria-hidden="true" /> : null}
                 </span>
-                <span className="mt-2 block text-xs font-bold">{item.name}</span>
+                <span className="mt-2 block text-xs font-bold text-foreground">{item.name}</span>
               </button>
             );
           })}
@@ -119,7 +119,7 @@ export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange
         <div>
           <label htmlFor="profile-button-style" className="mb-2 block text-sm font-extrabold">링크 버튼 모양</label>
           <select id="profile-button-style" value={buttonStyle} onChange={(event) => { const value = event.target.value as ButtonStyle; setButtonStyle(value); updateDraft({ buttonStyle: value }); }}
-            className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm">
+            className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground">
             <option value="rounded">둥근 모서리</option>
             <option value="pill">캡슐형</option>
             <option value="square">각진 모서리</option>
@@ -142,7 +142,7 @@ export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange
                     socialLinks: SOCIAL_PLATFORMS.flatMap((p) => nextUrls[p]?.trim() ? [{ platform: p, url: nextUrls[p].trim() }] : []),
                   });
                 }}
-                className="h-11 w-full rounded-xl border border-border bg-background px-3 text-sm font-normal outline-none focus:border-[#71864D]" />
+                className="h-11 w-full rounded-xl border border-border bg-background px-3 text-sm font-normal text-foreground placeholder:text-muted-foreground outline-none focus:border-[#71864D]" />
             </label>
           ))}
         </div>

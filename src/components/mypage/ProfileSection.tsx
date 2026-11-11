@@ -61,7 +61,7 @@ export function ProfileSection({ displayName, username, photoURL, bio = "", onEd
   }
 
   return (
-    <section className="relative flex w-full flex-col items-center overflow-hidden rounded-[26px] border border-[#252823]/10 bg-white px-5 pb-8 pt-10 text-center shadow-[0_8px_30px_rgba(32,33,30,0.04)] dark:border-white/10 dark:bg-[#282E29]" aria-label="내 프로필">
+    <section className="relative flex w-full flex-col items-center overflow-hidden rounded-[26px] border border-[#252823]/10 bg-white px-5 pb-8 pt-10 text-center shadow-[0_8px_30px_rgba(32,33,30,0.04)] dark:border-white/10 dark:bg-[#282E29] dark:text-[#F8F6F1]" aria-label="내 프로필">
       <div aria-hidden="true" className="absolute inset-x-0 top-0 h-28 bg-[linear-gradient(110deg,#E5F1BB_0%,#F6E5D8_48%,#E4E8F7_100%)] dark:opacity-40" />
       <div className="relative mt-8">
         <Avatar className="mb-4 size-24 border-[5px] border-white bg-muted shadow-lg">
@@ -83,7 +83,7 @@ export function ProfileSection({ displayName, username, photoURL, bio = "", onEd
                 setNameDraft(event.target.value);
                 onDraftChange?.({ displayName: event.target.value, bio: bioDraft });
               }}
-              className="h-11 w-full rounded-xl border border-border bg-background px-3 text-sm font-medium" />
+              className="h-11 w-full rounded-xl border border-border bg-background px-3 text-sm font-medium text-foreground placeholder:text-muted-foreground" />
           </label>
           <label className="block space-y-1 text-xs font-bold">
             <span>소개글</span>
@@ -92,7 +92,7 @@ export function ProfileSection({ displayName, username, photoURL, bio = "", onEd
                 setBioDraft(event.target.value);
                 onDraftChange?.({ displayName: nameDraft, bio: event.target.value });
               }}
-              className="w-full resize-y rounded-xl border border-border bg-background px-3 py-2 text-sm" />
+              className="w-full resize-y rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground" />
           </label>
           <p className="text-right text-xs text-muted-foreground">{bioDraft.length}/250</p>
           {error ? <p role="alert" className="text-xs font-medium text-destructive">{error}</p> : null}
@@ -113,7 +113,7 @@ export function ProfileSection({ displayName, username, photoURL, bio = "", onEd
               aria-label="이름과 소개글 바로 수정" title="바로 수정"><Pencil className="size-4" aria-hidden="true" /></button> : null}
           </div>
           {username ? (
-            <NextLink href={`/${encodeURIComponent(username)}`} className="mt-1 rounded-full bg-[#EFF5D6] px-3 py-1 text-xs font-extrabold text-[#526C36] hover:underline">@{username}</NextLink>
+            <NextLink href={`/${encodeURIComponent(username)}`} className="mt-1 rounded-full bg-[#EFF5D6] px-3 py-1 text-xs font-extrabold text-[#405928] dark:bg-[#37482E] dark:text-[#DDF76B] hover:underline">@{username}</NextLink>
           ) : <button type="button" className="mt-1 text-xs text-muted-foreground underline" onClick={onEdit}>Username 설정하기</button>}
           <p className="mt-4 max-w-[480px] whitespace-pre-wrap break-words text-sm leading-7 text-[#62685D] dark:text-white/70">
             {bio || "나를 소개하는 문장을 입력해 보세요."}

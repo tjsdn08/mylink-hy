@@ -651,7 +651,7 @@ export default function MyPage() {
 
       {user && isProfileReady && userProfile ? (
         <>
-          <nav aria-label="관리 메뉴" className="flex flex-wrap gap-2 rounded-2xl border border-[#252823]/10 bg-white p-2 dark:border-white/10 dark:bg-[#282E29]">
+          <nav aria-label="관리 메뉴" className="flex flex-wrap gap-2 rounded-2xl border border-[#252823]/10 bg-white p-2 text-[#252823] dark:border-white/10 dark:bg-[#282E29] dark:text-[#F8F6F1]">
             {([["links", "링크 관리"], ["profile", "프로필"], ["design", "디자인·SNS"]] as const).map(([tab, name]) => (
               <button key={tab} type="button" aria-current={activeTab === tab ? "page" : undefined}
                 onClick={() => setActiveTab(tab)}
@@ -688,7 +688,7 @@ export default function MyPage() {
           ) : null}
           {activeTab === "links" ? (
         <div className="space-y-6">
-          <section className="w-full rounded-[26px] border border-[#252823]/10 bg-white p-5 shadow-[0_8px_30px_rgba(32,33,30,0.04)] dark:border-white/10 dark:bg-[#282E29] sm:p-6" aria-label="내 링크 추가">
+          <section className="w-full rounded-[26px] border border-[#252823]/10 bg-white p-5 text-[#252823] shadow-[0_8px_30px_rgba(32,33,30,0.04)] dark:border-white/10 dark:bg-[#282E29] dark:text-[#F8F6F1] sm:p-6" aria-label="내 링크 추가">
             {isDialogOpen ? (
               <form onSubmit={handleSubmit} noValidate className="space-y-3 rounded-xl border border-border bg-card p-4 shadow-sm">
                 <Input
@@ -740,7 +740,7 @@ export default function MyPage() {
                 <p className="text-[11px] font-extrabold tracking-[0.16em] text-[#E77955]">MY COLLECTION</p>
                 <h2 className="mt-1 text-xl font-black tracking-[-0.04em]">등록한 링크</h2>
               </div>
-              <span className="rounded-full bg-[#EFF5D6] px-3 py-1 text-xs font-extrabold text-[#4F6431] dark:bg-white/10 dark:text-[#DDF76B]">{links.length}개</span>
+              <span className="rounded-full bg-[#EFF5D6] px-3 py-1 text-xs font-extrabold text-[#405928] dark:bg-[#37482E] dark:text-[#DDF76B]">{links.length}개</span>
             </div>
             {links.length === 0 ? (
               <div className="flex flex-col items-center py-10 text-center">
@@ -849,7 +849,7 @@ export default function MyPage() {
             </DialogContent>
           </Dialog>
             </div>
-            <aside className="min-w-0 rounded-[26px] border border-[#252823]/10 bg-white p-4 dark:border-white/10 dark:bg-[#282E29] lg:sticky lg:top-24" aria-label="실시간 미리보기">
+            <aside className="min-w-0 rounded-[26px] border border-[#252823]/10 bg-white p-4 text-[#252823] dark:border-white/10 dark:bg-[#282E29] dark:text-[#F8F6F1] lg:sticky lg:top-24" aria-label="실시간 미리보기">
               <ProfileLivePreview username={userProfile.username} displayName={inlineDraft?.displayName ?? (activeTab === "profile" && isProfileDialogOpen ? profileForm.displayName : userProfile.displayName)}
                 bio={inlineDraft?.bio ?? (activeTab === "profile" && isProfileDialogOpen ? profileForm.bio : userProfile.bio)}
                 photoURL={userProfile.photoURL} appearance={appearanceDraft ?? userProfile} links={links} />
