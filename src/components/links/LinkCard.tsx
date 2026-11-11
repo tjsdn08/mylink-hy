@@ -65,7 +65,7 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId, compact = f
   // Firestore의 원자적 증가 연산으로 동시 클릭 시 덮어쓰기 문제를 방지합니다.
   // 외부 링크는 새 탭으로 바로 열고, 클릭 기록은 현재 페이지에서 비동기 저장합니다.
   function handleLinkClick() {
-    if (!trackingUserId) return;
+    if (!trackingUserId || link.isActive === false) return;
 
     try {
       void updateDoc(
