@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { ChartNoAxesColumn, ChevronDown, Globe2, Link2, LogOut, Pencil, Plus, Save } from "lucide-react";
+import { ChartNoAxesColumn, ChevronDown, Globe2, Link2, LogOut, Moon, Pencil, Plus, Save, Sun } from "lucide-react";
 import {
   GoogleAuthProvider,
   onAuthStateChanged,
@@ -22,6 +22,8 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { useTheme } from "@/components/theme-provider";
 import {
   Dialog,
   DialogClose,
@@ -75,6 +77,7 @@ const reservedUsernames = new Set([
 
 export default function MyPage() {
   const router = useRouter();
+  const { isDark, setTheme } = useTheme();
   const accountMenuRef = useRef<HTMLDetailsElement>(null);
   const [user, setUser] = useState<User | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
@@ -542,6 +545,18 @@ export default function MyPage() {
                 >
                   <Pencil className="size-4" aria-hidden="true" /> 프로필 수정
                 </button>
+                <div className="my-1 h-px bg-border" role="separator" />
+                <div className="flex items-center justify-between gap-3 rounded-xl px-3 py-2.5">
+                  <span className="flex items-center gap-2 text-sm">
+                    {isDark ? <Moon className="size-4" aria-hidden="true" /> : <Sun className="size-4" aria-hidden="true" />}
+                    다크 모드
+                  </span>
+                  <Switch
+                    checked={isDark}
+                    onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
+                    aria-label="다크 모드 전환"
+                  />
+                </div>
                 <div className="my-1 h-px bg-border" role="separator" />
                 <button
                   type="button"

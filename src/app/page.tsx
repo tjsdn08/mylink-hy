@@ -185,7 +185,7 @@ export default function Home() {
   const loginLabel = isProfileSaving ? "프로필 준비 중..." : isSigningIn ? "로그인 중..." : "Google로 시작하기";
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-white text-foreground">
+    <div className="marketing-light min-h-screen overflow-x-hidden bg-white text-foreground">
       <header className="sticky top-0 z-30 border-b border-border/60 bg-white/95 backdrop-blur-md">
         <div className="mx-auto flex h-[72px] max-w-6xl items-center justify-between gap-4 px-5 sm:px-8">
           <Link href="/" aria-label="MyLink 홈" className="flex items-center gap-2.5">

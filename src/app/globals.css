@@ -221,3 +221,17 @@ body {
     @apply font-sans;
   }
 }
+/* 로그인 전 소개 화면은 밝은 디자인을 유지합니다. */
+.marketing-light {
+  color-scheme: light;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.237 0.020 258);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.237 0.020 258);
+  --secondary: oklch(0.966 0.003 248);
+  --secondary-foreground: oklch(0.357 0.028 257);
+  --muted: oklch(0.966 0.003 248);
+  --muted-foreground: oklch(0.562 0.025 254);
+  --border: oklch(0.930 0.005 248);
+  --input: oklch(0.930 0.005 248);
+}
