@@ -32,8 +32,11 @@ export function LinkList({ links, onUpdate, onDelete, trackingUserId, compact = 
             <section key={name || "ungrouped"} className="space-y-3" aria-label={name || "기타 링크"}>
               {name ? <h3 className="px-1 text-base font-extrabold tracking-tight">{name}</h3> : null}
               <ul className="profile-link-list flex flex-col gap-3">
-                {links.filter((link) => (link.group?.trim() || "") === name).map((link) => (
-                  <li key={link.id}><LinkCard link={link} trackingUserId={trackingUserId} compact /></li>
+                {links.filter((link) => (link.group?.trim() || "") === name).map((link, index) => (
+                  <li key={link.id} className="motion-safe:animate-[mylink-rise_450ms_ease-out_both]"
+                    style={{ animationDelay: `${Math.min(index * 70, 490)}ms` }}>
+                    <LinkCard link={link} trackingUserId={trackingUserId} compact />
+                  </li>
                 ))}
               </ul>
             </section>
