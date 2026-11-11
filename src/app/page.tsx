@@ -2,20 +2,13 @@
 
 import { useEffect, useState } from "react";
 import {
-  browserLocalPersistence,
-  GoogleAuthProvider,
-  onAuthStateChanged,
-  setPersistence,
-  signInWithPopup,
-} from "firebase/auth";
-import {
   ArrowRight, ArrowUpRight, BarChart3, BookOpen, CheckCircle2,
   ChevronRight, CodeXml, Globe2, Link2, MousePointerClick,
   Palette, ShieldCheck, Sparkles, WandSparkles,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { getFirebaseAuth } from "@/lib/firebase";
+import { useAuth } from "@/components/auth-provider";
 import {
   ensureUserProfileDocument,
   type UserProfileDocument,
@@ -83,81 +76,41 @@ function LandingPreview() {
 
 export default function Home() {
   const [userProfile, setUserProfile] = useState<UserProfileDocument | null>(null);
-  const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const { user, loading: isAuthLoading, error: authError, signInWithGoogle } = useAuth();
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isProfileSaving, setIsProfileSaving] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    let isCancelled = false;
-    let activeUid: string | null = null;
-    let unsubscribe: (() => void) | undefined;
-
-    void Promise.resolve()
-      .then(() => {
-        if (isCancelled) return;
-
-        unsubscribe = onAuthStateChanged(
-          getFirebaseAuth(),
-          (user) => {
-            if (!user) {
-              activeUid = null;
-              setUserProfile(null);
-              setIsAuthLoading(false);
-              setIsProfileSaving(false);
-              return;
-            }
-
-            activeUid = user.uid;
-            setIsProfileSaving(true);
-            void ensureUserProfileDocument(user)
-              .then((profile) => {
-                if (isCancelled || activeUid !== user.uid) return;
-                setUserProfile(profile);
-                setIsAuthLoading(false);
-                setIsProfileSaving(false);
-              })
-              .catch((profileError: unknown) => {
-                if (isCancelled || activeUid !== user.uid) return;
-                setIsAuthLoading(false);
-                setIsProfileSaving(false);
-                setError(
-                  profileError instanceof Error
-                    ? `Google 로그인은 성공했지만 Firestore 프로필 저장에 실패했어요: ${profileError.message}`
-                    : "Google 로그인은 성공했지만 Firestore 프로필 저장에 실패했어요. 권한과 연결을 확인해 주세요."
-                );
-              });
-          },
-          (authError) => {
-            setError(`로그인 상태를 확인하지 못했어요: ${authError.message}`);
-            setIsAuthLoading(false);
-          }
-        );
-      })
-      .catch((authError: unknown) => {
-        if (isCancelled) return;
-        setError(
-          authError instanceof Error
-            ? `Firebase 인증을 초기화하지 못했어요: ${authError.message}`
-            : "Firebase 인증을 초기화하지 못했어요. 설정을 확인해 주세요."
-        );
-        setIsAuthLoading(false);
-      });
-
-    return () => {
-      isCancelled = true;
-      unsubscribe?.();
-    };
-  }, []);
+    let cancelled = false;
+    if (!user) return;
+    void Promise.resolve().then(() => {
+      if (cancelled) return;
+      setError("");
+      setIsProfileSaving(true);
+      void ensureUserProfileDocument(user)
+        .then((profile) => {
+          if (cancelled) return;
+          setUserProfile(profile);
+          setIsProfileSaving(false);
+        })
+        .catch((cause: unknown) => {
+          if (cancelled) return;
+          setError(cause instanceof Error
+            ? `프로필 정보를 불러오지 못했어요: ${cause.message}`
+            : "프로필 정보를 불러오지 못했어요.");
+          setIsProfileSaving(false);
+        });
+    });
+    return () => { cancelled = true; };
+  }, [user]);
 
   async function handleGoogleSignIn() {
     setError("");
     setIsSigningIn(true);
 
     try {
-      const auth = getFirebaseAuth();
-      await setPersistence(auth, browserLocalPersistence);
-      await signInWithPopup(auth, new GoogleAuthProvider());
+      await signInWithGoogle();
     } catch (signInError) {
       const errorCode =
         typeof signInError === "object" &&
@@ -177,11 +130,12 @@ export default function Home() {
     }
   }
 
-  if (userProfile && !isAuthLoading && !isProfileSaving) {
+  if (user && userProfile && !isAuthLoading && !isProfileSaving) {
     return <MyPage />;
   }
 
   const busy = isAuthLoading || isSigningIn || isProfileSaving;
+  const visibleError = error || (authError ? `로그인 상태를 확인하지 못했어요: ${authError}` : "");
   const loginLabel = isProfileSaving ? "프로필 준비 중..." : isSigningIn ? "로그인 중..." : "Google로 시작하기";
 
   return (
@@ -228,7 +182,7 @@ export default function Home() {
               <div className="mt-5 min-h-6" aria-live="polite">
                 {isAuthLoading ? <p role="status" className="text-xs text-muted-foreground">로그인 상태를 확인하고 있어요.</p> : null}
                 {isSigningIn || isProfileSaving ? <p role="status" className="text-xs text-muted-foreground">{isProfileSaving ? "로그인 완료! 프로필을 준비하고 있어요." : "Google 인증 화면을 확인해 주세요."}</p> : null}
-                {error ? <p role="alert" className="text-sm text-destructive">{error}</p> : null}
+                {error ? <p role="alert" className="text-sm text-destructive">{visibleError}</p> : null}
               </div>
               <div className="mt-7 flex flex-wrap justify-center gap-x-5 gap-y-2 text-xs text-muted-foreground lg:justify-start">
                 <span className="inline-flex items-center gap-1.5"><CheckCircle2 aria-hidden="true" className="size-4 text-primary" /> Google로 간편 시작</span>
