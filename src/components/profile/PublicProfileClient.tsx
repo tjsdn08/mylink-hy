@@ -75,6 +75,8 @@ export function PublicProfileClient({ username }: { username: string }) {
           socialLinks: normalizeSocialLinks(data.socialLinks),
           coverStyle: data.coverStyle === "grid" || data.coverStyle === "minimal" ? data.coverStyle : "orbits",
           headline: typeof data.headline === "string" ? data.headline : "",
+          about: typeof data.about === "string" ? data.about : "",
+          now: typeof data.now === "string" ? data.now : "",
         });
 
         step = "links";

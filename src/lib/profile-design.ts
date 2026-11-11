@@ -10,6 +10,8 @@ export type ProfileAppearance = {
   buttonStyle?: ButtonStyle;
   coverStyle?: CoverStyle;
   headline?: string;
+  about?: string;
+  now?: string;
   socialLinks?: SocialLink[];
 };
 

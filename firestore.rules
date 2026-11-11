@@ -54,6 +54,8 @@ service cloud.firestore {
             'buttonStyle',
             'coverStyle',
             'headline',
+            'about',
+            'now',
             'socialLinks',
             'createdAt',
             'updatedAt'
