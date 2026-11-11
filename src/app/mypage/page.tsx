@@ -38,6 +38,7 @@ import { ProfileSection } from "@/components/mypage/ProfileSection";
 import { ProfileDesignEditor } from "@/components/mypage/ProfileDesignEditor";
 import { ProfileLivePreview } from "@/components/mypage/ProfileLivePreview";
 import { normalizeExternalUrl } from "@/lib/url-normalize";
+import { safeHttpUrl } from "@/lib/profile-design";
 import type { ProfileAppearance } from "@/lib/profile-design";
 import { getFirebaseFirestore } from "@/lib/firebase";
 import { useAuth } from "@/components/auth-provider";
@@ -57,6 +58,10 @@ interface LinkFormValues {
   title: string;
   url: string;
   group: string;
+  description: string;
+  thumbnailUrl: string;
+  isFeatured: boolean;
+  isActive: boolean;
 }
 
 interface ProfileFormValues {
@@ -65,7 +70,7 @@ interface ProfileFormValues {
   bio: string;
 }
 
-const emptyForm: LinkFormValues = { title: "", url: "", group: "" };
+const emptyForm: LinkFormValues = { title: "", url: "", group: "", description: "", thumbnailUrl: "", isFeatured: false, isActive: true };
 const reservedUsernames = new Set([
   "api",
   "dashboard",
@@ -389,14 +394,20 @@ export default function MyPage() {
       return;
     }
 
+    if (isSaving) return;
     const title = form.title.trim();
     const url = normalizeExternalUrl(form.url);
+    const thumbnailUrl = form.thumbnailUrl.trim();
 
     const fieldErrors = getLinkFieldErrors({ title, url });
     setLinkFieldErrors(fieldErrors);
     const validationError = validateLinkForm({ title, url });
     if (validationError) {
       setError(validationError);
+      return;
+    }
+    if (thumbnailUrl && !safeHttpUrl(thumbnailUrl)) {
+      setError("썸네일 이미지에는 http 또는 https 주소만 사용할 수 있어요.");
       return;
     }
 
@@ -410,7 +421,10 @@ export default function MyPage() {
           title,
           url,
           group: form.group.trim(),
-          description: "",
+          description: form.description.trim(),
+          thumbnailUrl,
+          isFeatured: form.isFeatured,
+          isActive: form.isActive,
           category: "other",
           clickCount: 0,
           createdAt: serverTimestamp(),
@@ -730,39 +744,66 @@ export default function MyPage() {
         <div className="space-y-6">
           <section className="w-full rounded-[26px] border border-[#252823]/10 bg-white p-5 text-[#252823] shadow-[0_8px_30px_rgba(32,33,30,0.04)] dark:border-white/10 dark:bg-[#282E29] dark:text-[#F8F6F1] sm:p-6" aria-label="내 링크 추가">
             {isDialogOpen ? (
-              <form onSubmit={handleSubmit} noValidate className="space-y-3 rounded-xl border border-border bg-card p-4 shadow-sm">
-                <Input
-                  id="link-title"
-                  autoFocus
-                  value={form.title}
-                  placeholder="링크 제목 (예: 인스타그램)"
-                  maxLength={100}
-                  aria-label="링크 제목"
-                  aria-invalid={Boolean(linkFieldErrors.title)}
-                  onChange={(event) => { setForm((current) => ({ ...current, title: event.target.value })); setError(""); setLinkFieldErrors((current) => ({ ...current, title: undefined })); }}
-                  className="h-11 text-left font-medium"
-                />
-                <Input
-                  id="link-url"
-                  type="url"
-                  value={form.url}
-                  placeholder="https://example.com"
-                  aria-label="링크 URL"
-                  aria-invalid={Boolean(linkFieldErrors.url)}
-                  onBlur={() => setForm((current) => ({ ...current, url: normalizeExternalUrl(current.url) }))}
-                  onChange={(event) => { setForm((current) => ({ ...current, url: event.target.value })); setError(""); setLinkFieldErrors((current) => ({ ...current, url: undefined })); }}
-                  className="h-11 text-left text-sm"
-                />
-                <Input value={form.group} maxLength={40} aria-label="링크 그룹" placeholder="그룹 이름 (선택): 프로젝트, SNS 등"
-                  onChange={(event) => setForm((current) => ({ ...current, group: event.target.value }))}
-                  className="h-11 text-left text-sm" />
-                {linkFieldErrors.title ? <p role="alert" className="text-xs text-destructive">{linkFieldErrors.title}</p> : null}
-                {linkFieldErrors.url ? <p role="alert" className="text-xs text-destructive">{linkFieldErrors.url}</p> : null}
-                {error && !linkFieldErrors.title && !linkFieldErrors.url ? <p role="alert" className="text-center text-xs font-medium text-destructive">{error}</p> : null}
-                <div className="flex justify-center gap-2 pt-1">
-                  <Button variant="outline" size="sm" type="button" disabled={isSaving} onClick={() => handleDialogOpenChange(false)}>취소</Button>
-                  <Button size="sm" type="submit" disabled={isSaving} className="bg-[#252823] text-white hover:bg-[#41483A]">
-                    <Save className="size-3.5" aria-hidden="true" /> {isSaving ? "추가 중..." : "추가하기"}
+              <form onSubmit={handleSubmit} noValidate aria-label="새 링크 추가" className="space-y-4 rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
+                <div>
+                  <p className="text-[11px] font-extrabold tracking-[.15em] text-[#6B8544]">NEW LINK</p>
+                  <h3 className="mt-1 text-lg font-black tracking-tight">링크를 한 번에 등록해요</h3>
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground">제목·주소 외에 설명, 이미지, 공개 여부도 바로 설정할 수 있어요.</p>
+                </div>
+                <div className="space-y-1.5">
+                  <label htmlFor="link-title" className="text-xs font-bold">링크 제목 <span className="text-destructive">*</span></label>
+                  <Input id="link-title" autoFocus value={form.title} maxLength={100}
+                    placeholder="예: GitHub | 개발 기록" aria-invalid={Boolean(linkFieldErrors.title)}
+                    aria-describedby={linkFieldErrors.title ? "link-title-error" : undefined}
+                    onChange={(event) => { setForm((current) => ({ ...current, title: event.target.value })); setError(""); setLinkFieldErrors((current) => ({ ...current, title: undefined })); }}
+                    className="h-11 text-left font-medium" />
+                  {linkFieldErrors.title ? <p id="link-title-error" role="alert" className="text-xs text-destructive">{linkFieldErrors.title}</p> : null}
+                </div>
+                <div className="space-y-1.5">
+                  <label htmlFor="link-url" className="text-xs font-bold">링크 주소 <span className="text-destructive">*</span></label>
+                  <Input id="link-url" type="url" value={form.url} placeholder="https://github.com"
+                    aria-invalid={Boolean(linkFieldErrors.url)}
+                    aria-describedby={linkFieldErrors.url ? "link-url-error" : undefined}
+                    onBlur={() => setForm((current) => ({ ...current, url: normalizeExternalUrl(current.url) }))}
+                    onChange={(event) => { setForm((current) => ({ ...current, url: event.target.value })); setError(""); setLinkFieldErrors((current) => ({ ...current, url: undefined })); }}
+                    className="h-11 text-left text-sm" />
+                  {linkFieldErrors.url ? <p id="link-url-error" role="alert" className="text-xs text-destructive">{linkFieldErrors.url}</p> : null}
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <label htmlFor="link-group" className="text-xs font-bold">그룹 이름 <span className="font-normal text-muted-foreground">(선택)</span></label>
+                    <Input id="link-group" value={form.group} maxLength={40} placeholder="예: 개발과 프로젝트"
+                      onChange={(event) => setForm((current) => ({ ...current, group: event.target.value }))} className="h-11 text-sm" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label htmlFor="link-description" className="text-xs font-bold">링크 설명 <span className="font-normal text-muted-foreground">(선택)</span></label>
+                    <Input id="link-description" value={form.description} maxLength={160} placeholder="무엇을 볼 수 있는 링크인가요?"
+                      onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))} className="h-11 text-sm" />
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <label htmlFor="link-thumbnail" className="text-xs font-bold">썸네일 이미지 URL <span className="font-normal text-muted-foreground">(선택)</span></label>
+                  <Input id="link-thumbnail" type="url" value={form.thumbnailUrl} placeholder="https://.../image.png"
+                    onChange={(event) => { setForm((current) => ({ ...current, thumbnailUrl: event.target.value })); setError(""); }} className="h-11 text-sm" />
+                  <p className="text-[11px] text-muted-foreground">외부 이미지 주소를 사용해요. 대표 링크의 이미지가 크게 표시돼요.</p>
+                </div>
+                <div className="flex flex-wrap gap-3 rounded-xl border border-border/70 bg-muted/30 px-4 py-3">
+                  <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 text-xs font-semibold">
+                    <input type="checkbox" checked={form.isActive} className="size-4 accent-[#657D3E]"
+                      onChange={(event) => setForm((current) => ({ ...current, isActive: event.target.checked }))} />
+                    공개하기
+                  </label>
+                  <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 text-xs font-semibold">
+                    <input type="checkbox" checked={form.isFeatured} className="size-4 accent-[#657D3E]"
+                      onChange={(event) => setForm((current) => ({ ...current, isFeatured: event.target.checked }))} />
+                    대표 링크로 강조
+                  </label>
+                </div>
+                {error && !linkFieldErrors.title && !linkFieldErrors.url ? <p role="alert" className="text-xs font-medium text-destructive">{error}</p> : null}
+                <div className="flex justify-end gap-2 border-t border-border/70 pt-4">
+                  <Button variant="outline" type="button" disabled={isSaving} onClick={() => handleDialogOpenChange(false)}>취소</Button>
+                  <Button type="submit" disabled={isSaving} aria-busy={isSaving} className="bg-[#252823] text-white hover:bg-[#41483A] dark:bg-[#DDF76B] dark:text-[#252823]">
+                    <Save className="size-4" aria-hidden="true" /> {isSaving ? "링크 저장 중..." : "링크 등록하기"}
                   </Button>
                 </div>
               </form>
