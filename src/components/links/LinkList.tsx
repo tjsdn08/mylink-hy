@@ -45,13 +45,12 @@ export function LinkList({ links, onUpdate, onDelete, trackingUserId, compact = 
       <ul className="profile-link-list flex flex-col gap-3">
         {links.map((link) => (
           <li key={link.id}
-            draggable={Boolean(onReorder)}
+            draggable
             onDragStart={(event) => {
-              if (onReorder) event.dataTransfer.setData("text/plain", link.id);
+              event.dataTransfer.setData("text/plain", link.id);
             }}
-            onDragOver={(event) => { if (onReorder) event.preventDefault(); }}
+            onDragOver={(event) => { event.preventDefault(); }}
             onDrop={(event) => {
-              if (!onReorder) return;
               event.preventDefault();
               const from = event.dataTransfer.getData("text/plain");
               if (from) void onReorder(from, link.id);
@@ -59,15 +58,13 @@ export function LinkList({ links, onUpdate, onDelete, trackingUserId, compact = 
             className="relative"
           >
             <LinkCard link={link} onUpdate={onUpdate} onDelete={onDelete} trackingUserId={trackingUserId} compact />
-            {onReorder ? (
-              <div className="mt-1 flex items-center justify-end gap-2 text-[11px] text-muted-foreground">
+            <div className="mt-1 flex items-center justify-end gap-2 text-[11px] text-muted-foreground">
                 <span className="mr-auto">끌어서 순서 변경</span>
                 <button type="button" disabled={links[0].id === link.id} onClick={() => void onReorder(link.id, links[links.indexOf(link) - 1].id)}
                   className="rounded-md px-2 py-1 hover:bg-muted disabled:opacity-30" aria-label={`${link.title} 위로 이동`}>↑ 위로</button>
                 <button type="button" disabled={links[links.length - 1].id === link.id} onClick={() => void onReorder(link.id, links[links.indexOf(link) + 1].id)}
                   className="rounded-md px-2 py-1 hover:bg-muted disabled:opacity-30" aria-label={`${link.title} 아래로 이동`}>↓ 아래로</button>
               </div>
-            ) : null}
           </li>
         ))}
       </ul>
