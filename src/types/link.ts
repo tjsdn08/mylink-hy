@@ -5,6 +5,7 @@ export interface Link {
   title: string;
   url: string;
   description: string;
+  group?: string;
   thumbnailUrl?: string;
   isActive?: boolean;
   isFeatured?: boolean;
