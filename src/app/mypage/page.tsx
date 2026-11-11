@@ -743,8 +743,13 @@ export default function MyPage() {
           {activeTab === "links" ? (
         <div className="space-y-6">
           <section className="w-full rounded-[26px] border border-[#252823]/10 bg-white p-5 text-[#252823] shadow-[0_8px_30px_rgba(32,33,30,0.04)] dark:border-white/10 dark:bg-[#282E29] dark:text-[#F8F6F1] sm:p-6" aria-label="내 링크 추가">
-            {isDialogOpen ? (
-              <form onSubmit={handleSubmit} noValidate aria-label="새 링크 추가" className="space-y-4 rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
+            <Dialog open={isDialogOpen} onOpenChange={(open) => { if (!isSaving) handleDialogOpenChange(open); }}>
+              <DialogContent className="max-h-[min(90dvh,900px)] overflow-y-auto sm:max-w-2xl" showCloseButton={!isSaving}>
+                <DialogHeader>
+                  <DialogTitle className="text-lg font-black">새 링크 추가</DialogTitle>
+                  <DialogDescription>제목·주소·설명·썸네일·공개 설정을 한 번에 입력해요.</DialogDescription>
+                </DialogHeader>
+              <form onSubmit={handleSubmit} noValidate aria-label="새 링크 추가" className="space-y-4">
                 <div>
                   <p className="text-[11px] font-extrabold tracking-[.15em] text-[#6B8544]">NEW LINK</p>
                   <h3 className="mt-1 text-lg font-black tracking-tight">링크를 한 번에 등록해요</h3>
@@ -807,12 +812,12 @@ export default function MyPage() {
                   </Button>
                 </div>
               </form>
-            ) : (
+              </DialogContent>
+            </Dialog>
               <button type="button" onClick={() => handleDialogOpenChange(true)}
                 className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-[#879C56] bg-[#EFF5D6] px-4 py-3 text-sm font-extrabold text-[#3E5529] transition-all hover:border-[#252823] hover:bg-[#DDF76B] focus-visible:outline-2 focus-visible:outline-[#252823] active:scale-[0.98] dark:border-[#DDF76B]/40 dark:bg-[#DDF76B]/10 dark:text-[#DDF76B]">
                 <Plus aria-hidden="true" className="size-5" /> 새로운 링크 추가하기
               </button>
-            )}
           </section>
           {loadError ? <p role="alert" className="text-sm text-destructive">{loadError}</p> : null}
           <section aria-label="내 링크" className="w-full rounded-[26px] border border-[#252823]/10 bg-white p-5 shadow-[0_8px_30px_rgba(32,33,30,0.04)] dark:border-white/10 dark:bg-[#282E29] sm:p-6">
