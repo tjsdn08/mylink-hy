@@ -25,7 +25,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { validateLinkForm } from "@/lib/link-validation";
+import { getLinkFieldErrors, validateLinkForm } from "@/lib/link-validation";
 import { LinkFavicon } from "@/components/links/LinkFavicon";
 import { getFirebaseFirestore } from "@/lib/firebase";
 import type { Link as LinkItem, LinkCategory as LinkCategoryId } from "@/types/link";
@@ -51,6 +51,7 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId, compact = f
   const [title, setTitle] = useState(link.title);
   const [url, setUrl] = useState(link.url);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<{ title?: string; url?: string }>({});
   const [isSaving, setIsSaving] = useState(false);
   const Icon = categoryIcons[link.category];
   const clickCount = link.clickCount ?? 0;
@@ -76,6 +77,7 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId, compact = f
     setTitle(link.title);
     setUrl(link.url);
     setError("");
+    setFieldErrors({});
     setIsEditing(false);
   }
 
@@ -84,6 +86,8 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId, compact = f
     if (!onUpdate) return;
 
     const updatedLink = { ...link, title: title.trim(), url: url.trim() };
+    const errors = getLinkFieldErrors(updatedLink);
+    setFieldErrors(errors);
     const validationError = validateLinkForm(updatedLink);
     if (validationError) {
       setError(validationError);
@@ -110,9 +114,11 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId, compact = f
     if (isEditing) {
       return (
         <form noValidate onSubmit={handleUpdate} className="space-y-3 rounded-xl border border-border bg-card p-4 shadow-sm">
-          <Input aria-label="링크 제목" value={title} onChange={(event) => { setTitle(event.target.value); setError(""); }} placeholder="링크 제목" className="h-10" />
-          <Input aria-label="링크 URL" type="url" value={url} onChange={(event) => { setUrl(event.target.value); setError(""); }} placeholder="https://example.com" className="h-10 text-sm" />
-          {error ? <p role="alert" className="text-xs font-medium text-destructive">{error}</p> : null}
+          <Input aria-label="링크 제목" aria-invalid={Boolean(fieldErrors.title)} value={title} onChange={(event) => { setTitle(event.target.value); setError(""); setFieldErrors((current) => ({ ...current, title: undefined })); }} placeholder="링크 제목" className="h-10" />
+          <Input aria-label="링크 URL" type="url" aria-invalid={Boolean(fieldErrors.url)} value={url} onChange={(event) => { setUrl(event.target.value); setError(""); setFieldErrors((current) => ({ ...current, url: undefined })); }} placeholder="https://example.com" className="h-10 text-sm" />
+          {fieldErrors.title ? <p role="alert" className="text-xs text-destructive">{fieldErrors.title}</p> : null}
+          {fieldErrors.url ? <p role="alert" className="text-xs text-destructive">{fieldErrors.url}</p> : null}
+          {error && !fieldErrors.title && !fieldErrors.url ? <p role="alert" className="text-xs font-medium text-destructive">{error}</p> : null}
           <div className="flex justify-end gap-2">
             <Button variant="outline" size="sm" type="button" onClick={cancelEdit} disabled={isSaving}>취소</Button>
             <Button size="sm" type="submit" disabled={isSaving} className="bg-[#5b5fc7] text-white hover:bg-[#4c50ab]">{isSaving ? "저장 중..." : "저장"}</Button>
