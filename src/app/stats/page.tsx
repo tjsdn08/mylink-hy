@@ -112,7 +112,7 @@ export default function StatsPage() {
   );
   const topLink = sortedLinks[0];
   const chartData = useMemo(
-    () => sortedLinks.slice(0, 10).map((link) => ({ ...link, label: link.title.length > 12 ? `${link.title.slice(0, 12)}…` : link.title })),
+    () => sortedLinks.slice(0, 5).map((link) => ({ ...link, label: link.title.length > 12 ? `${link.title.slice(0, 12)}…` : link.title })),
     [sortedLinks]
   );
 
@@ -170,11 +170,47 @@ export default function StatsPage() {
             </Card>
           </section>
 
+          <section aria-label="인기 링크 TOP 5" className="rounded-[28px] border border-[#252823]/10 bg-white p-6 text-[#252823] dark:border-white/10 dark:bg-[#323A33] dark:text-[#F8F6F1] sm:p-8">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p className="text-[11px] font-extrabold tracking-[.16em] text-[#6C8447] dark:text-[#DDF76B]">TOP PERFORMERS</p>
+                <h2 className="mt-1 text-xl font-black tracking-tight">가장 많이 클릭한 링크 TOP 5</h2>
+              </div>
+              <span className="text-xs text-muted-foreground">전체 누적 클릭 기준</span>
+            </div>
+            {sortedLinks.length === 0 ? (
+              <p className="py-9 text-center text-sm text-muted-foreground">아직 등록한 링크가 없어요. 링크를 추가하면 순위가 표시돼요.</p>
+            ) : (
+              <ol className="mt-6 space-y-4">
+                {sortedLinks.slice(0, 5).map((link, index) => {
+                  const percentage = totalClicks > 0 ? (link.clickCount / totalClicks) * 100 : 0;
+                  return (
+                    <li key={link.id} className="space-y-2">
+                      <div className="flex items-center gap-3">
+                        <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#EAF1D9] text-sm font-black text-[#476033] dark:bg-[#45563B] dark:text-[#DDF76B]">
+                          {String(index + 1).padStart(2, "0")}
+                        </span>
+                        <span className="min-w-0 flex-1 truncate text-sm font-bold" title={link.title}>{link.title}</span>
+                        <span className="shrink-0 text-sm font-black tabular-nums">{formatCount(link.clickCount)}회</span>
+                      </div>
+                      <div className="ml-12 h-2 overflow-hidden rounded-full bg-[#EAEEE5] dark:bg-white/15"
+                        role="meter" aria-label={`${link.title} 전체 클릭 비중`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(percentage)}>
+                        <div className="h-full rounded-full bg-[#7E9650] transition-[width] duration-500 dark:bg-[#DDF76B]"
+                          style={{ width: `${percentage}%` }} />
+                      </div>
+                    </li>
+                  );
+                })}
+              </ol>
+            )}
+            <p className="mt-5 text-xs leading-5 text-muted-foreground">막대는 전체 링크 클릭 수 중 각 링크의 비중이에요. 반복 클릭도 포함돼요.</p>
+          </section>
+
           <Card className="overflow-hidden rounded-[28px] border border-[#252823]/10 bg-white text-[#252823] shadow-none dark:border-white/10 dark:bg-[#323A33] dark:text-[#F8F6F1]">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-title-2">
                 <ChartNoAxesColumn aria-hidden="true" className="size-5 text-[#71864D]" />
-                링크별 클릭 수
+                링크별 클릭 수 · TOP 5
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
