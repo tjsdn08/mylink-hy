@@ -44,6 +44,7 @@ export function appearanceVariables(value: ProfileAppearance): CSSProperties {
   return {
     backgroundColor: background,
     color: ink,
+    "--profile-background": background,
     "--profile-text": ink,
     "--profile-button-bg": preset.button,
     "--profile-button-text": buttonInk,
