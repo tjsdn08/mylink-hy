@@ -15,6 +15,7 @@ import {
 } from "@/lib/user-profile";
 import MyPage from "@/app/mypage/page";
 import { ProfilePhoneFrame } from "@/components/profile/ProfilePhoneFrame";
+import { THEME_PRESETS, type ProfileTheme } from "@/lib/profile-design";
 
 
 const highlights = [
@@ -29,6 +30,7 @@ const demoLinks = [
 ];
 
 function LandingPreview() {
+  const [previewTheme, setPreviewTheme] = useState<ProfileTheme>("cream");
   return (
     <div className="relative mx-auto w-full max-w-[410px] motion-safe:animate-[mylink-rise_700ms_ease-out_both]"
       aria-label="실제 공개 프로필과 동일한 디자인으로 만든 예시 화면">
@@ -43,12 +45,22 @@ function LandingPreview() {
           about: "관심 있는 일을 배우고 작은 프로젝트로 만들어 기록합니다.",
           now: "요즘은 새로운 아이디어를 웹으로 구현하고 있어요.",
           socialLinks: [{ platform: "GitHub", url: "https://github.com" }, { platform: "Blog", url: "https://velog.io" }],
-          theme: "cream",
-          coverStyle: "orbits",
+          theme: previewTheme,
+          coverStyle: previewTheme === "lavender" ? "grid" : previewTheme === "midnight" ? "minimal" : "orbits",
           buttonStyle: "rounded",
         }}
         links={demoLinks}
       />
+      <div className="relative mt-5 flex flex-wrap items-center justify-center gap-2" role="group" aria-label="프로필 미리보기 테마 선택">
+        {(Object.keys(THEME_PRESETS) as ProfileTheme[]).map((theme) => (
+          <button type="button" key={theme} onClick={() => setPreviewTheme(theme)} aria-pressed={previewTheme === theme}
+            className={`inline-flex min-h-10 items-center gap-2 rounded-full border px-3 text-xs font-bold transition-colors
+              ${previewTheme === theme ? "border-[#252823] bg-[#252823] text-white" : "border-[#252823]/15 bg-white text-[#49503F] hover:border-[#252823]/40"}`}>
+            <span className="size-3 rounded-full border border-black/10" style={{ backgroundColor: THEME_PRESETS[theme].cover }} />
+            {THEME_PRESETS[theme].name}
+          </button>
+        ))}
+      </div>
       <div className="absolute -right-3 -top-5 hidden items-center gap-2 rounded-2xl bg-white px-3 py-2 text-xs font-semibold text-[#252823] shadow-xl sm:flex">
         <MousePointerClick aria-hidden="true" className="size-4 text-[#516D34]" /> 하나의 주소로 공유!
       </div>
