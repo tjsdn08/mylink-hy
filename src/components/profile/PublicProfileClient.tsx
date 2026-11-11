@@ -7,6 +7,7 @@ import NextLink from "next/link";
 import { ArrowUpRight, Check, Copy, Globe2, Link2, Share2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LinkList } from "@/components/links/LinkList";
+import { ProfileQrDialog } from "@/components/profile/ProfileQrDialog";
 import { LinkFavicon } from "@/components/links/LinkFavicon";
 import { getFirebaseFirestore } from "@/lib/firebase";
 import { showToast } from "@/lib/toast";
@@ -29,6 +30,7 @@ export function PublicProfileClient({ username }: { username: string }) {
   const [links, setLinks] = useState<Link[]>([]);
   const [ownerId, setOwnerId] = useState("");
   const [copied, setCopied] = useState(false);
+  const [qrOpen, setQrOpen] = useState(false);
   const [error, setError] = useState<{ step: LoadStep; message: string; code?: string } | null>(null);
 
   useEffect(() => {
@@ -90,6 +92,7 @@ export function PublicProfileClient({ username }: { username: string }) {
                 title: link.title,
                 url: link.url,
                 description: typeof link.description === "string" ? link.description : "",
+                group: typeof link.group === "string" ? link.group : "",
                 category: categories.includes(link.category) ? link.category as Link["category"] : "other",
                 clickCount: typeof link.clickCount === "number" ? link.clickCount : 0,
                 isActive: link.isActive !== false,
@@ -270,6 +273,14 @@ export function PublicProfileClient({ username }: { username: string }) {
             </div>
           )}
         </section>
+        <div className="mt-5 flex items-center justify-center">
+          <button type="button" onClick={() => setQrOpen(true)}
+            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-current/25 px-5 text-sm font-bold transition-colors hover:bg-white/10">
+            내 프로필 QR 공유하기
+          </button>
+        </div>
+        {qrOpen ? <ProfileQrDialog url={`${typeof window !== "undefined" ? window.location.origin : "https://mylink-hy.vercel.app"}/${encodeURIComponent(profile.username)}`}
+          onClose={() => setQrOpen(false)} /> : null}
         <div className="mt-12 flex items-center justify-center">
           <button type="button" onClick={() => void shareProfile()}
             className="inline-flex min-h-12 items-center gap-2 rounded-full bg-[#252823] px-6 text-sm font-bold text-white transition-transform hover:-translate-y-1 dark:bg-[#DDF76B] dark:text-[#252823]">

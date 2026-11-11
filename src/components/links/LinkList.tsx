@@ -24,6 +24,23 @@ export interface LinkListProps {
 
 export function LinkList({ links, onUpdate, onDelete, trackingUserId, compact = false, onReorder }: LinkListProps) {
   if (compact) {
+    if (!onReorder) {
+      const names = [...new Set(links.map((link) => link.group?.trim() || ""))];
+      return (
+        <div className="space-y-7">
+          {names.map((name) => (
+            <section key={name || "ungrouped"} className="space-y-3" aria-label={name || "기타 링크"}>
+              {name ? <h3 className="px-1 text-base font-extrabold tracking-tight">{name}</h3> : null}
+              <ul className="profile-link-list flex flex-col gap-3">
+                {links.filter((link) => (link.group?.trim() || "") === name).map((link) => (
+                  <li key={link.id}><LinkCard link={link} trackingUserId={trackingUserId} compact /></li>
+                ))}
+              </ul>
+            </section>
+          ))}
+        </div>
+      );
+    }
     return (
       <ul className="profile-link-list flex flex-col gap-3">
         {links.map((link) => (
