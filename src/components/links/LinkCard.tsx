@@ -27,6 +27,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { getLinkFieldErrors, validateLinkForm } from "@/lib/link-validation";
 import { LinkFavicon } from "@/components/links/LinkFavicon";
+import { safeHttpUrl } from "@/lib/profile-design";
 import { getFirebaseFirestore } from "@/lib/firebase";
 import type { Link as LinkItem, LinkCategory as LinkCategoryId } from "@/types/link";
 
@@ -50,6 +51,11 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId, compact = f
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(link.title);
   const [url, setUrl] = useState(link.url);
+  const [description, setDescription] = useState(link.description ?? "");
+  const [thumbnailUrl, setThumbnailUrl] = useState(link.thumbnailUrl ?? "");
+  const [isActive, setIsActive] = useState(link.isActive !== false);
+  const [isFeatured, setIsFeatured] = useState(link.isFeatured === true);
+  const [thumbnailFailed, setThumbnailFailed] = useState(false);
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<{ title?: string; url?: string }>({});
   const [isSaving, setIsSaving] = useState(false);
@@ -76,6 +82,10 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId, compact = f
   function cancelEdit() {
     setTitle(link.title);
     setUrl(link.url);
+    setDescription(link.description ?? "");
+    setThumbnailUrl(link.thumbnailUrl ?? "");
+    setIsActive(link.isActive !== false);
+    setIsFeatured(link.isFeatured === true);
     setError("");
     setFieldErrors({});
     setIsEditing(false);
@@ -85,7 +95,8 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId, compact = f
     event.preventDefault();
     if (!onUpdate) return;
 
-    const updatedLink = { ...link, title: title.trim(), url: url.trim() };
+    const updatedLink = { ...link, title: title.trim(), url: url.trim(), description: description.trim(), thumbnailUrl: thumbnailUrl.trim(), isActive, isFeatured };
+    if (thumbnailUrl.trim() && !safeHttpUrl(thumbnailUrl.trim())) { setError("썸네일은 http 또는 https 이미지 주소를 입력해 주세요."); return; }
     const errors = getLinkFieldErrors(updatedLink);
     setFieldErrors(errors);
     const validationError = validateLinkForm(updatedLink);
@@ -119,6 +130,28 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId, compact = f
           {fieldErrors.title ? <p role="alert" className="text-xs text-destructive">{fieldErrors.title}</p> : null}
           {fieldErrors.url ? <p role="alert" className="text-xs text-destructive">{fieldErrors.url}</p> : null}
           {error && !fieldErrors.title && !fieldErrors.url ? <p role="alert" className="text-xs font-medium text-destructive">{error}</p> : null}
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="space-y-1 text-xs font-semibold">
+              <span>링크 설명</span>
+              <input value={description} maxLength={160} onChange={(event) => setDescription(event.target.value)}
+                placeholder="이 링크에 대한 짧은 소개" className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm font-normal" />
+            </label>
+            <label className="space-y-1 text-xs font-semibold">
+              <span>썸네일 이미지 URL</span>
+              <input value={thumbnailUrl} type="url" onChange={(event) => setThumbnailUrl(event.target.value)}
+                placeholder="https://.../image.jpg" className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm font-normal" />
+            </label>
+          </div>
+          <div className="flex flex-wrap gap-4">
+            <label className="inline-flex cursor-pointer items-center gap-2 text-xs font-semibold">
+              <input type="checkbox" checked={isActive} onChange={(event) => setIsActive(event.target.checked)} className="size-4 accent-[#6B8544]" />
+              공개하기
+            </label>
+            <label className="inline-flex cursor-pointer items-center gap-2 text-xs font-semibold">
+              <input type="checkbox" checked={isFeatured} onChange={(event) => setIsFeatured(event.target.checked)} className="size-4 accent-[#6B8544]" />
+              대표 링크로 강조
+            </label>
+          </div>
           <div className="flex justify-end gap-2">
             <Button variant="outline" size="sm" type="button" onClick={cancelEdit} disabled={isSaving}>취소</Button>
             <Button size="sm" type="submit" disabled={isSaving} className="bg-[#5b5fc7] text-white hover:bg-[#4c50ab]">{isSaving ? "저장 중..." : "저장"}</Button>
@@ -130,18 +163,28 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId, compact = f
       <div className="group flex w-full items-stretch transition-transform duration-200 hover:-translate-y-[2px]">
         <a href={link.url} target="_blank" rel="noopener noreferrer" onClick={handleLinkClick}
           aria-label={`${link.title} 링크 열기`}
-          className={`min-w-0 flex-1 rounded-[18px] border border-[#252823]/10 bg-white transition-all duration-200 hover:border-[#7F9856] hover:bg-[#F8FAEE] hover:shadow-[0_6px_0_rgba(65,77,45,0.08)] dark:border-white/10 dark:bg-[#323A33] dark:hover:bg-[#3E463E] ${onUpdate || onDelete ? "rounded-r-none border-r-0" : ""}`}>
+          className={`public-link-button min-w-0 flex-1 overflow-hidden rounded-[18px] border border-[#252823]/10 bg-white transition-all duration-200 hover:border-[#7F9856] hover:bg-[#F8FAEE] hover:shadow-[0_6px_0_rgba(65,77,45,0.08)] dark:border-white/10 dark:bg-[#323A33] dark:hover:bg-[#3E463E] ${onUpdate || onDelete ? "rounded-r-none border-r-0" : ""}`}>
+          {link.isFeatured && link.thumbnailUrl && safeHttpUrl(link.thumbnailUrl) && !thumbnailFailed ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={link.thumbnailUrl} alt="" loading="lazy" referrerPolicy="no-referrer"
+              onError={() => setThumbnailFailed(true)} className="h-36 w-full object-cover" />
+          ) : null}
           <div className="flex min-h-[76px] items-center gap-3 p-3.5 sm:gap-4 sm:p-4">
             <span className="flex size-12 shrink-0 items-center justify-center rounded-[14px] border border-[#252823]/5 bg-[#F1F3E7] dark:bg-white/10">
-              <LinkFavicon url={link.url} className="size-5 text-muted-foreground" />
+              {link.thumbnailUrl && !link.isFeatured && safeHttpUrl(link.thumbnailUrl) && !thumbnailFailed ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={link.thumbnailUrl} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setThumbnailFailed(true)} className="size-10 rounded-lg object-cover" />
+              ) : <LinkFavicon url={link.url} className="size-5 text-muted-foreground" />}
             </span>
             <div className="min-w-0 flex-1 text-left">
-              <p className="truncate text-[15px] font-extrabold tracking-tight text-[#252823] group-hover:text-[#566F32] dark:text-[#F8F6F1] dark:group-hover:text-[#DDF76B]">
+              <p className="link-title truncate text-[15px] font-extrabold tracking-tight text-[#252823] group-hover:text-[#566F32] dark:text-[#F8F6F1] dark:group-hover:text-[#DDF76B]">
                 {link.title}
+                {link.isFeatured ? <span className="ml-2 rounded-full bg-[#DDF76B] px-2 py-0.5 text-[10px] font-bold text-[#354027]">추천</span> : null}
                 {onUpdate || onDelete ? <span className="ml-2 text-[11px] font-normal text-muted-foreground">{clickCount.toLocaleString("ko-KR")} 클릭</span> : null}
               </p>
-              <p className="mt-1 truncate text-xs text-muted-foreground">{link.url}</p>
-              {link.description ? <p className="mt-1 truncate text-xs text-muted-foreground">{link.description}</p> : null}
+              {onUpdate || onDelete ? <p className="mt-1 truncate text-xs text-muted-foreground">{link.url}</p> : null}
+              {link.description ? <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{link.description}</p> : null}
+              {(onUpdate || onDelete) && link.isActive === false ? <p className="mt-1 text-[11px] font-bold text-[#B95C45]">비공개 · 방문자에게 숨겨짐</p> : null}
             </div>
             {!(onUpdate || onDelete) ? <ArrowUpRight aria-hidden="true" className="size-4 text-muted-foreground" /> : null}
           </div>
