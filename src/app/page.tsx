@@ -33,7 +33,8 @@ function LandingPreview() {
   return (
     <div className="relative mx-auto w-full max-w-[420px] motion-safe:animate-[mylink-rise_700ms_ease-out_both]" aria-label="MyLink 프로필 예시 미리보기">
       <div aria-hidden="true" className="pointer-events-none absolute -inset-5 -z-10 rounded-[40px] bg-gradient-to-br from-[var(--tds-blue-50)] via-white to-teal-50 blur-2xl" />
-      <div className="overflow-hidden rounded-[28px] border border-border/70 bg-card shadow-[0_24px_70px_-30px_rgba(25,31,40,0.30)]">
+      <div className="mx-auto max-w-[355px] overflow-hidden rounded-[38px] border-[7px] border-[#252937] bg-card shadow-[0_24px_70px_-30px_rgba(25,31,40,0.30)]">
+        <div aria-hidden="true" className="mx-auto mt-2 h-1.5 w-16 rounded-full bg-[#252937]/30" />
         <div className="flex items-center justify-between border-b border-border/60 px-6 py-4">
           <span className="flex items-center gap-2 text-sm font-bold"><Link2 className="size-4 text-primary" />MyLink</span>
           <span className="rounded-full bg-[var(--tds-blue-50)] px-3 py-1 text-xs font-semibold text-primary">미리보기</span>
@@ -130,7 +131,7 @@ export default function Home() {
     }
   }
 
-  if (user && userProfile && !isAuthLoading && !isProfileSaving) {
+  if (user && userProfile?.uid === user.uid && !isAuthLoading && !isProfileSaving) {
     return <MyPage />;
   }
 
