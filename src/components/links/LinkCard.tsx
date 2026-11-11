@@ -109,6 +109,7 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId, compact = f
     setError("");
     try {
       await onUpdate(updatedLink);
+      setThumbnailFailed(false);
       setIsEditing(false);
     } catch (updateError) {
       setError(
