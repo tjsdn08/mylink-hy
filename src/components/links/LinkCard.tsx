@@ -28,6 +28,7 @@ import { Input } from "@/components/ui/input";
 import { getLinkFieldErrors, validateLinkForm } from "@/lib/link-validation";
 import { LinkFavicon } from "@/components/links/LinkFavicon";
 import { safeHttpUrl } from "@/lib/profile-design";
+import { normalizeExternalUrl } from "@/lib/url-normalize";
 import { getFirebaseFirestore } from "@/lib/firebase";
 import type { Link as LinkItem, LinkCategory as LinkCategoryId } from "@/types/link";
 
@@ -52,6 +53,7 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId, compact = f
   const [title, setTitle] = useState(link.title);
   const [url, setUrl] = useState(link.url);
   const [description, setDescription] = useState(link.description ?? "");
+  const [group, setGroup] = useState(link.group ?? "");
   const [thumbnailUrl, setThumbnailUrl] = useState(link.thumbnailUrl ?? "");
   const [isActive, setIsActive] = useState(link.isActive !== false);
   const [isFeatured, setIsFeatured] = useState(link.isFeatured === true);
@@ -83,6 +85,7 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId, compact = f
     setTitle(link.title);
     setUrl(link.url);
     setDescription(link.description ?? "");
+    setGroup(link.group ?? "");
     setThumbnailUrl(link.thumbnailUrl ?? "");
     setIsActive(link.isActive !== false);
     setIsFeatured(link.isFeatured === true);
@@ -95,7 +98,7 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId, compact = f
     event.preventDefault();
     if (!onUpdate) return;
 
-    const updatedLink = { ...link, title: title.trim(), url: url.trim(), description: description.trim(), thumbnailUrl: thumbnailUrl.trim(), isActive, isFeatured };
+    const updatedLink = { ...link, title: title.trim(), url: normalizeExternalUrl(url), description: description.trim(), group: group.trim(), thumbnailUrl: thumbnailUrl.trim(), isActive, isFeatured };
     if (thumbnailUrl.trim() && !safeHttpUrl(thumbnailUrl.trim())) { setError("썸네일은 http 또는 https 이미지 주소를 입력해 주세요."); return; }
     const errors = getLinkFieldErrors(updatedLink);
     setFieldErrors(errors);
@@ -127,10 +130,16 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId, compact = f
       return (
         <form noValidate onSubmit={handleUpdate} className="space-y-3 rounded-xl border border-border bg-card p-4 shadow-sm">
           <Input aria-label="링크 제목" aria-invalid={Boolean(fieldErrors.title)} value={title} onChange={(event) => { setTitle(event.target.value); setError(""); setFieldErrors((current) => ({ ...current, title: undefined })); }} placeholder="링크 제목" className="h-10" />
-          <Input aria-label="링크 URL" type="url" aria-invalid={Boolean(fieldErrors.url)} value={url} onChange={(event) => { setUrl(event.target.value); setError(""); setFieldErrors((current) => ({ ...current, url: undefined })); }} placeholder="https://example.com" className="h-10 text-sm" />
+          <Input aria-label="링크 URL" type="url" aria-invalid={Boolean(fieldErrors.url)} value={url} onBlur={() => setUrl((previous) => normalizeExternalUrl(previous))} onChange={(event) => { setUrl(event.target.value); setError(""); setFieldErrors((current) => ({ ...current, url: undefined })); }} placeholder="https://example.com" className="h-10 text-sm" />
           {fieldErrors.title ? <p role="alert" className="text-xs text-destructive">{fieldErrors.title}</p> : null}
           {fieldErrors.url ? <p role="alert" className="text-xs text-destructive">{fieldErrors.url}</p> : null}
           {error && !fieldErrors.title && !fieldErrors.url ? <p role="alert" className="text-xs font-medium text-destructive">{error}</p> : null}
+          <label className="block space-y-1 text-xs font-semibold">
+            <span>링크 그룹 (선택)</span>
+            <input value={group} maxLength={40} placeholder="예: 프로젝트, SNS, 포트폴리오"
+              onChange={(event) => setGroup(event.target.value)}
+              className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm font-normal" />
+          </label>
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="space-y-1 text-xs font-semibold">
               <span>링크 설명</span>
