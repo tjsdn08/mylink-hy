@@ -7,7 +7,7 @@ import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { ArrowLeft, ChartNoAxesColumn, Eye, MousePointerClick, Link2, Trophy } from "lucide-react";
 import NextLink from "next/link";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartContainer,
@@ -124,9 +124,9 @@ export default function StatsPage() {
           <h1 className="mt-3 text-[clamp(2.4rem,6vw,4rem)] font-black leading-tight tracking-[-0.065em] text-[#252823] dark:text-[#F8F6F1]">링크가 남긴 기록<span className="text-[#F06D4E]">.</span></h1>
           <p className="mt-2 text-sm text-[#7B7F74] dark:text-white/60">어떤 링크가 관심을 받았는지, 실제 클릭 수로 확인해 보세요.</p>
         </div>
-        <Button variant="outline" className="h-11 rounded-xl bg-white text-[#252823] dark:bg-[#323A33] dark:text-[#F8F6F1]" render={<NextLink href="/" />}>
+        <NextLink href="/" className={buttonVariants({ variant: "outline", className: "h-11 gap-2 rounded-xl bg-white px-4 text-[#252823] dark:bg-[#323A33] dark:text-[#F8F6F1]" })}>
           <ArrowLeft aria-hidden="true" /> 마이페이지
-        </Button>
+        </NextLink>
       </header>
 
       {status === "loading" || status === "redirecting" ? (
