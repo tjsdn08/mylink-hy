@@ -235,3 +235,13 @@ body {
   --border: oklch(0.930 0.005 248);
   --input: oklch(0.930 0.005 248);
 }
+
+@keyframes mylink-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-9px); }
+}
+
+@keyframes mylink-rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
