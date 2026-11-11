@@ -497,7 +497,7 @@ export default function MyPage() {
   }
 
   return (
-    <main className="mylink-workspace mx-auto min-h-screen w-full max-w-[860px] space-y-7 px-5 pb-24 text-[#252823] dark:text-[#F8F6F1] sm:px-8">
+    <main className="mylink-workspace mx-auto min-h-screen w-full max-w-[1180px] space-y-7 px-5 pb-24 text-[#252823] dark:text-[#F8F6F1] sm:px-8">
       <header className="sticky top-0 z-50 -mx-5 mb-8 flex min-h-[76px] items-center justify-between border-b border-[#252823]/10 bg-[#F8F6F1]/95 px-5 py-3 backdrop-blur-xl dark:border-white/10 dark:bg-[#1D211D]/95 sm:-mx-8 sm:px-8">
         <NextLink href="/" className="flex items-center gap-2 text-2xl font-black tracking-[-0.07em]" aria-label="MyLink 홈">
           <span className="inline-flex size-8 -rotate-6 items-center justify-center rounded-[10px] bg-[#252823] text-[#DDF76B] dark:bg-[#DDF76B] dark:text-[#252823]"><Link2 className="size-4" aria-hidden="true" /></span>
@@ -658,7 +658,12 @@ export default function MyPage() {
                 className={`min-h-11 flex-1 rounded-xl px-3 text-sm font-bold transition-colors ${activeTab === tab ? "bg-[#252823] text-white dark:bg-[#DDF76B] dark:text-[#252823]" : "hover:bg-[#EEF2E4] dark:hover:bg-white/10"}`}>{name}</button>
             ))}
           </nav>
-          <div className="grid gap-7 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
+          <div className="grid gap-3 rounded-[22px] border border-[#252823]/10 bg-[#EEF3E1] px-5 py-4 text-[#35432A] sm:grid-cols-3 dark:border-[#DDF76B]/15 dark:bg-[#34412F] dark:text-[#E3EBCF]">
+            <div><p className="text-[10px] font-extrabold tracking-wider opacity-70">MY PAGE</p><p className="mt-1 truncate text-sm font-black">@{userProfile.username || "username"}</p></div>
+            <div><p className="text-[10px] font-extrabold tracking-wider opacity-70">LINKS</p><p className="mt-1 text-sm font-black">{links.length}개 등록 · {links.filter((link) => link.isActive !== false).length}개 공개</p></div>
+            <div><p className="text-[10px] font-extrabold tracking-wider opacity-70">PERSONAL STYLE</p><p className="mt-1 text-sm font-black">{userProfile.theme === "midnight" ? "미드나잇" : userProfile.theme === "lavender" ? "라벤더" : "크림 & 라임"} 테마</p></div>
+          </div>
+          <div className="grid gap-7 lg:grid-cols-[minmax(0,1fr)_390px] lg:items-start">
             <div className="min-w-0 space-y-6">
           {activeTab === "profile" ? <ProfileSection
             displayName={userProfile.displayName}
