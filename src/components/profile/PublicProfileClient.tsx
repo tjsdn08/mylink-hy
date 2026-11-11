@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import { collection, doc, getDoc, onSnapshot, orderBy, query, Timestamp } from "firebase/firestore";
 import { notFound } from "next/navigation";
+import { Globe2, Link2 } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LinkList } from "@/components/links/LinkList";
-import { ProfileCard } from "@/components/profile/ProfileCard";
 import { getFirebaseFirestore } from "@/lib/firebase";
 import type { Link } from "@/types/link";
 
@@ -155,30 +156,35 @@ export function PublicProfileClient({ username }: { username: string }) {
   if (!profile || !ownerId) return null;
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-[560px] flex-col gap-4 bg-background px-4 py-6 text-foreground sm:py-8">
-      <ProfileCard
-        profile={{
-          imageUrl: profile.photoURL || null,
-          imageAlt: `${profile.displayName} 프로필 사진`,
-          fallbackText: profile.displayName.slice(0, 1) || "?",
-          name: profile.displayName,
-          role: `@${profile.username}`,
-          level: "MyLink 사용자",
-          tagline: "",
-          bio: profile.bio,
-        }}
-      />
-      <section className="space-y-4" aria-labelledby="public-links-heading">
-        <h2 id="public-links-heading" className="text-title-2">링크</h2>
-        {links.length > 0 ? (
-          <LinkList links={links} trackingUserId={ownerId} />
-        ) : (
-          <p className="rounded-2xl border border-border bg-card px-5 py-8 text-center text-body-2 text-muted-foreground">
-            아직 공개된 링크가 없어요.
-          </p>
-        )}
-      </section>
-      <footer className="py-4 text-center text-caption text-muted-foreground">MyLink</footer>
-    </main>
+    <div className="min-h-screen bg-background pb-20 text-foreground">
+      <header className="sticky top-0 z-40 flex h-16 items-center border-b border-border/50 bg-background/90 px-5 backdrop-blur-md">
+        <a href="/" className="flex items-center gap-2 text-lg font-bold tracking-tight">
+          <Globe2 aria-hidden="true" className="size-5 text-[#5b5fc7]" /> MyLink
+        </a>
+      </header>
+      <main className="mx-auto flex w-full max-w-md flex-col items-center gap-8 px-4 pt-10">
+        <section className="flex w-full flex-col items-center text-center">
+          <Avatar className="mb-4 size-24 border-4 border-background bg-muted shadow-sm">
+            {profile.photoURL ? <AvatarImage src={profile.photoURL} alt={`${profile.displayName} 프로필 사진`} /> : null}
+            <AvatarFallback className="text-xl font-semibold">{profile.displayName.slice(0, 1) || "?"}</AvatarFallback>
+          </Avatar>
+          <h1 className="text-2xl font-bold tracking-tight">{profile.displayName}</h1>
+          {profile.bio ? <p className="mt-3 max-w-[300px] whitespace-pre-wrap break-words text-sm leading-relaxed">{profile.bio}</p> : null}
+        </section>
+        <section className="w-full" aria-label="공개 링크">
+          {links.length > 0 ? (
+            <LinkList links={links} trackingUserId={ownerId} compact />
+          ) : (
+            <div className="flex flex-col items-center py-10 text-center">
+              <Link2 aria-hidden="true" className="mb-3 size-8 text-muted-foreground/30" />
+              <p className="text-sm text-muted-foreground">아직 등록된 링크가 없습니다.</p>
+            </div>
+          )}
+        </section>
+      </main>
+      <footer className="mt-16 py-8 text-center text-xs font-semibold text-muted-foreground">
+        <Globe2 aria-hidden="true" className="mr-1 inline size-3" /> Powered by MyLink
+      </footer>
+    </div>
   );
 }

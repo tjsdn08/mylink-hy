@@ -42,9 +42,10 @@ export interface LinkCardProps {
   onUpdate?: (link: LinkItem) => Promise<void>;
   onDelete?: (link: LinkItem) => void;
   trackingUserId?: string;
+  compact?: boolean;
 }
 
-export function LinkCard({ link, onUpdate, onDelete, trackingUserId }: LinkCardProps) {
+export function LinkCard({ link, onUpdate, onDelete, trackingUserId, compact = false }: LinkCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(link.title);
   const [url, setUrl] = useState(link.url);
@@ -102,6 +103,60 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId }: LinkCardP
     } finally {
       setIsSaving(false);
     }
+  }
+
+  if (compact) {
+    if (isEditing) {
+      return (
+        <form noValidate onSubmit={handleUpdate} className="space-y-3 rounded-xl border border-border bg-card p-4 shadow-sm">
+          <Input aria-label="링크 제목" value={title} onChange={(event) => { setTitle(event.target.value); setError(""); }} placeholder="링크 제목" className="h-9" />
+          <Input aria-label="링크 URL" type="url" value={url} onChange={(event) => { setUrl(event.target.value); setError(""); }} placeholder="https://example.com" className="h-9 text-xs" />
+          {error ? <p role="alert" className="text-xs font-medium text-destructive">{error}</p> : null}
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" size="sm" type="button" onClick={cancelEdit} disabled={isSaving}>취소</Button>
+            <Button size="sm" type="submit" disabled={isSaving} className="bg-[#5b5fc7] text-white hover:bg-[#4c50ab]">{isSaving ? "저장 중..." : "저장"}</Button>
+          </div>
+        </form>
+      );
+    }
+    return (
+      <div className="group flex w-full items-stretch">
+        <a href={link.url} target="_blank" rel="noopener noreferrer" onClick={handleLinkClick}
+          aria-label={`${link.title} 링크 열기`}
+          className={`min-w-0 flex-1 rounded-xl border border-border/70 bg-card transition-all duration-200 hover:-translate-y-0.5 hover:bg-muted/60 hover:shadow-sm ${onUpdate || onDelete ? "rounded-r-none border-r-0" : ""}`}>
+          <div className="flex items-center gap-4 p-4">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border/50 bg-muted">
+              <Icon aria-hidden="true" className="size-5 text-muted-foreground transition-colors group-hover:text-[#5b5fc7]" />
+            </span>
+            <div className="min-w-0 flex-1 text-left">
+              <p className="truncate text-[15px] font-semibold text-card-foreground group-hover:text-[#5b5fc7]">
+                {link.title}
+                {onUpdate || onDelete ? <span className="ml-2 text-[11px] font-normal text-muted-foreground">{clickCount.toLocaleString("ko-KR")} 클릭</span> : null}
+              </p>
+              <p className="mt-1 truncate text-xs text-muted-foreground">{link.url}</p>
+              {link.description ? <p className="mt-1 truncate text-xs text-muted-foreground">{link.description}</p> : null}
+            </div>
+            {!(onUpdate || onDelete) ? <ArrowUpRight aria-hidden="true" className="size-4 text-muted-foreground" /> : null}
+          </div>
+        </a>
+        {onUpdate || onDelete ? (
+          <div className="flex shrink-0 flex-col overflow-hidden rounded-r-xl border border-border/70 bg-card">
+            {onUpdate ? (
+              <button type="button" title="수정" aria-label={`${link.title} 수정`} onClick={() => setIsEditing(true)}
+                className="flex min-h-10 w-11 flex-1 items-center justify-center border-b border-border/70 text-muted-foreground transition-colors hover:bg-[#5b5fc7]/10 hover:text-[#5b5fc7]">
+                <Pencil aria-hidden="true" className="size-4" />
+              </button>
+            ) : null}
+            {onDelete ? (
+              <button type="button" title="삭제" aria-label={`${link.title} 삭제`} onClick={() => onDelete(link)}
+                className="flex min-h-10 w-11 flex-1 items-center justify-center text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive">
+                <Trash2 aria-hidden="true" className="size-4" />
+              </button>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
+    );
   }
 
   return (

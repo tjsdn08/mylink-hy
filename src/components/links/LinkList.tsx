@@ -1,4 +1,5 @@
 import { LinkCategory } from "@/components/links/LinkCategory";
+import { LinkCard } from "@/components/links/LinkCard";
 import type {
   Link as LinkItem,
   LinkCategory as LinkCategoryId,
@@ -17,9 +18,19 @@ export interface LinkListProps {
   onUpdate?: (link: LinkItem) => Promise<void>;
   onDelete?: (link: LinkItem) => void;
   trackingUserId?: string;
+  compact?: boolean;
 }
 
-export function LinkList({ links, onUpdate, onDelete, trackingUserId }: LinkListProps) {
+export function LinkList({ links, onUpdate, onDelete, trackingUserId, compact = false }: LinkListProps) {
+  if (compact) {
+    return (
+      <ul className="flex flex-col gap-3">
+        {links.map((link) => (
+          <li key={link.id}><LinkCard link={link} onUpdate={onUpdate} onDelete={onDelete} trackingUserId={trackingUserId} compact /></li>
+        ))}
+      </ul>
+    );
+  }
   const categories = categoryOrder
     .map((category) => ({
       category,

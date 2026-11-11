@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import { ArrowUpRight, ChartNoAxesColumn, ChevronDown, Link2, Pencil, Plus, Sparkles } from "lucide-react";
+import { ChartNoAxesColumn, ChevronDown, Globe2, Link2, Pencil, Plus, Save } from "lucide-react";
 import {
   GoogleAuthProvider,
   onAuthStateChanged,
@@ -475,72 +475,52 @@ export default function MyPage() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-4xl space-y-7 px-4 py-5 sm:px-6 sm:py-8">
-      <header className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/70 bg-card/90 px-4 py-3 shadow-tds-1 sm:px-5">
-        <NextLink href="/" aria-label="MyLink 홈" className="flex shrink-0 items-center gap-2.5">
-          <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-            <Link2 aria-hidden="true" className="size-5" />
-          </span>
-          <span className="text-lg font-extrabold tracking-tight text-foreground">My<span className="text-primary">Link</span></span>
+    <main className="mx-auto min-h-screen w-full max-w-md space-y-7 px-4 pb-20 pt-0 text-foreground">
+      <header className="sticky top-0 z-50 -mx-[calc((100vw-100%)/2)] mb-8 flex min-h-16 items-center justify-between border-b border-border/50 bg-background/90 px-5 py-3 backdrop-blur-md">
+        <NextLink href="/" className="flex items-center gap-2 text-lg font-bold tracking-tight" aria-label="MyLink 홈">
+          <Globe2 className="size-5 text-[#5b5fc7]" aria-hidden="true" />
+          MyLink
         </NextLink>
-        <div className="flex items-center gap-2 sm:gap-3">
-          {isAuthLoading || (user && !isProfileReady && !profileError) ? (
-            <span role="status" className="text-xs text-muted-foreground">{user ? "프로필 확인 중..." : "로그인 확인 중..."}</span>
-          ) : user ? (
-            <>
+        {isAuthLoading || (user && !isProfileReady && !profileError) ? (
+          <span role="status" className="text-xs text-muted-foreground">계정 확인 중...</span>
+        ) : user ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger render={<Button variant="ghost" className="h-10 gap-2 rounded-full px-2 hover:bg-muted" aria-label="계정 메뉴 열기" />}>
+              <Avatar className="size-8 border border-border">
+                {userProfile?.photoURL ? <AvatarImage src={userProfile.photoURL} alt="계정 프로필 사진" /> : null}
+                <AvatarFallback>{(userProfile?.displayName ?? user.email ?? "G").slice(0, 1)}</AvatarFallback>
+              </Avatar>
+              <span className="hidden max-w-28 truncate text-sm font-medium sm:inline">{userProfile?.username || userProfile?.displayName || "내 계정"} 님</span>
+              <ChevronDown className="size-3.5 text-muted-foreground" aria-hidden="true" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-64 overflow-hidden rounded-2xl border-border p-2 shadow-xl">
+              <DropdownMenuLabel className="px-3 py-3">
+                <span className="block truncate text-sm font-bold text-foreground">{userProfile?.displayName || "Google 사용자"}</span>
+                <span className="mt-1 block truncate text-xs text-muted-foreground">{userProfile?.email || user.email}</span>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
               {userProfile?.username ? (
-                <NextLink
-                  href={`/${encodeURIComponent(userProfile.username)}`}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-xl px-2.5 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:px-3"
-                >
-                  <ArrowUpRight aria-hidden="true" className="size-4" />
-                  <span className="hidden sm:inline">내 공개 페이지</span>
-                  <span className="sm:hidden">공개 페이지</span>
-                </NextLink>
+                <DropdownMenuItem render={<NextLink href={`/${encodeURIComponent(userProfile.username)}`} />}>
+                  <Globe2 className="size-4" aria-hidden="true" /> 내 공개 페이지
+                </DropdownMenuItem>
               ) : null}
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  render={
-                    <Button variant="outline" className="h-10 gap-2 rounded-xl border-border/80 bg-background px-2.5 shadow-none hover:bg-muted sm:px-3" aria-label="계정 메뉴 열기" />
-                  }
-                >
-                  <Avatar size="sm" className="size-7">
-                    {userProfile?.photoURL ? <AvatarImage src={userProfile.photoURL} alt="계정 프로필 사진" /> : null}
-                    <AvatarFallback>{(userProfile?.displayName ?? user.email ?? "G").slice(0, 1)}</AvatarFallback>
-                  </Avatar>
-                  <span className="hidden max-w-28 truncate text-xs font-semibold sm:inline">{userProfile?.displayName ?? "내 계정"}</span>
-                  <ChevronDown aria-hidden="true" className="size-3.5 text-muted-foreground" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="min-w-56 rounded-xl p-2">
-                  <DropdownMenuLabel className="px-2 py-2">
-                    <span className="block truncate text-sm font-semibold text-foreground">{userProfile?.displayName ?? "Google 사용자"}</span>
-                    <span className="mt-0.5 block max-w-60 truncate text-xs text-muted-foreground">{userProfile?.email ?? user.email}</span>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  {userProfile?.username ? (
-                    <DropdownMenuItem render={<NextLink href={`/${encodeURIComponent(userProfile.username)}`} />} >
-                      <ArrowUpRight aria-hidden="true" /> 공개 페이지 보기
-                    </DropdownMenuItem>
-                  ) : null}
-                  <DropdownMenuItem render={<NextLink href="/stats" />}>
-                    <ChartNoAxesColumn aria-hidden="true" /> 클릭 통계
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={openProfileEditor} disabled={!isProfileReady}>
-                    <Pencil aria-hidden="true" /> 프로필 수정
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => void handleGoogleSignOut()} disabled={isSigningOut}>
-                    {isSigningOut ? "로그아웃 중..." : "로그아웃"}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </>
-          ) : (
-            <Button onClick={handleGoogleSignIn} disabled={isSigningIn}>
-              {isSigningIn ? "로그인 중..." : "Google로 계속하기"}
-            </Button>
-          )}
-        </div>
+              <DropdownMenuItem render={<NextLink href="/stats" />}>
+                <ChartNoAxesColumn className="size-4" aria-hidden="true" /> 통계 대시보드
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={openProfileEditor} disabled={!isProfileReady}>
+                <Pencil className="size-4" aria-hidden="true" /> 프로필 수정
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem variant="destructive" onClick={() => void handleGoogleSignOut()} disabled={isSigningOut}>
+                {isSigningOut ? "로그아웃 중..." : "로그아웃"}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <Button onClick={handleGoogleSignIn} disabled={isSigningIn} className="rounded-full px-4">
+            {isSigningIn ? "로그인 중..." : "로그인"}
+          </Button>
+        )}
       </header>
 
       {authError ? (
@@ -565,49 +545,27 @@ export default function MyPage() {
 
       {user && isProfileReady && userProfile ? (
         <>
-          <section className="relative overflow-hidden rounded-[28px] border border-border/70 bg-card shadow-tds-2">
-            <div aria-hidden="true" className="relative h-24 overflow-hidden bg-gradient-to-r from-[#E9F2FF] via-[#F0F6FF] to-[#EAFBFF] sm:h-28">
-              <div className="absolute -right-8 -top-24 size-64 rounded-full border-[34px] border-white/35" />
-              <div className="absolute left-12 top-9 size-24 rounded-full bg-white/30 blur-2xl" />
+          <section className="relative flex w-full flex-col items-center pt-1 text-center">
+            <div className="relative">
+              <Avatar className="mb-4 size-24 border-4 border-background bg-muted shadow-sm">
+                {userProfile.photoURL ? <AvatarImage src={userProfile.photoURL} alt={`${userProfile.displayName} 프로필 사진`} /> : null}
+                <AvatarFallback className="text-xl font-bold">{userProfile.displayName.slice(0, 1) || "?"}</AvatarFallback>
+              </Avatar>
+              <button type="button" onClick={openProfileEditor}
+                aria-label="프로필 수정" title="프로필 수정"
+                className="absolute bottom-4 right-0 flex size-8 items-center justify-center rounded-full border border-border bg-card shadow-sm transition-colors hover:bg-muted">
+                <Pencil className="size-3.5 text-muted-foreground" aria-hidden="true" />
+              </button>
             </div>
-            <div className="relative px-5 pb-6 sm:px-8 sm:pb-7">
-              <div className="-mt-10 flex items-end justify-between gap-3 sm:-mt-11">
-                <Avatar className="size-[84px] shrink-0 rounded-[24px] border-4 border-card bg-accent shadow-tds-2 sm:size-24">
-                  {userProfile.photoURL ? <AvatarImage src={userProfile.photoURL} alt={`${userProfile.displayName} 프로필 사진`} /> : null}
-                  <AvatarFallback className="text-2xl font-bold text-primary">{userProfile.displayName.slice(0, 1) || "?"}</AvatarFallback>
-                </Avatar>
-                <Button variant="outline" className="mb-1 h-9 gap-1.5 rounded-xl px-3 text-xs font-semibold" onClick={openProfileEditor}>
-                  <Pencil aria-hidden="true" className="size-3.5" /> 프로필 편집
-                </Button>
-              </div>
-              <div className="mt-4">
-                <p className="flex items-center gap-1.5 text-xs font-semibold text-primary">
-                  <Sparkles aria-hidden="true" className="size-3.5" /> 나만의 MyLink
-                </p>
-                <h1 className="mt-2 text-[clamp(1.55rem,4vw,2.15rem)] font-extrabold tracking-tight text-foreground">{userProfile.displayName}</h1>
-                <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <span className="rounded-full bg-accent px-3 py-1 text-xs font-semibold text-accent-foreground">
-                    {userProfile.username ? `@${userProfile.username}` : "Username 미설정"}
-                  </span>
-                  <span className="text-xs text-muted-foreground">공개 프로필</span>
-                </div>
-                <p className="mt-5 whitespace-pre-wrap break-words text-sm leading-7 text-secondary-foreground">
-                  {userProfile.bio || "나를 소개하는 한 줄을 작성해 보세요."}
-                </p>
-              </div>
-              <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-border/70 pt-4">
-                <span className="inline-flex items-center gap-2 text-xs font-medium text-muted-foreground">
-                  <Link2 aria-hidden="true" className="size-4 text-primary" />
-                  등록한 링크 <strong className="font-bold text-foreground">{links.length}개</strong>
-                </span>
-                {userProfile.username ? (
-                  <NextLink href={`/${encodeURIComponent(userProfile.username)}`}
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
-                    내 공개 프로필 보기 <ArrowUpRight aria-hidden="true" className="size-3.5" />
-                  </NextLink>
-                ) : null}
-              </div>
-            </div>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">{userProfile.displayName}</h1>
+            {userProfile.username ? (
+              <NextLink href={`/${encodeURIComponent(userProfile.username)}`} className="mt-1 text-xs text-[#5b5fc7] hover:underline">
+                @{userProfile.username}
+              </NextLink>
+            ) : null}
+            {userProfile.bio ? (
+              <p className="mt-3 max-w-[300px] whitespace-pre-wrap break-words text-sm leading-relaxed text-foreground">{userProfile.bio}</p>
+            ) : null}
           </section>
           <Dialog
             open={isProfileDialogOpen}
@@ -717,114 +675,61 @@ export default function MyPage() {
         </section>
       ) : (
         <>
-          <section className="flex flex-wrap items-center justify-between gap-4 pt-2">
-            <div className="space-y-1">
-              <p className="text-xs font-bold tracking-[0.13em] text-primary">MY LINKS</p>
-              <h2 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-[28px]">내 링크 관리</h2>
-              <p className="text-sm text-muted-foreground">링크를 모으고 나만의 페이지에 공유해 보세요.</p>
-            </div>
-
-            <Dialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
-              <Button className="h-10 rounded-xl px-4 font-semibold" onClick={() => setIsDialogOpen(true)}>
-                <Plus aria-hidden="true" />
-                링크 추가
-              </Button>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>링크 추가</DialogTitle>
-                  <DialogDescription>
-                    제목과 연결할 웹사이트 주소를 입력해 주세요.
-                  </DialogDescription>
-                </DialogHeader>
-
-                <form className="space-y-4" noValidate onSubmit={handleSubmit}>
-                  <div className="space-y-2">
-                    <label htmlFor="link-title" className="text-label-s">
-                      링크 제목
-                    </label>
-                    <Input
-                      id="link-title"
-                      autoFocus
-                      value={form.title}
-                      placeholder="예: 나의 포트폴리오"
-                      aria-invalid={Boolean(error && !form.title.trim())}
-                      onChange={(event) => {
-                        setForm((current) => ({
-                          ...current,
-                          title: event.target.value,
-                        }));
-                        setError("");
-                      }}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label htmlFor="link-url" className="text-label-s">
-                      URL
-                    </label>
-                    <Input
-                      id="link-url"
-                      type="url"
-                      value={form.url}
-                      placeholder="https://example.com"
-                      aria-invalid={Boolean(error && form.title.trim())}
-                      onChange={(event) => {
-                        setForm((current) => ({
-                          ...current,
-                          url: event.target.value,
-                        }));
-                        setError("");
-                      }}
-                    />
-                  </div>
-
-                  {error ? (
-                    <p role="alert" className="text-sm text-destructive">
-                      {error}
-                    </p>
-                  ) : null}
-
-                  <DialogFooter>
-                    <DialogClose
-                      render={<Button variant="outline" type="button" />}
-                    >
-                      취소
-                    </DialogClose>
-                    <Button type="submit" disabled={isSaving}>
-                      {isSaving ? "저장 중..." : "추가"}
-                    </Button>
-                  </DialogFooter>
-                </form>
-              </DialogContent>
-            </Dialog>
+          <section className="w-full" aria-label="내 링크 추가">
+            {isDialogOpen ? (
+              <form onSubmit={handleSubmit} noValidate className="space-y-3 rounded-xl border border-border bg-card p-4 shadow-sm">
+                <Input
+                  id="link-title"
+                  autoFocus
+                  value={form.title}
+                  placeholder="링크 제목 (예: 인스타그램)"
+                  aria-label="링크 제목"
+                  aria-invalid={Boolean(error && !form.title.trim())}
+                  onChange={(event) => { setForm((current) => ({ ...current, title: event.target.value })); setError(""); }}
+                  className="h-10 text-center font-medium"
+                />
+                <Input
+                  id="link-url"
+                  type="url"
+                  value={form.url}
+                  placeholder="https://example.com"
+                  aria-label="링크 URL"
+                  aria-invalid={Boolean(error && form.title.trim())}
+                  onChange={(event) => { setForm((current) => ({ ...current, url: event.target.value })); setError(""); }}
+                  className="h-10 text-center text-xs"
+                />
+                {error ? <p role="alert" className="text-center text-xs font-medium text-destructive">{error}</p> : null}
+                <div className="flex justify-center gap-2 pt-1">
+                  <Button variant="outline" size="sm" type="button" disabled={isSaving} onClick={() => handleDialogOpenChange(false)}>취소</Button>
+                  <Button size="sm" type="submit" disabled={isSaving} className="bg-[#5b5fc7] text-white hover:bg-[#4c50ab]">
+                    <Save className="size-3.5" aria-hidden="true" /> {isSaving ? "추가 중..." : "추가하기"}
+                  </Button>
+                </div>
+              </form>
+            ) : (
+              <button type="button" onClick={() => handleDialogOpenChange(true)}
+                className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[#5b5fc7]/35 bg-[#5b5fc7]/10 font-semibold text-[#5b5fc7] transition-all hover:bg-[#5b5fc7]/20 active:scale-[0.98]">
+                <Plus aria-hidden="true" className="size-5" /> 새로운 링크 추가하기
+              </button>
+            )}
           </section>
-
-          {loadError ? (
-            <p role="alert" className="text-sm text-destructive">
-              {loadError}
-            </p>
-          ) : null}
-
-          {links.length === 0 ? (
-            <section className="space-y-2 rounded-3xl border border-border bg-card px-6 py-10 text-center">
-              <h2 className="text-title-1 text-foreground">
-                아직 등록된 링크가 없어요
-              </h2>
-              <p className="text-body-2 text-muted-foreground">
-                링크 추가 버튼을 눌러 첫 링크를 등록해 보세요.
-              </p>
-            </section>
-          ) : (
-            <LinkList
-              links={links}
-              onUpdate={handleUpdateLink}
-              onDelete={setLinkToDelete}
-              trackingUserId={user.uid}
-            />
-          )}
+          {loadError ? <p role="alert" className="text-sm text-destructive">{loadError}</p> : null}
+          <section aria-label="내 링크" className="w-full">
+            {links.length === 0 ? (
+              <div className="flex flex-col items-center py-10 text-center">
+                <Link2 className="mb-3 size-8 text-muted-foreground/30" aria-hidden="true" />
+                <p className="text-sm text-muted-foreground">아직 등록된 링크가 없습니다.</p>
+              </div>
+            ) : (
+              <LinkList links={links} onUpdate={handleUpdateLink} onDelete={setLinkToDelete} trackingUserId={user.uid} compact />
+            )}
+          </section>
         </>
       )}
 
+      <footer className="py-8 text-center text-xs font-semibold text-muted-foreground">
+        <Globe2 aria-hidden="true" className="mr-1 inline size-3" /> Powered by MyLink
+      </footer>
       <Dialog
         open={linkToDelete !== null}
         onOpenChange={(open) => {
