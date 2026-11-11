@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { getSiteUrl } from "@/lib/site-url";
 import { ToastViewport } from "@/components/ui/toast-viewport";
 import { ThemeProvider } from "@/components/theme-provider";
+import { AuthProvider } from "@/components/auth-provider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -54,7 +55,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: "(function(){try{var t=localStorage.getItem(\"mylink-theme\");var d=t===\"dark\"||(t!==\"light\"&&window.matchMedia(\"(prefers-color-scheme: dark)\").matches);document.documentElement.classList.toggle(\"dark\",d);document.documentElement.style.colorScheme=d?\"dark\":\"light\"}catch(e){}})();" }} />
       </head>
-      <body className="min-h-full flex flex-col"><ThemeProvider>{children}<ToastViewport /></ThemeProvider></body>
+      <body className="min-h-full flex flex-col"><ThemeProvider><AuthProvider>{children}<ToastViewport /></AuthProvider></ThemeProvider></body>
     </html>
   );
 }
