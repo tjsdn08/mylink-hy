@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { onAuthStateChanged } from "firebase/auth";
+import { useAuth } from "@/components/auth-provider";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { ArrowLeft, ChartNoAxesColumn, MousePointerClick, Link2, Trophy } from "lucide-react";
@@ -15,7 +15,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import { getFirebaseAuth, getFirebaseFirestore } from "@/lib/firebase";
+import { getFirebaseFirestore } from "@/lib/firebase";
 
 type Status = "loading" | "ready" | "redirecting" | "error";
 
@@ -38,6 +38,7 @@ function formatCount(count: number): string {
 
 export default function StatsPage() {
   const router = useRouter();
+  const { user, loading: authLoading, error: authError } = useAuth();
   const [status, setStatus] = useState<Status>("loading");
   const [links, setLinks] = useState<LinkStats[]>([]);
   const [error, setError] = useState("");
@@ -45,80 +46,48 @@ export default function StatsPage() {
   useEffect(() => {
     let disposed = false;
     let unsubscribeLinks: (() => void) | undefined;
-    let unsubscribeAuth: (() => void) | undefined;
-
-    void Promise.resolve()
-      .then(() => {
-        if (disposed) return;
-        unsubscribeAuth = onAuthStateChanged(
-          getFirebaseAuth(),
-          (user) => {
-            unsubscribeLinks?.();
-            unsubscribeLinks = undefined;
-            setLinks([]);
-            setError("");
-            if (!user) {
-              setStatus("redirecting");
-              router.replace("/");
-              return;
-            }
-
-            setStatus("loading");
-            const currentUid = user.uid;
-            const linksQuery = query(
-              collection(getFirebaseFirestore(), "users", currentUid, "links"),
-              orderBy("createdAt", "desc")
-            );
-            unsubscribeLinks = onSnapshot(
-              linksQuery,
-              (snapshot) => {
-                if (disposed || getFirebaseAuth().currentUser?.uid !== currentUid) return;
-                setLinks(
-                  snapshot.docs.map((linkDoc) => {
-                    const data = linkDoc.data();
-                    const value = data.clickCount;
-                    return {
-                      id: linkDoc.id,
-                      title: typeof data.title === "string" ? data.title : "제목 없는 링크",
-                      clickCount:
-                        typeof value === "number" && Number.isFinite(value) && value >= 0
-                          ? value
-                          : 0,
-                    };
-                  })
-                );
-                setStatus("ready");
-              },
-              (snapshotError) => {
-                if (disposed) return;
-                setError(`클릭 통계를 불러오지 못했어요: ${snapshotError.message}`);
-                setStatus("error");
-              }
-            );
-          },
-          (authError) => {
-            if (disposed) return;
-            setError(`로그인 상태를 확인하지 못했어요: ${authError.message}`);
-            setStatus("error");
-          }
-        );
-      })
-      .catch((cause: unknown) => {
-        if (disposed) return;
-        setError(
-          cause instanceof Error
-            ? `Firebase를 초기화하지 못했어요: ${cause.message}`
-            : "Firebase를 초기화하지 못했어요."
-        );
+    void Promise.resolve().then(() => {
+      if (disposed || authLoading) return;
+      if (authError) {
+        setError(`로그인 상태 확인 오류: ${authError}`);
         setStatus("error");
-      });
-
-    return () => {
-      disposed = true;
-      unsubscribeLinks?.();
-      unsubscribeAuth?.();
-    };
-  }, [router]);
+        return;
+      }
+      if (!user) {
+        setStatus("redirecting");
+        router.replace("/");
+        return;
+      }
+      setStatus("loading");
+      const currentUid = user.uid;
+      unsubscribeLinks = onSnapshot(
+        query(collection(getFirebaseFirestore(), "users", currentUid, "links"), orderBy("createdAt", "desc")),
+        (snapshot) => {
+          if (disposed) return;
+          setLinks(snapshot.docs.map((linkDoc) => {
+            const data = linkDoc.data();
+            const value = data.clickCount;
+            return {
+              id: linkDoc.id,
+              title: typeof data.title === "string" ? data.title : "제목 없는 링크",
+              clickCount: typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : 0,
+            };
+          }));
+          setStatus("ready");
+        },
+        (cause) => {
+          if (disposed) return;
+          setError(`클릭 통계를 불러오지 못했어요: ${cause.message}`);
+          setStatus("error");
+        }
+      );
+    }).catch((cause: unknown) => {
+      if (disposed) return;
+      setError(cause instanceof Error ? cause.message : "데이터 조회에 실패했어요.");
+      setStatus("error");
+    });
+    return () => { disposed = true; unsubscribeLinks?.(); };
+  }, [user, authLoading, authError, router]);
 
   const totalClicks = useMemo(
     () => links.reduce((sum, link) => sum + link.clickCount, 0),
