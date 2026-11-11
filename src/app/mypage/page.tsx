@@ -38,6 +38,7 @@ import {
   AvatarImage,
 } from "@/components/ui/avatar";
 import { LinkList } from "@/components/links/LinkList";
+import { ProfileSection } from "@/components/mypage/ProfileSection";
 import { getFirebaseAuth, getFirebaseFirestore } from "@/lib/firebase";
 import { showToast } from "@/lib/toast";
 import { validateLinkForm } from "@/lib/link-validation";
@@ -583,28 +584,13 @@ export default function MyPage() {
 
       {user && isProfileReady && userProfile ? (
         <>
-          <section className="relative flex w-full flex-col items-center pt-1 text-center">
-            <div className="relative">
-              <Avatar className="mb-4 size-24 border-4 border-background bg-muted shadow-sm">
-                {userProfile.photoURL ? <AvatarImage src={userProfile.photoURL} alt={`${userProfile.displayName} 프로필 사진`} /> : null}
-                <AvatarFallback className="text-xl font-bold">{userProfile.displayName.slice(0, 1) || "?"}</AvatarFallback>
-              </Avatar>
-              <button type="button" onClick={openProfileEditor}
-                aria-label="프로필 수정" title="프로필 수정"
-                className="absolute bottom-4 right-0 flex size-8 items-center justify-center rounded-full border border-border bg-card shadow-sm transition-colors hover:bg-muted">
-                <Pencil className="size-3.5 text-muted-foreground" aria-hidden="true" />
-              </button>
-            </div>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">{userProfile.displayName}</h1>
-            {userProfile.username ? (
-              <NextLink href={`/${encodeURIComponent(userProfile.username)}`} className="mt-1 text-xs text-[#5b5fc7] hover:underline">
-                @{userProfile.username}
-              </NextLink>
-            ) : null}
-            {userProfile.bio ? (
-              <p className="mt-3 max-w-[300px] whitespace-pre-wrap break-words text-sm leading-relaxed text-foreground">{userProfile.bio}</p>
-            ) : null}
-          </section>
+          <ProfileSection
+            displayName={userProfile.displayName}
+            username={userProfile.username}
+            photoURL={userProfile.photoURL}
+            bio={userProfile.bio}
+            onEdit={openProfileEditor}
+          />
           <Dialog
             open={isProfileDialogOpen}
             onOpenChange={setIsProfileDialogOpen}
@@ -626,6 +612,8 @@ export default function MyPage() {
                     autoComplete="username"
                     value={profileForm.username}
                     placeholder="sunwoo_08"
+                    maxLength={20}
+                    aria-describedby="profile-username-help"
                     onChange={(event) => {
                       setProfileForm((current) => ({
                         ...current,
@@ -636,12 +624,14 @@ export default function MyPage() {
                     aria-invalid={Boolean(profileSaveError)}
                   />
                 </div>
+                <p id="profile-username-help" className="text-xs text-muted-foreground">영문 소문자, 숫자, 밑줄을 사용해 3~20자로 입력해 주세요.</p>
                 <div className="space-y-2">
                   <label htmlFor="profile-display-name" className="text-label-s">
                     이름
                   </label>
                   <Input
                     id="profile-display-name"
+                    maxLength={80}
                     autoComplete="name"
                     value={profileForm.displayName}
                     onChange={(event) => {
@@ -662,6 +652,7 @@ export default function MyPage() {
                   </label>
                   <textarea
                     id="profile-bio"
+                    maxLength={250}
                     rows={4}
                     value={profileForm.bio}
                     onChange={(event) => {
@@ -672,8 +663,10 @@ export default function MyPage() {
                       setProfileSaveError("");
                     }}
                     className="w-full resize-y rounded-xl border border-input bg-background px-3 py-2 text-body-2 outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    aria-describedby="profile-bio-count"
                   />
                 </div>
+                <p id="profile-bio-count" className="text-right text-xs text-muted-foreground">{profileForm.bio.length}/250</p>
                 {profileSaveError ? (
                   <p role="alert" className="text-sm text-destructive">
                     {profileSaveError}
@@ -721,10 +714,11 @@ export default function MyPage() {
                   autoFocus
                   value={form.title}
                   placeholder="링크 제목 (예: 인스타그램)"
+                  maxLength={100}
                   aria-label="링크 제목"
                   aria-invalid={Boolean(error && !form.title.trim())}
                   onChange={(event) => { setForm((current) => ({ ...current, title: event.target.value })); setError(""); }}
-                  className="h-10 text-center font-medium"
+                  className="h-11 text-left font-medium"
                 />
                 <Input
                   id="link-url"
@@ -734,7 +728,7 @@ export default function MyPage() {
                   aria-label="링크 URL"
                   aria-invalid={Boolean(error && form.title.trim())}
                   onChange={(event) => { setForm((current) => ({ ...current, url: event.target.value })); setError(""); }}
-                  className="h-10 text-center text-xs"
+                  className="h-11 text-left text-sm"
                 />
                 {error ? <p role="alert" className="text-center text-xs font-medium text-destructive">{error}</p> : null}
                 <div className="flex justify-center gap-2 pt-1">
@@ -746,7 +740,7 @@ export default function MyPage() {
               </form>
             ) : (
               <button type="button" onClick={() => handleDialogOpenChange(true)}
-                className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[#5b5fc7]/35 bg-[#5b5fc7]/10 font-semibold text-[#5b5fc7] transition-all hover:bg-[#5b5fc7]/20 active:scale-[0.98]">
+                className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[#5b5fc7]/45 bg-[#5b5fc7]/10 px-4 py-3 text-sm font-semibold text-[#5b5fc7] transition-all hover:bg-[#5b5fc7]/20 focus-visible:outline-2 focus-visible:outline-[#5b5fc7] active:scale-[0.98]">
                 <Plus aria-hidden="true" className="size-5" /> 새로운 링크 추가하기
               </button>
             )}

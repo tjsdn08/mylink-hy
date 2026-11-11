@@ -135,13 +135,13 @@ export default function StatsPage() {
   );
 
   return (
-    <main className="mx-auto w-full max-w-3xl space-y-6 px-4 py-8 sm:px-6">
+    <main className="mx-auto min-h-screen w-full max-w-xl space-y-6 px-4 py-8 sm:px-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div className="space-y-1">
-          <h1 className="text-h1 text-foreground">클릭 통계</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">클릭 통계</h1>
           <p className="text-body-2 text-muted-foreground">내 링크의 클릭 수를 확인해요.</p>
         </div>
-        <Button variant="outline" render={<NextLink href="/" />}>
+        <Button variant="outline" className="h-10 rounded-xl" render={<NextLink href="/" />}>
           <ArrowLeft aria-hidden="true" /> 마이페이지
         </Button>
       </header>
@@ -162,12 +162,12 @@ export default function StatsPage() {
               <div aria-hidden="true" className="pointer-events-none absolute -right-12 -top-20 size-60 rounded-full border-[35px] border-white/10" />
               <div className="relative space-y-4">
                 <div className="flex items-center gap-2 text-sm font-semibold text-white/85"><MousePointerClick aria-hidden="true" className="size-5" /> 전체 링크 클릭 수</div>
-                <p className="text-5xl font-extrabold tracking-tight tabular-nums sm:text-6xl">{formatCount(totalClicks)} <span className="text-lg font-medium text-white/80">회</span></p>
+                <p className="text-4xl font-extrabold tracking-tight tabular-nums sm:text-5xl">{formatCount(totalClicks)} <span className="text-lg font-medium text-white/80">회</span></p>
                 <p className="text-sm text-white/80">내 링크의 방문 기록을 한눈에 확인해요.</p>
               </div>
             </Card>
-            <Card className="rounded-2xl border-border/70 bg-card p-5 shadow-tds-1">
-              <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground"><Link2 aria-hidden="true" className="size-4 text-primary" /> 등록한 링크</div>
+            <Card className="rounded-xl border-border/70 bg-card p-5 shadow-tds-1">
+              <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground"><Link2 aria-hidden="true" className="size-4 text-[#5b5fc7]" /> 등록한 링크</div>
               <p className="mt-3 text-3xl font-bold tabular-nums">{formatCount(links.length)}<span className="ml-1 text-sm font-normal text-muted-foreground">개</span></p>
             </Card>
             <Card className="rounded-2xl border-border/70 bg-card p-5 shadow-tds-1">
@@ -177,10 +177,10 @@ export default function StatsPage() {
             </Card>
           </section>
 
-          <Card className="rounded-3xl border-border/70 bg-card shadow-tds-1">
+          <Card className="rounded-2xl border-border/70 bg-card shadow-tds-1">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-title-2">
-                <ChartNoAxesColumn aria-hidden="true" className="size-5 text-primary" />
+                <ChartNoAxesColumn aria-hidden="true" className="size-5 text-[#5b5fc7]" />
                 링크별 클릭 수
               </CardTitle>
             </CardHeader>
@@ -199,7 +199,7 @@ export default function StatsPage() {
                       <XAxis type="number" allowDecimals={false} domain={[0, "dataMax"]} tickLine={false} axisLine={false} />
                       <YAxis dataKey="label" type="category" width={100} tickLine={false} axisLine={false} />
                       <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-                      <Bar dataKey="clickCount" fill="var(--color-clickCount)" radius={4} maxBarSize={22} />
+                      <Bar dataKey="clickCount" fill="#5b5fc7" radius={4} maxBarSize={22} />
                     </BarChart>
                   </ChartContainer>
                   <div className="divide-y divide-border" aria-label="모든 링크별 클릭 수">

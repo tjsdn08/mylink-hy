@@ -109,8 +109,8 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId, compact = f
     if (isEditing) {
       return (
         <form noValidate onSubmit={handleUpdate} className="space-y-3 rounded-xl border border-border bg-card p-4 shadow-sm">
-          <Input aria-label="링크 제목" value={title} onChange={(event) => { setTitle(event.target.value); setError(""); }} placeholder="링크 제목" className="h-9" />
-          <Input aria-label="링크 URL" type="url" value={url} onChange={(event) => { setUrl(event.target.value); setError(""); }} placeholder="https://example.com" className="h-9 text-xs" />
+          <Input aria-label="링크 제목" value={title} onChange={(event) => { setTitle(event.target.value); setError(""); }} placeholder="링크 제목" className="h-10" />
+          <Input aria-label="링크 URL" type="url" value={url} onChange={(event) => { setUrl(event.target.value); setError(""); }} placeholder="https://example.com" className="h-10 text-sm" />
           {error ? <p role="alert" className="text-xs font-medium text-destructive">{error}</p> : null}
           <div className="flex justify-end gap-2">
             <Button variant="outline" size="sm" type="button" onClick={cancelEdit} disabled={isSaving}>취소</Button>
@@ -124,7 +124,7 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId, compact = f
         <a href={link.url} target="_blank" rel="noopener noreferrer" onClick={handleLinkClick}
           aria-label={`${link.title} 링크 열기`}
           className={`min-w-0 flex-1 rounded-xl border border-border/70 bg-card transition-all duration-200 hover:-translate-y-0.5 hover:bg-muted/60 hover:shadow-sm ${onUpdate || onDelete ? "rounded-r-none border-r-0" : ""}`}>
-          <div className="flex items-center gap-4 p-4">
+          <div className="flex min-h-[76px] items-center gap-3 p-3.5 sm:gap-4 sm:p-4">
             <span className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border/50 bg-muted">
               <Icon aria-hidden="true" className="size-5 text-muted-foreground transition-colors group-hover:text-[#5b5fc7]" />
             </span>
@@ -143,13 +143,13 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId, compact = f
           <div className="flex shrink-0 flex-col overflow-hidden rounded-r-xl border border-border/70 bg-card">
             {onUpdate ? (
               <button type="button" title="수정" aria-label={`${link.title} 수정`} onClick={() => setIsEditing(true)}
-                className="flex min-h-10 w-11 flex-1 items-center justify-center border-b border-border/70 text-muted-foreground transition-colors hover:bg-[#5b5fc7]/10 hover:text-[#5b5fc7]">
+                className="flex min-h-11 w-12 flex-1 items-center justify-center border-b border-border/70 text-muted-foreground transition-colors hover:bg-[#5b5fc7]/10 hover:text-[#5b5fc7]">
                 <Pencil aria-hidden="true" className="size-4" />
               </button>
             ) : null}
             {onDelete ? (
               <button type="button" title="삭제" aria-label={`${link.title} 삭제`} onClick={() => onDelete(link)}
-                className="flex min-h-10 w-11 flex-1 items-center justify-center text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive">
+                className="flex min-h-11 w-12 flex-1 items-center justify-center text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive">
                 <Trash2 aria-hidden="true" className="size-4" />
               </button>
             ) : null}
