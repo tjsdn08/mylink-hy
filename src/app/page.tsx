@@ -37,14 +37,14 @@ function LandingPreview() {
         <div aria-hidden="true" className="mx-auto mt-2 h-1.5 w-16 rounded-full bg-[#252937]/30" />
         <div className="flex items-center justify-between border-b border-border/60 px-6 py-4">
           <span className="flex items-center gap-2 text-sm font-bold"><Link2 className="size-4 text-primary" />MyLink</span>
-          <span className="rounded-full bg-[#EAF4CB] px-3 py-1 text-xs font-semibold text-primary">미리보기</span>
+          <span className="rounded-full bg-[#EAF4CB] px-3 py-1 text-xs font-semibold text-[#344A25]">미리보기</span>
         </div>
         <div className="px-5 py-7 sm:px-7">
           <div className="flex flex-col items-center text-center">
             <span aria-hidden="true" className="flex size-20 items-center justify-center rounded-[26px] bg-[#EAF4CB] text-3xl">👩🏻‍💻</span>
             <h2 className="mt-4 text-xl font-bold">나만의 링크 공간</h2>
             <p className="mt-1 text-sm text-muted-foreground">만든 것, 배우는 것, 좋아하는 것까지 ✨</p>
-            <span className="mt-3 rounded-full bg-[#EAF4CB] px-3 py-1.5 text-xs font-semibold text-primary">@yourname</span>
+            <span className="mt-3 rounded-full bg-[#EAF4CB] px-3 py-1.5 text-xs font-semibold text-[#344A25]">@yourname</span>
           </div>
           <div className="mt-7 grid grid-cols-3 gap-2" aria-label="예시 링크 선택">
             {demoLinks.map((item, index) => (
@@ -162,7 +162,7 @@ export default function Home() {
           <div aria-hidden="true" className="pointer-events-none absolute -right-24 top-12 -z-10 size-[320px] rounded-full bg-[#DDF76B]/45 blur-[95px] sm:size-[450px]" />
           <div className="mx-auto grid max-w-7xl items-center gap-14 px-5 pb-28 pt-20 sm:px-8 lg:min-h-[720px] lg:grid-cols-[1.05fr_0.95fr] lg:gap-12 lg:px-12">
             <div className="max-w-xl text-center lg:text-left">
-              <p className="inline-flex items-center gap-2 rounded-full bg-[#EAF4CB] px-4 py-2 text-xs font-bold text-primary">
+              <p className="inline-flex items-center gap-2 rounded-full bg-[#EAF4CB] px-4 py-2 text-xs font-bold text-[#344A25]">
                 <Sparkles aria-hidden="true" className="size-4" /> YOUR SPACE ON THE INTERNET
               </p>
               <h1 className="mt-7 text-[clamp(3.4rem,7vw,6.5rem)] font-black leading-[1.05] tracking-[-0.075em]">
@@ -197,7 +197,7 @@ export default function Home() {
         <div className="border-b border-[#252823]/10 bg-[#DDF76B] py-4 text-center text-xs font-black tracking-[0.15em] text-[#333B29] sm:text-sm">YOUR LINKS <span className="mx-4">✳</span> YOUR STORIES <span className="mx-4">✳</span> YOUR SPACE</div>
         <section id="features" className="scroll-mt-24 bg-[#F8F6F1] py-24 sm:py-32">
           <div className="mx-auto max-w-6xl px-5 sm:px-8">
-            <p className="text-sm font-bold text-primary">WHY MYLINK?</p>
+            <p className="text-sm font-extrabold text-[#4A622C]">WHY MYLINK?</p>
             <h2 className="mt-3 text-[clamp(1.8rem,4vw,2.65rem)] font-bold leading-tight tracking-tight">작은 링크 하나에도,<br />나만의 이야기가 있어.</h2>
             <p className="mt-4 text-sm text-muted-foreground">작은 링크 하나도 나를 설명할 수 있으니까요.</p>
             <div className="mt-10 grid gap-4 md:grid-cols-3">
@@ -205,7 +205,7 @@ export default function Home() {
                 const Icon = item.icon;
                 return (
                   <article key={item.title} className="rounded-[26px] border border-[#252823]/10 bg-[#252823] p-6 text-white transition-transform duration-300 hover:-translate-y-1 sm:p-7">
-                    <span className="flex size-12 items-center justify-center rounded-2xl bg-[#EAF4CB] text-primary"><Icon aria-hidden="true" className="size-6" /></span>
+                    <span className="flex size-12 items-center justify-center rounded-2xl bg-[#EAF4CB] text-[#344A25]"><Icon aria-hidden="true" className="size-6" /></span>
                     <h3 className="mt-6 text-lg font-bold">{item.title}</h3>
                     <p className="mt-3 text-sm leading-[1.8] text-white/65">{item.body}</p>
                   </article>
@@ -215,10 +215,10 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="steps" className="scroll-mt-24 border-t border-[#252823]/10 bg-[#F0EEE6] py-24 sm:py-28">
+        <section id="steps" className="scroll-mt-24 border-t border-[#252823]/10 bg-[#F0EEE6] py-24 text-[#252823] sm:py-28">
           <div className="mx-auto max-w-6xl px-5 sm:px-8">
-            <p className="text-center text-sm font-bold text-primary">HOW IT WORKS</p>
-            <h2 className="mt-3 text-center text-[clamp(1.8rem,4vw,2.65rem)] font-bold tracking-tight">세 단계면 충분해요</h2>
+            <p className="text-center text-xs font-extrabold tracking-[0.16em] text-[#4A622C]">HOW IT WORKS</p>
+            <h2 className="mt-3 text-center text-[clamp(1.8rem,4vw,2.65rem)] font-bold tracking-tight text-[#252823]">세 단계면 충분해요</h2>
             <ol className="mt-11 grid gap-5 md:grid-cols-3">
               {[
                 { icon: WandSparkles, title: "Google로 시작", description: "복잡한 가입 없이 계정으로 시작해요." },
@@ -227,10 +227,10 @@ export default function Home() {
               ].map((step, index) => {
                 const Icon = step.icon;
                 return (
-                  <li key={step.title} className="rounded-3xl border border-border/70 p-6 sm:p-7">
-                    <div className="flex items-center justify-between text-primary"><strong className="text-xs">STEP 0{index + 1}</strong><Icon aria-hidden="true" className="size-5" /></div>
-                    <h3 className="mt-6 text-lg font-bold">{step.title}</h3>
-                    <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{step.description}</p>
+                  <li key={step.title} className="rounded-3xl border border-[#D7DACF] bg-[#FFFFFF]/80 p-6 shadow-[0_4px_18px_rgba(37,40,35,0.04)] sm:p-7">
+                    <div className="flex items-center justify-between text-[#49652B]"><strong className="text-xs font-extrabold">STEP 0{index + 1}</strong><Icon aria-hidden="true" className="size-5" /></div>
+                    <h3 className="mt-6 text-lg font-bold text-[#252823]">{step.title}</h3>
+                    <p className="mt-3 text-sm leading-relaxed text-[#5D6259]">{step.description}</p>
                   </li>
                 );
               })}
@@ -238,20 +238,20 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="bg-[#DDF76B] px-5 py-20 text-center sm:py-24">
+        <section className="bg-[#DDF76B] px-5 py-20 text-center text-[#252823] sm:py-24">
           <div className="mx-auto max-w-3xl">
-            <p className="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-xs font-bold text-primary"><Sparkles aria-hidden="true" className="size-4" /> 나만의 작은 홈페이지</p>
-            <h2 className="mt-5 text-[clamp(1.8rem,4vw,2.8rem)] font-extrabold tracking-tight">당신의 링크에도 무대가 필요해.</h2>
-            <p className="mt-4 text-sm text-muted-foreground">한 페이지에 나다운 이야기를 담아보세요.</p>
-            <Button className="mt-8 h-12 rounded-2xl px-7" disabled={busy} onClick={handleGoogleSignIn}>{loginLabel}<ArrowRight aria-hidden="true" className="size-4" /></Button>
+            <p className="inline-flex items-center gap-2 rounded-full bg-[#FFFFFF]/90 px-4 py-2 text-xs font-bold text-[#405A27]"><Sparkles aria-hidden="true" className="size-4" /> 나만의 작은 홈페이지</p>
+            <h2 className="mt-5 text-[clamp(1.8rem,4vw,2.8rem)] font-extrabold tracking-tight text-[#252823]">당신의 링크에도 무대가 필요해.</h2>
+            <p className="mt-4 text-sm font-medium text-[#45543A]">한 페이지에 나다운 이야기를 담아보세요.</p>
+            <Button className="mt-8 h-12 rounded-2xl bg-[#252823] px-7 font-bold text-[#FFFFFF] shadow-[0_6px_0_rgba(37,40,35,0.15)] transition-all hover:-translate-y-0.5 hover:bg-[#40483A] hover:text-[#FFFFFF] disabled:opacity-60" disabled={busy} onClick={handleGoogleSignIn}>{loginLabel}<ArrowRight aria-hidden="true" className="size-4" /></Button>
           </div>
         </section>
       </main>
       <footer className="border-t border-[#252823]/10 bg-[#252823] px-5 py-9 text-white">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 text-xs text-white/60 sm:flex-row">
-          <strong className="flex items-center gap-2 text-foreground"><Link2 aria-hidden="true" className="size-4 text-primary" /> MyLink</strong>
+          <strong className="flex items-center gap-2 font-bold text-[#FFFFFF]"><Link2 aria-hidden="true" className="size-4 text-[#DDF76B]" /> MyLink</strong>
           <p>© 2026 MyLink. 하나의 링크로 나를 소개해요.</p>
-          <a href="#features" className="hover:text-foreground">서비스 소개로 이동</a>
+          <a href="#features" className="text-[#ECEFE7] underline-offset-4 hover:text-[#DDF76B] hover:underline">서비스 소개로 이동</a>
         </div>
       </footer>
     </div>
