@@ -13,6 +13,7 @@ import {
   serverTimestamp,
   Timestamp,
   updateDoc,
+  writeBatch,
 } from "firebase/firestore";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -34,6 +35,7 @@ import {
 } from "@/components/ui/avatar";
 import { LinkList } from "@/components/links/LinkList";
 import { ProfileSection } from "@/components/mypage/ProfileSection";
+import { ProfileDesignEditor } from "@/components/mypage/ProfileDesignEditor";
 import { getFirebaseFirestore } from "@/lib/firebase";
 import { useAuth } from "@/components/auth-provider";
 import { showToast } from "@/lib/toast";
@@ -99,8 +101,9 @@ export default function MyPage() {
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
   const [linkFieldErrors, setLinkFieldErrors] = useState<{ title?: string; url?: string }>({});
-  const links =
-    user && isProfileReady && linksUserId === user.uid ? firestoreLinks : [];
+  const links = user && isProfileReady && linksUserId === user.uid
+    ? [...firestoreLinks].sort((a, b) => (a.sortOrder ?? 100000) - (b.sortOrder ?? 100000))
+    : [];
 
   useEffect(() => {
     const handlePointerDown = (event: PointerEvent) => {
@@ -212,6 +215,10 @@ export default function MyPage() {
                       ? (data.category as Link["category"])
                       : "other",
                   clickCount: typeof data.clickCount === "number" ? data.clickCount : 0,
+                  thumbnailUrl: typeof data.thumbnailUrl === "string" ? data.thumbnailUrl : "",
+                  isActive: data.isActive !== false,
+                  isFeatured: data.isFeatured === true,
+                  sortOrder: typeof data.sortOrder === "number" ? data.sortOrder : undefined,
                   updatedAt:
                     data.updatedAt instanceof Timestamp
                       ? data.updatedAt.toDate()
@@ -414,10 +421,36 @@ export default function MyPage() {
       {
         title: link.title,
         url: link.url,
+        description: link.description ?? "",
+        thumbnailUrl: link.thumbnailUrl ?? "",
+        isActive: link.isActive !== false,
+        isFeatured: link.isFeatured === true,
         updatedAt: serverTimestamp(),
       }
     );
     showToast("링크가 수정되었어요.");
+  }
+
+  async function handleReorder(fromId: string, toId: string) {
+    if (!user || fromId === toId) return;
+    const sorted = [...links];
+    const from = sorted.findIndex((item) => item.id === fromId);
+    const to = sorted.findIndex((item) => item.id === toId);
+    if (from === -1 || to === -1) return;
+    const [moved] = sorted.splice(from, 1);
+    sorted.splice(to, 0, moved);
+    const firestore = getFirebaseFirestore();
+    const batch = writeBatch(firestore);
+    sorted.forEach((link, index) => {
+      batch.update(doc(firestore, "users", user.uid, "links", link.id), { sortOrder: index });
+    });
+    try {
+      await batch.commit();
+      setFirestoreLinks((old) => old.map((item) => ({ ...item, sortOrder: sorted.findIndex((link) => link.id === item.id) })));
+      showToast("링크 순서를 저장했어요.");
+    } catch (cause) {
+      showToast(cause instanceof Error ? cause.message : "순서를 저장하지 못했어요.", "error");
+    }
   }
 
   async function handleDeleteLink() {
@@ -615,6 +648,11 @@ export default function MyPage() {
             bio={userProfile.bio}
             onEdit={openProfileEditor}
           />
+          <ProfileDesignEditor
+            userId={user.uid}
+            appearance={userProfile}
+            onSaved={(next) => setUserProfile((current) => current ? { ...current, ...next } : current)}
+          />
           <Dialog
             open={isProfileDialogOpen}
             onOpenChange={setIsProfileDialogOpen}
@@ -786,7 +824,7 @@ export default function MyPage() {
                 <p className="text-sm text-muted-foreground">아직 등록된 링크가 없습니다.</p>
               </div>
             ) : (
-              <LinkList links={links} onUpdate={handleUpdateLink} onDelete={setLinkToDelete} trackingUserId={user.uid} compact />
+              <LinkList links={links} onUpdate={handleUpdateLink} onDelete={setLinkToDelete} onReorder={handleReorder} trackingUserId={user.uid} compact />
             )}
           </section>
         </>

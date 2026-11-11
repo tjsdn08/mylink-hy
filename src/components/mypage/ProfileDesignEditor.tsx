@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { Check, Palette, Save, Share2 } from "lucide-react";
 import { getFirebaseFirestore } from "@/lib/firebase";
@@ -30,13 +30,6 @@ export function ProfileDesignEditor({ userId, appearance, onSaved }: Props) {
   );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-
-  useEffect(() => {
-    setTheme(appearance.theme ?? "cream");
-    setBackgroundColor(appearance.backgroundColor ?? "");
-    setButtonStyle(appearance.buttonStyle ?? "rounded");
-    setSocialUrls(Object.fromEntries((appearance.socialLinks ?? []).map((item) => [item.platform, item.url])));
-  }, [appearance.theme, appearance.backgroundColor, appearance.buttonStyle, appearance.socialLinks]);
 
   async function saveDesign() {
     setError("");
