@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { collection, doc, getDoc, onSnapshot, orderBy, query, Timestamp } from "firebase/firestore";
 import { notFound } from "next/navigation";
+import NextLink from "next/link";
 import { Globe2, Link2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LinkList } from "@/components/links/LinkList";
@@ -158,9 +159,9 @@ export function PublicProfileClient({ username }: { username: string }) {
   return (
     <div className="min-h-screen bg-background pb-20 text-foreground">
       <header className="sticky top-0 z-40 flex h-16 items-center border-b border-border/50 bg-background/90 px-5 backdrop-blur-md">
-        <a href="/" className="flex items-center gap-2 text-lg font-bold tracking-tight">
+        <NextLink href="/" className="flex items-center gap-2 text-lg font-bold tracking-tight">
           <Globe2 aria-hidden="true" className="size-5 text-[#5b5fc7]" /> MyLink
-        </a>
+        </NextLink>
       </header>
       <main className="mx-auto flex w-full max-w-md flex-col items-center gap-8 px-4 pt-10">
         <section className="flex w-full flex-col items-center text-center">
