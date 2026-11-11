@@ -13,6 +13,7 @@ import {
   type ProfileAppearance,
   type ProfileTheme,
   type ButtonStyle,
+  type CoverStyle,
 } from "@/lib/profile-design";
 
 interface Props {
@@ -26,6 +27,8 @@ export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange
   const [theme, setTheme] = useState<ProfileTheme>(appearance.theme ?? "cream");
   const [backgroundColor, setBackgroundColor] = useState(appearance.backgroundColor ?? "");
   const [buttonStyle, setButtonStyle] = useState<ButtonStyle>(appearance.buttonStyle ?? "rounded");
+  const [coverStyle, setCoverStyle] = useState<CoverStyle>(appearance.coverStyle ?? "orbits");
+  const [headline, setHeadline] = useState(appearance.headline ?? "");
   const [socialUrls, setSocialUrls] = useState<Record<string, string>>(
     Object.fromEntries((appearance.socialLinks ?? []).map((item) => [item.platform, item.url]))
   );
@@ -34,7 +37,7 @@ export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange
 
   const updateDraft = (patch: Partial<ProfileAppearance>) => {
     const next = {
-      theme, backgroundColor, buttonStyle,
+      theme, backgroundColor, buttonStyle, coverStyle, headline,
       socialLinks: SOCIAL_PLATFORMS.flatMap((platform) => {
         const url = socialUrls[platform]?.trim();
         return url ? [{ platform, url }] : [];
@@ -50,6 +53,7 @@ export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange
       setError("배경색은 #RRGGBB 형식으로 입력해 주세요.");
       return;
     }
+    if (headline.trim().length > 60) { setError("한 줄 소개는 60자 이내로 입력해 주세요."); return; }
     const socialLinks: { platform: string; url: string }[] = [];
     for (const platform of SOCIAL_PLATFORMS) {
       const input = (socialUrls[platform] ?? "").trim();
@@ -63,7 +67,7 @@ export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange
     }
     setSaving(true);
     try {
-      const next: ProfileAppearance = { theme, backgroundColor, buttonStyle, socialLinks };
+      const next: ProfileAppearance = { theme, backgroundColor, buttonStyle, coverStyle, headline: headline.trim(), socialLinks };
       await updateDoc(doc(getFirebaseFirestore(), "users", userId, "profile", "main"), {
         ...next, updatedAt: serverTimestamp(),
       });
@@ -106,6 +110,31 @@ export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange
           })}
         </div>
       </div>
+      <div className="space-y-2 border-t border-border pt-5">
+        <label htmlFor="profile-headline" className="block text-sm font-extrabold">프로필 한 줄 소개</label>
+        <input id="profile-headline" value={headline} maxLength={60} placeholder="예: 코드를 만들고 이야기를 기록하는 사람"
+          onChange={(event) => { setHeadline(event.target.value); updateDraft({ headline: event.target.value }); }}
+          className="h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground" />
+        <p className="text-right text-xs text-muted-foreground">{headline.length}/60 · 프로필 이름 아래에 표시돼요.</p>
+      </div>
+      <fieldset className="space-y-3">
+        <legend className="text-sm font-extrabold">커버 패턴</legend>
+        <div className="grid grid-cols-3 gap-2">
+          {([
+            ["orbits", "서클"],
+            ["grid", "그리드"],
+            ["minimal", "미니멀"],
+          ] as const).map(([value, label]) => (
+            <button type="button" key={value} aria-pressed={coverStyle === value}
+              onClick={() => { setCoverStyle(value); updateDraft({ coverStyle: value }); }}
+              className={`rounded-xl border-2 p-2 transition-colors ${coverStyle === value ? "border-[#6F8B40]" : "border-border"}`}>
+              <span className={`profile-cover-swatch profile-cover-swatch-${value} block h-14 rounded-lg`}
+                style={{ backgroundColor: THEME_PRESETS[theme].cover }} />
+              <span className="mt-2 block text-xs font-semibold">{label}</span>
+            </button>
+          ))}
+        </div>
+      </fieldset>
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
           <label htmlFor="profile-background" className="mb-2 block text-sm font-extrabold">배경색 직접 지정</label>
@@ -138,7 +167,7 @@ export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange
                   const value = event.target.value;
                   const nextUrls = { ...socialUrls, [platform]: value };
                   setSocialUrls(nextUrls);
-                  onDraftChange?.({ theme, backgroundColor, buttonStyle,
+                  onDraftChange?.({ theme, backgroundColor, buttonStyle, coverStyle, headline,
                     socialLinks: SOCIAL_PLATFORMS.flatMap((p) => nextUrls[p]?.trim() ? [{ platform: p, url: nextUrls[p].trim() }] : []),
                   });
                 }}
