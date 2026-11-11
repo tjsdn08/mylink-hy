@@ -2,9 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/auth-provider";
-import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
+import { collection, doc, onSnapshot, orderBy, query } from "firebase/firestore";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
-import { ArrowLeft, ChartNoAxesColumn, MousePointerClick, Link2, Trophy } from "lucide-react";
+import { ArrowLeft, ChartNoAxesColumn, Eye, MousePointerClick, Link2, Trophy } from "lucide-react";
 import NextLink from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -41,11 +41,13 @@ export default function StatsPage() {
   const { user, loading: authLoading, error: authError } = useAuth();
   const [status, setStatus] = useState<Status>("loading");
   const [links, setLinks] = useState<LinkStats[]>([]);
+  const [profileViews, setProfileViews] = useState<number | null>(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
     let disposed = false;
     let unsubscribeLinks: (() => void) | undefined;
+    let unsubscribeMetrics: (() => void) | undefined;
     void Promise.resolve().then(() => {
       if (disposed || authLoading) return;
       if (authError) {
@@ -60,6 +62,17 @@ export default function StatsPage() {
       }
       setStatus("loading");
       const currentUid = user.uid;
+      unsubscribeMetrics = onSnapshot(
+        doc(getFirebaseFirestore(), "users", currentUid, "metrics", "profile"),
+        (snapshot) => {
+          const value = snapshot.data()?.views;
+          setProfileViews(typeof value === "number" && Number.isFinite(value) ? value : 0);
+        },
+        () => {
+          // 새 규칙이 아직 게시되지 않았으면 지표를 미집계로 표시합니다.
+          setProfileViews(null);
+        }
+      );
       unsubscribeLinks = onSnapshot(
         query(collection(getFirebaseFirestore(), "users", currentUid, "links"), orderBy("createdAt", "desc")),
         (snapshot) => {
@@ -86,7 +99,7 @@ export default function StatsPage() {
       setError(cause instanceof Error ? cause.message : "데이터 조회에 실패했어요.");
       setStatus("error");
     });
-    return () => { disposed = true; unsubscribeLinks?.(); };
+    return () => { disposed = true; unsubscribeLinks?.(); unsubscribeMetrics?.(); };
   }, [user, authLoading, authError, router]);
 
   const totalClicks = useMemo(
@@ -137,20 +150,30 @@ export default function StatsPage() {
               </div>
             </Card>
             <Card className="rounded-[24px] border border-[#252823]/10 bg-white p-6 shadow-none dark:border-white/10 dark:bg-[#323A33]">
-              <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground"><Link2 aria-hidden="true" className="size-4 text-[#5b5fc7]" /> 등록한 링크</div>
+              <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground"><Link2 aria-hidden="true" className="size-4 text-[#71864D]" /> 등록한 링크</div>
               <p className="mt-3 text-3xl font-bold tabular-nums">{formatCount(links.length)}<span className="ml-1 text-sm font-normal text-muted-foreground">개</span></p>
             </Card>
             <Card className="rounded-[24px] border border-[#252823]/10 bg-[#E8F1C8] p-6 shadow-none dark:border-white/10 dark:bg-[#303C2D]">
-              <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground"><Trophy aria-hidden="true" className="size-4 text-primary" /> 가장 인기 있는 링크</div>
+              <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground"><Trophy aria-hidden="true" className="size-4 text-[#71864D]" /> 가장 인기 있는 링크</div>
               <p className="mt-3 truncate text-lg font-bold" title={topLink?.title ?? ""}>{topLink?.title ?? "아직 등록한 링크가 없어요"}</p>
               <p className="mt-1 text-xs text-muted-foreground">{formatCount(topLink?.clickCount ?? 0)}회 클릭</p>
+            </Card>
+            <Card className="rounded-[24px] border border-[#252823]/10 bg-white p-6 shadow-none dark:border-white/10 dark:bg-[#323A33]">
+              <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground"><Eye aria-hidden="true" className="size-4 text-[#71864D]" /> 프로필 방문 수</div>
+              <p className="mt-3 text-3xl font-bold tabular-nums">{profileViews === null ? "미집계" : formatCount(profileViews)}{profileViews !== null ? <span className="ml-1 text-sm font-normal text-muted-foreground">회</span> : null}</p>
+              <p className="mt-2 text-xs text-muted-foreground">방문 수 집계 도입 이후 기록, 새로고침 포함</p>
+            </Card>
+            <Card className="rounded-[24px] border border-[#252823]/10 bg-[#E8F1C8] p-6 shadow-none dark:border-white/10 dark:bg-[#303C2D]">
+              <div className="text-sm font-semibold text-muted-foreground">방문당 링크 클릭</div>
+              <p className="mt-3 text-3xl font-bold tabular-nums">{profileViews && profileViews > 0 ? (totalClicks / profileViews).toFixed(2) : "—"} <span className="text-sm font-normal text-muted-foreground">회</span></p>
+              <p className="mt-2 text-xs text-muted-foreground">전체 누적 클릭 수 ÷ 집계 이후 방문 수로, 기간이 달라 참고용이에요.</p>
             </Card>
           </section>
 
           <Card className="overflow-hidden rounded-[28px] border border-[#252823]/10 bg-white shadow-none dark:border-white/10 dark:bg-[#323A33]">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-title-2">
-                <ChartNoAxesColumn aria-hidden="true" className="size-5 text-[#5b5fc7]" />
+                <ChartNoAxesColumn aria-hidden="true" className="size-5 text-[#71864D]" />
                 링크별 클릭 수
               </CardTitle>
             </CardHeader>
