@@ -38,3 +38,9 @@ application change.
 **주의:** GitHub 커밋 또는 Vercel 배포로 보안 규칙이 자동 게시되지는 않습니다. Firebase Console → Firestore Database → 규칙에서 최신 파일을 **게시(Publish)** 하세요. 그런 다음 신규 테마 저장, 비로그인 방문, 통계 방문 수 증가를 확인하세요.
 
 현재 링크 컬렉션은 공개 조회가 가능하므로 `isActive=false`인 링크도 Firestore API에서 원본 URL을 조회할 수 있습니다. 숨김은 UI 표시 제어에 한정되며 접근 비밀을 보장하지 않습니다.
+
+## 2026-11-11 개인화 필드 허용
+
+`users/{uid}/profile/main`의 허용 필드에 `coverStyle`, `headline`, `about`, `now`를 추가했습니다. 기존 권한 구조(본인만 프로필 수정, 공개 조회 가능한 프로필)는 변경하지 않았습니다.
+
+Firebase Console → Firestore Database → 규칙(Rules)으로 이동해서 GitHub 최신 `firestore.rules` **전체 내용**을 검토하고 게시하세요. 게시 후 한 줄 소개·커버 패턴·About me·Now를 저장하고 새로고침 및 비로그인 공개 프로필에서 반영 여부를 테스트하세요.
