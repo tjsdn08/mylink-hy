@@ -1,6 +1,7 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ArrowUpRight, Link2, Sparkles } from "lucide-react";
 import { LinkFavicon } from "@/components/links/LinkFavicon";
 import { LinkList } from "@/components/links/LinkList";
 import { appearanceVariables, normalizeSocialLinks, type ProfileAppearance } from "@/lib/profile-design";
@@ -28,36 +29,44 @@ export function ProfileVisual({ profile, links, compact = false, trackingUserId,
     .filter((link) => link.isActive !== false)
     .sort((a, b) => (a.sortOrder ?? 100000) - (b.sortOrder ?? 100000));
 
+  const highlighted = visibleLinks.filter((link) => link.isFeatured).length;
+  const hasDetails = Boolean(profile.bio.trim() || social.length > 0);
+
   return (
     <div
-      className={`profile-visual min-w-0 overflow-hidden ${compact ? "rounded-[25px]" : "rounded-[30px]"}`}
+      className={`profile-visual min-w-0 overflow-hidden ${compact ? "rounded-[28px]" : "rounded-[32px]"}`}
       data-theme={profile.theme ?? "cream"}
       style={appearanceVariables(profile)}
     >
       <section className="profile-visual-hero overflow-hidden bg-[var(--profile-button-bg)] text-[var(--profile-button-text)]">
-        <div className={`relative overflow-hidden bg-[var(--profile-cover)] ${compact ? "h-[92px]" : "h-44 sm:h-52"}`}>
-          <div aria-hidden="true" className="absolute -left-10 -top-16 size-44 rounded-full border-[22px] border-white/30" />
-          <div aria-hidden="true" className="absolute -bottom-20 -right-12 size-44 rounded-full bg-[#F6B59E]/60" />
-          <span className={`absolute bottom-3 right-4 font-black tracking-[.12em] text-[#34452B]/85 ${compact ? "text-[8px]" : "text-[10px]"}`}>
+        <div className={`profile-visual-cover relative overflow-hidden bg-[var(--profile-cover)] ${compact ? "h-[120px]" : "h-52 sm:h-60"}`}>
+          <div aria-hidden="true" className="profile-cover-circle absolute -left-14 -top-24 size-64 rounded-full border-[35px] border-white/30" />
+          <div aria-hidden="true" className="profile-cover-orb absolute -bottom-24 -right-12 size-64 rounded-full bg-[#F6B59E]/65" />
+          <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/10 to-transparent" />
+          <span className={`absolute left-5 top-5 inline-flex items-center gap-1.5 rounded-full border border-white/45 bg-white/75 px-3 py-1.5 font-extrabold tracking-[.13em] text-[#33432D] backdrop-blur ${compact ? "text-[8px]" : "text-[10px]"}`}>
+            <Sparkles className="size-3" aria-hidden="true" /> PERSONAL SPACE
+          </span>
+          <span className={`absolute bottom-4 right-5 font-black tracking-[.12em] text-[#34452B]/85 ${compact ? "text-[8px]" : "text-[10px]"}`}>
             MY LITTLE CORNER ✳
           </span>
         </div>
-        <div className={`relative text-center ${compact ? "px-4 pb-5 pt-11" : "px-6 pb-8 pt-16 sm:px-10"}`}>
-          <div className={`absolute left-1/2 -translate-x-1/2 ${compact ? "-top-8" : "-top-12"}`}>
-            <Avatar className={`border-[4px] border-white bg-[#EFF1E5] shadow-md ${compact ? "size-16" : "size-24"}`}>
+        <div className={`relative text-center ${compact ? "px-4 pb-7 pt-12" : "px-6 pb-10 pt-16 sm:px-10"}`}>
+          <div className={`absolute left-1/2 -translate-x-1/2 ${compact ? "-top-10" : "-top-14"}`}>
+            <Avatar className={`border-[5px] border-white bg-[#EFF1E5] shadow-[0_10px_24px_rgba(37,40,35,.18)] ${compact ? "size-20" : "size-28"}`}>
               {profile.photoURL ? <AvatarImage src={profile.photoURL} alt={`${profile.displayName} 프로필 사진`} /> : null}
               <AvatarFallback className={compact ? "text-xl font-black" : "text-3xl font-black"}>
                 {profile.displayName.slice(0, 1) || "?"}
               </AvatarFallback>
             </Avatar>
           </div>
-          <span className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-[#EAF2D2] px-3 py-1 text-xs font-extrabold text-[#405829]">
+          <span className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-[#EAF2D2] px-3 py-1.5 text-xs font-extrabold text-[#405829]">
             @{profile.username}
           </span>
-          <h2 className={`mt-3 break-words font-black leading-tight tracking-[-.05em] ${compact ? "text-lg" : "text-[clamp(1.9rem,5vw,2.7rem)]"}`}>
+          <h2 className={`mt-3 break-words font-black leading-tight tracking-[-.06em] ${compact ? "text-[22px]" : "text-[clamp(2rem,5vw,2.9rem)]"}`}>
             {profile.displayName}
           </h2>
           {profile.bio ? <p className={`mx-auto mt-3 max-w-md whitespace-pre-wrap break-words leading-relaxed opacity-85 ${compact ? "text-xs" : "text-sm"}`}>{profile.bio}</p> : null}
+          {!hasDetails ? <p className="mt-3 text-xs leading-6 opacity-60">소개글과 SNS를 추가해 나만의 공간을 완성해 보세요.</p> : null}
           {social.length > 0 ? (
             <div className="mt-4 flex flex-wrap justify-center gap-2" aria-label="SNS 프로필">
               {social.map((item) => (
@@ -75,14 +84,19 @@ export function ProfileVisual({ profile, links, compact = false, trackingUserId,
             </div>
           ) : null}
           {children}
+          <div className={`mx-auto mt-6 flex max-w-[310px] items-center justify-center gap-3 border-t border-current/10 pt-4 ${compact ? "text-[10px]" : "text-xs"}`}>
+            <span className="inline-flex items-center gap-1.5 font-semibold opacity-75"><Link2 className="size-3.5" aria-hidden="true" /> {visibleLinks.length}개 링크</span>
+            <span aria-hidden="true" className="size-1 rounded-full bg-current opacity-30" />
+            <span className="font-semibold opacity-75">{highlighted > 0 ? `추천 링크 ${highlighted}개` : "한곳에 모인 나의 기록"}</span>
+          </div>
         </div>
       </section>
 
-      <section aria-label="프로필 링크" className={`profile-visual-links ${compact ? "px-3 pb-5 pt-5" : "px-5 pb-8 pt-8 sm:px-7"}`}>
+      <section aria-label="프로필 링크" className={`profile-visual-links ${compact ? "px-3 pb-6 pt-6" : "px-6 pb-10 pt-10 sm:px-10"}`}>
         <div className="mb-4 flex items-end justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-[10px] font-extrabold tracking-[.16em] opacity-75">DISCOVER MORE</p>
-            <h3 className={`mt-1 font-black tracking-[-.045em] ${compact ? "text-base" : "text-[23px]"}`}>여기서 더 만나보세요.</h3>
+            <p className="text-[10px] font-extrabold tracking-[.2em] opacity-75">EXPLORE MY WORLD</p>
+            <h3 className={`mt-1 font-black tracking-[-.045em] ${compact ? "text-[17px]" : "text-[25px]"}`}>여기서 더 만나보세요.</h3>
           </div>
           <span className="shrink-0 rounded-full border border-current/25 px-2.5 py-1 text-[10px] font-bold">{visibleLinks.length} links</span>
         </div>
@@ -94,8 +108,8 @@ export function ProfileVisual({ profile, links, compact = false, trackingUserId,
           <p className="rounded-2xl border border-dashed border-current/30 p-6 text-center text-xs opacity-75">아직 등록된 링크가 없어요.</p>
         )}
       </section>
-      <div className="px-5 pb-5 text-center text-[10px] font-semibold opacity-65">
-        made with mylink.
+      <div className="flex items-center justify-center gap-1.5 border-t border-current/10 px-5 py-5 text-center text-[10px] font-bold tracking-[.02em] opacity-65">
+        <ArrowUpRight className="size-3" aria-hidden="true" /> made with mylink.
       </div>
     </div>
   );
