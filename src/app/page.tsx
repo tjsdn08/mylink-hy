@@ -38,7 +38,7 @@ function LandingPreview() {
   const [active, setActive] = useState(0);
   const ItemIcon = demoLinks[active].icon;
   return (
-    <div className="relative mx-auto w-full max-w-[420px]" aria-label="MyLink 프로필 예시 미리보기">
+    <div className="relative mx-auto w-full max-w-[420px] motion-safe:animate-[mylink-rise_700ms_ease-out_both]" aria-label="MyLink 프로필 예시 미리보기">
       <div aria-hidden="true" className="pointer-events-none absolute -inset-5 -z-10 rounded-[40px] bg-gradient-to-br from-[var(--tds-blue-50)] via-white to-teal-50 blur-2xl" />
       <div className="overflow-hidden rounded-[28px] border border-border/70 bg-card shadow-[0_24px_70px_-30px_rgba(25,31,40,0.30)]">
         <div className="flex items-center justify-between border-b border-border/60 px-6 py-4">
@@ -74,7 +74,7 @@ function LandingPreview() {
           </div>
         </div>
       </div>
-      <div className="absolute -right-3 -top-5 hidden items-center gap-2 rounded-2xl bg-card px-3 py-2 text-xs font-semibold shadow-[var(--tds-shadow-3)] sm:flex">
+      <div className="absolute -right-3 -top-5 hidden items-center gap-2 rounded-2xl motion-safe:animate-[mylink-float_5s_ease-in-out_infinite] bg-card px-3 py-2 text-xs font-semibold shadow-[var(--tds-shadow-3)] sm:flex">
         <MousePointerClick aria-hidden="true" className="size-4 text-primary" /> 하나의 주소로 공유!
       </div>
     </div>
