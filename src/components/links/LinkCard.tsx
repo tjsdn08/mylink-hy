@@ -154,7 +154,7 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId, compact = f
           </div>
           <div className="flex justify-end gap-2">
             <Button variant="outline" size="sm" type="button" onClick={cancelEdit} disabled={isSaving}>취소</Button>
-            <Button size="sm" type="submit" disabled={isSaving} className="bg-[#5b5fc7] text-white hover:bg-[#4c50ab]">{isSaving ? "저장 중..." : "저장"}</Button>
+            <Button size="sm" type="submit" disabled={isSaving} className="bg-[#6B8544] text-white hover:bg-[#536C33]">{isSaving ? "저장 중..." : "저장"}</Button>
           </div>
         </form>
       );
@@ -193,7 +193,7 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId, compact = f
           <div className="flex shrink-0 flex-col overflow-hidden rounded-r-[18px] border border-[#252823]/10 bg-white dark:border-white/10 dark:bg-[#323A33]">
             {onUpdate ? (
               <button type="button" title="수정" aria-label={`${link.title} 수정`} onClick={() => setIsEditing(true)}
-                className="flex min-h-11 w-12 flex-1 items-center justify-center border-b border-border/70 text-muted-foreground transition-colors hover:bg-[#5b5fc7]/10 hover:text-[#5b5fc7]">
+                className="flex min-h-11 w-12 flex-1 items-center justify-center border-b border-border/70 text-muted-foreground transition-colors hover:bg-[#6B8544]/10 hover:text-[#6B8544]">
                 <Pencil aria-hidden="true" className="size-4" />
               </button>
             ) : null}

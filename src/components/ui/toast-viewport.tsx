@@ -45,10 +45,10 @@ export function ToastViewport() {
         const NoticeIcon = notice.kind === "success" ? CheckCircle2 : CircleAlert;
         return (
           <div key={notice.id} role="status" className="pointer-events-auto flex w-full max-w-sm items-center gap-3 rounded-xl border border-border/80 bg-card px-4 py-3 text-foreground shadow-tds-toast sm:min-w-[300px]">
-            <NoticeIcon aria-hidden="true" className={`size-5 shrink-0 ${notice.kind === "success" ? "text-[#5b5fc7]" : "text-destructive"}`} />
+            <NoticeIcon aria-hidden="true" className={`size-5 shrink-0 ${notice.kind === "success" ? "text-[#6B8544]" : "text-destructive"}`} />
             <span className="min-w-0 flex-1 text-sm font-medium">{notice.message}</span>
             <button type="button" aria-label="알림 닫기" onClick={() => setNotices((current) => current.filter((item) => item.id !== notice.id))}
-              className="flex size-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted focus-visible:outline-2 focus-visible:outline-[#5b5fc7]">
+              className="flex size-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted focus-visible:outline-2 focus-visible:outline-[#6B8544]">
               <X aria-hidden="true" className="size-4" />
             </button>
           </div>

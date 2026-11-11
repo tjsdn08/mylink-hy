@@ -797,7 +797,7 @@ export default function MyPage() {
                 {error && !linkFieldErrors.title && !linkFieldErrors.url ? <p role="alert" className="text-center text-xs font-medium text-destructive">{error}</p> : null}
                 <div className="flex justify-center gap-2 pt-1">
                   <Button variant="outline" size="sm" type="button" disabled={isSaving} onClick={() => handleDialogOpenChange(false)}>취소</Button>
-                  <Button size="sm" type="submit" disabled={isSaving} className="bg-[#5b5fc7] text-white hover:bg-[#4c50ab]">
+                  <Button size="sm" type="submit" disabled={isSaving} className="bg-[#252823] text-white hover:bg-[#41483A]">
                     <Save className="size-3.5" aria-hidden="true" /> {isSaving ? "추가 중..." : "추가하기"}
                   </Button>
                 </div>

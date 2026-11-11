@@ -32,25 +32,25 @@ function LandingPreview() {
   const ItemIcon = demoLinks[active].icon;
   return (
     <div className="relative mx-auto w-full max-w-[420px] motion-safe:animate-[mylink-rise_700ms_ease-out_both]" aria-label="MyLink 프로필 예시 미리보기">
-      <div aria-hidden="true" className="pointer-events-none absolute -inset-5 -z-10 rounded-[40px] bg-gradient-to-br from-[var(--tds-blue-50)] via-white to-teal-50 blur-2xl" />
+      <div aria-hidden="true" className="pointer-events-none absolute -inset-5 -z-10 rounded-[40px] bg-gradient-to-br from-[#EAF4CB] via-white to-teal-50 blur-2xl" />
       <div className="mx-auto max-w-[355px] overflow-hidden rounded-[38px] border-[7px] border-[#252823] bg-white shadow-[0_24px_70px_-30px_rgba(25,31,40,0.30)]">
         <div aria-hidden="true" className="mx-auto mt-2 h-1.5 w-16 rounded-full bg-[#252937]/30" />
         <div className="flex items-center justify-between border-b border-border/60 px-6 py-4">
           <span className="flex items-center gap-2 text-sm font-bold"><Link2 className="size-4 text-primary" />MyLink</span>
-          <span className="rounded-full bg-[var(--tds-blue-50)] px-3 py-1 text-xs font-semibold text-primary">미리보기</span>
+          <span className="rounded-full bg-[#EAF4CB] px-3 py-1 text-xs font-semibold text-primary">미리보기</span>
         </div>
         <div className="px-5 py-7 sm:px-7">
           <div className="flex flex-col items-center text-center">
-            <span aria-hidden="true" className="flex size-20 items-center justify-center rounded-[26px] bg-[var(--tds-blue-50)] text-3xl">👩🏻‍💻</span>
+            <span aria-hidden="true" className="flex size-20 items-center justify-center rounded-[26px] bg-[#EAF4CB] text-3xl">👩🏻‍💻</span>
             <h2 className="mt-4 text-xl font-bold">나만의 링크 공간</h2>
             <p className="mt-1 text-sm text-muted-foreground">만든 것, 배우는 것, 좋아하는 것까지 ✨</p>
-            <span className="mt-3 rounded-full bg-[var(--tds-blue-50)] px-3 py-1.5 text-xs font-semibold text-primary">@yourname</span>
+            <span className="mt-3 rounded-full bg-[#EAF4CB] px-3 py-1.5 text-xs font-semibold text-primary">@yourname</span>
           </div>
           <div className="mt-7 grid grid-cols-3 gap-2" aria-label="예시 링크 선택">
             {demoLinks.map((item, index) => (
               <button key={item.title} type="button" aria-pressed={active === index}
                 onClick={() => setActive(index)}
-                className={`rounded-xl px-1 py-2.5 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${active === index ? "bg-[var(--tds-blue-50)] text-primary" : "bg-muted text-muted-foreground hover:bg-border/70"}`}>
+                className={`rounded-xl px-1 py-2.5 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${active === index ? "bg-[#EAF4CB] text-primary" : "bg-muted text-muted-foreground hover:bg-border/70"}`}>
                 {item.title}
               </button>
             ))}
@@ -162,7 +162,7 @@ export default function Home() {
           <div aria-hidden="true" className="pointer-events-none absolute -right-24 top-12 -z-10 size-[320px] rounded-full bg-[#DDF76B]/45 blur-[95px] sm:size-[450px]" />
           <div className="mx-auto grid max-w-7xl items-center gap-14 px-5 pb-28 pt-20 sm:px-8 lg:min-h-[720px] lg:grid-cols-[1.05fr_0.95fr] lg:gap-12 lg:px-12">
             <div className="max-w-xl text-center lg:text-left">
-              <p className="inline-flex items-center gap-2 rounded-full bg-[var(--tds-blue-50)] px-4 py-2 text-xs font-bold text-primary">
+              <p className="inline-flex items-center gap-2 rounded-full bg-[#EAF4CB] px-4 py-2 text-xs font-bold text-primary">
                 <Sparkles aria-hidden="true" className="size-4" /> YOUR SPACE ON THE INTERNET
               </p>
               <h1 className="mt-7 text-[clamp(3.4rem,7vw,6.5rem)] font-black leading-[1.05] tracking-[-0.075em]">
@@ -205,7 +205,7 @@ export default function Home() {
                 const Icon = item.icon;
                 return (
                   <article key={item.title} className="rounded-[26px] border border-[#252823]/10 bg-[#252823] p-6 text-white transition-transform duration-300 hover:-translate-y-1 sm:p-7">
-                    <span className="flex size-12 items-center justify-center rounded-2xl bg-[var(--tds-blue-50)] text-primary"><Icon aria-hidden="true" className="size-6" /></span>
+                    <span className="flex size-12 items-center justify-center rounded-2xl bg-[#EAF4CB] text-primary"><Icon aria-hidden="true" className="size-6" /></span>
                     <h3 className="mt-6 text-lg font-bold">{item.title}</h3>
                     <p className="mt-3 text-sm leading-[1.8] text-white/65">{item.body}</p>
                   </article>

@@ -216,11 +216,11 @@ export function PublicProfileClient({ username }: { username: string }) {
       </header>
 
       <main className="relative mx-auto w-full max-w-[620px] px-5 pb-10 sm:px-7">
-        <section className="relative mt-4 overflow-hidden rounded-[30px] border border-[#262920]/10 bg-white shadow-[0_22px_80px_rgba(52,48,34,0.08)] dark:border-white/10 dark:bg-[#282E29]">
+        <section className="relative mt-4 overflow-hidden rounded-[30px] border border-[#262920]/10 bg-white shadow-[0_22px_80px_rgba(52,48,34,0.08)] dark:border-white/10 dark:bg-[#282E29]" style={{ backgroundColor: "var(--profile-button-bg)", color: "var(--profile-button-text)" }}>
           <div className="relative h-44 overflow-hidden sm:h-52" style={{ background: "var(--profile-cover)" }}>
             <div aria-hidden="true" className="absolute -left-10 -top-20 size-64 rounded-full border-[30px] border-white/35" />
             <div aria-hidden="true" className="absolute -right-10 -bottom-24 size-64 rounded-full bg-[#F6B59E]/70 blur-[3px]" />
-            <span className="absolute bottom-4 right-5 rotate-[-7deg] text-[11px] font-black tracking-[0.13em] text-[#51632E]">MY LITTLE CORNER ✳</span>
+            <span className="absolute bottom-4 right-5 rotate-[-7deg] text-[11px] font-black tracking-[0.13em] text-white mix-blend-difference">MY LITTLE CORNER ✳</span>
           </div>
           <div className="relative px-6 pb-8 pt-16 text-center sm:px-10">
             <div className="absolute -top-12 left-1/2 -translate-x-1/2">
