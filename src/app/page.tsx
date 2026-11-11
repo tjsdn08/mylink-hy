@@ -182,7 +182,7 @@ export default function Home() {
               <div className="mt-5 min-h-6" aria-live="polite">
                 {isAuthLoading ? <p role="status" className="text-xs text-muted-foreground">로그인 상태를 확인하고 있어요.</p> : null}
                 {isSigningIn || isProfileSaving ? <p role="status" className="text-xs text-muted-foreground">{isProfileSaving ? "로그인 완료! 프로필을 준비하고 있어요." : "Google 인증 화면을 확인해 주세요."}</p> : null}
-                {error ? <p role="alert" className="text-sm text-destructive">{visibleError}</p> : null}
+                {visibleError ? <p role="alert" className="text-sm text-destructive">{visibleError}</p> : null}
               </div>
               <div className="mt-7 flex flex-wrap justify-center gap-x-5 gap-y-2 text-xs text-muted-foreground lg:justify-start">
                 <span className="inline-flex items-center gap-1.5"><CheckCircle2 aria-hidden="true" className="size-4 text-primary" /> Google로 간편 시작</span>
