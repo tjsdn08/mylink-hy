@@ -7,6 +7,7 @@ import NextLink from "next/link";
 import { ArrowUpRight, Check, Copy, Globe2, Link2, Share2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LinkList } from "@/components/links/LinkList";
+import { LinkFavicon } from "@/components/links/LinkFavicon";
 import { getFirebaseFirestore } from "@/lib/firebase";
 import { showToast } from "@/lib/toast";
 import { appearanceVariables, normalizeSocialLinks, type ProfileAppearance } from "@/lib/profile-design";
@@ -233,6 +234,17 @@ export function PublicProfileClient({ username }: { username: string }) {
             </div>
             <h1 className="break-words text-[clamp(1.9rem,5vw,2.7rem)] font-black leading-tight tracking-[-0.065em]">{profile.displayName}</h1>
             {profile.bio ? <p className="mx-auto mt-4 max-w-md whitespace-pre-wrap break-words text-sm leading-7 text-[#656B60] dark:text-white/70">{profile.bio}</p> : null}
+            {profile.socialLinks && profile.socialLinks.length > 0 ? (
+              <nav aria-label="SNS 프로필" className="mt-5 flex flex-wrap justify-center gap-2">
+                {profile.socialLinks.map((item) => (
+                  <a key={item.platform} href={item.url} target="_blank" rel="noopener noreferrer"
+                    aria-label={`${item.platform} 열기`} title={item.platform}
+                    className="flex size-11 items-center justify-center rounded-full border border-[#252823]/10 bg-[#F3F6E7] text-[#252823] transition-transform hover:-translate-y-1 dark:bg-white/10 dark:text-white">
+                    <LinkFavicon url={item.url} className="size-5" />
+                  </a>
+                ))}
+              </nav>
+            ) : null}
             <button type="button" onClick={() => void copyPublicUrl()}
               className="mt-6 inline-flex min-h-10 items-center gap-2 rounded-full border border-[#252823]/15 bg-[#F7F6F0] px-4 text-xs font-bold text-[#444A3F] transition-colors hover:bg-[#DDF76B] dark:border-white/20 dark:bg-white/10 dark:text-white">
               {copied ? <Check className="size-4" aria-hidden="true" /> : <Copy className="size-4" aria-hidden="true" />}
