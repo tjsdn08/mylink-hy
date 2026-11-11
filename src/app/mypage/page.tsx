@@ -43,7 +43,7 @@ import { LinkList } from "@/components/links/LinkList";
 import { ProfileSection } from "@/components/mypage/ProfileSection";
 import { getFirebaseAuth, getFirebaseFirestore } from "@/lib/firebase";
 import { showToast } from "@/lib/toast";
-import { validateLinkForm } from "@/lib/link-validation";
+import { getLinkFieldErrors, validateLinkForm } from "@/lib/link-validation";
 import {
   ensureUserProfileDocument,
   saveUserProfile,
@@ -105,6 +105,7 @@ export default function MyPage() {
   const [form, setForm] = useState<LinkFormValues>(emptyForm);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [linkFieldErrors, setLinkFieldErrors] = useState<{ title?: string; url?: string }>({});
   const links =
     user && isProfileReady && linksUserId === user.uid ? firestoreLinks : [];
 
@@ -389,6 +390,7 @@ export default function MyPage() {
   function resetForm() {
     setForm(emptyForm);
     setError("");
+    setLinkFieldErrors({});
   }
 
   function handleDialogOpenChange(open: boolean) {
@@ -407,6 +409,8 @@ export default function MyPage() {
     const title = form.title.trim();
     const url = form.url.trim();
 
+    const fieldErrors = getLinkFieldErrors({ title, url });
+    setLinkFieldErrors(fieldErrors);
     const validationError = validateLinkForm({ title, url });
     if (validationError) {
       setError(validationError);
@@ -760,8 +764,8 @@ export default function MyPage() {
                   placeholder="링크 제목 (예: 인스타그램)"
                   maxLength={100}
                   aria-label="링크 제목"
-                  aria-invalid={Boolean(error && !form.title.trim())}
-                  onChange={(event) => { setForm((current) => ({ ...current, title: event.target.value })); setError(""); }}
+                  aria-invalid={Boolean(linkFieldErrors.title)}
+                  onChange={(event) => { setForm((current) => ({ ...current, title: event.target.value })); setError(""); setLinkFieldErrors((current) => ({ ...current, title: undefined })); }}
                   className="h-11 text-left font-medium"
                 />
                 <Input
@@ -770,11 +774,13 @@ export default function MyPage() {
                   value={form.url}
                   placeholder="https://example.com"
                   aria-label="링크 URL"
-                  aria-invalid={Boolean(error && form.title.trim())}
-                  onChange={(event) => { setForm((current) => ({ ...current, url: event.target.value })); setError(""); }}
+                  aria-invalid={Boolean(linkFieldErrors.url)}
+                  onChange={(event) => { setForm((current) => ({ ...current, url: event.target.value })); setError(""); setLinkFieldErrors((current) => ({ ...current, url: undefined })); }}
                   className="h-11 text-left text-sm"
                 />
-                {error ? <p role="alert" className="text-center text-xs font-medium text-destructive">{error}</p> : null}
+                {linkFieldErrors.title ? <p role="alert" className="text-xs text-destructive">{linkFieldErrors.title}</p> : null}
+                {linkFieldErrors.url ? <p role="alert" className="text-xs text-destructive">{linkFieldErrors.url}</p> : null}
+                {error && !linkFieldErrors.title && !linkFieldErrors.url ? <p role="alert" className="text-center text-xs font-medium text-destructive">{error}</p> : null}
                 <div className="flex justify-center gap-2 pt-1">
                   <Button variant="outline" size="sm" type="button" disabled={isSaving} onClick={() => handleDialogOpenChange(false)}>취소</Button>
                   <Button size="sm" type="submit" disabled={isSaving} className="bg-[#5b5fc7] text-white hover:bg-[#4c50ab]">
