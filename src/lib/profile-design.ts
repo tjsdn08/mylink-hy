@@ -54,6 +54,7 @@ export function appearanceVariables(value: ProfileAppearance): CSSProperties {
     "--profile-button-bg": preset.button,
     "--profile-button-text": buttonInk,
     "--profile-cover": preset.cover,
+    "--profile-cover-text": readableInk(preset.cover),
     "--profile-outline": preset.outline,
     "--profile-radius": radius,
   } as CSSProperties;

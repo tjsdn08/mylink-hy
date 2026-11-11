@@ -68,7 +68,7 @@ export function ProfileVisual({ profile, links, compact = false, trackingUserId,
           </h2>
           {profile.headline ? <p className={`mx-auto mt-3 max-w-sm font-extrabold tracking-tight ${compact ? "text-[13px]" : "text-base"}`}>{profile.headline}</p> : null}
           {profile.bio ? <p className={`mx-auto mt-3 max-w-md whitespace-pre-wrap break-words leading-relaxed opacity-85 ${compact ? "text-xs" : "text-sm"}`}>{profile.bio}</p> : null}
-          {!hasDetails ? <p className="mt-3 text-xs leading-6 opacity-60">소개글과 SNS를 추가해 나만의 공간을 완성해 보세요.</p> : null}
+          {!hasDetails && compact ? <p className="mt-3 text-xs leading-6 opacity-60">소개글과 SNS를 추가해 나만의 공간을 완성해 보세요.</p> : null}
           {social.length > 0 ? (
             <div className="mt-4 flex flex-wrap justify-center gap-2" aria-label="SNS 프로필">
               {social.map((item) => (
@@ -120,7 +120,7 @@ export function ProfileVisual({ profile, links, compact = false, trackingUserId,
             </section>
           ) : null}
           {profile.now?.trim() ? (
-            <section className="rounded-[20px] border border-current/10 bg-[var(--profile-cover)] p-5 text-[#252823]">
+            <section className="rounded-[20px] border border-current/10 bg-[var(--profile-cover)] p-5 text-[var(--profile-cover-text)]">
               <p className="text-[10px] font-black tracking-[.2em] opacity-65">02 / CURRENTLY</p>
               <h3 className={`mt-2 font-black tracking-tight ${compact ? "text-base" : "text-xl"}`}>요즘 하고 있는 일</h3>
               <p className={`mt-3 whitespace-pre-wrap break-words leading-6 opacity-85 ${compact ? "text-xs" : "text-sm"}`}>{profile.now}</p>
