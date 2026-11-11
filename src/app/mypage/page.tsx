@@ -112,6 +112,17 @@ export default function MyPage() {
     ? [...firestoreLinks].sort((a, b) => (a.sortOrder ?? 100000) - (b.sortOrder ?? 100000))
     : [];
 
+  const profileChecklist: { label: string; done: boolean; tab: "links" | "design" }[] = [
+    { label: "나를 표현하는 한 줄 소개", done: Boolean(userProfile?.headline?.trim()), tab: "design" },
+    { label: "About me 이야기", done: Boolean(userProfile?.about?.trim()), tab: "design" },
+    { label: "요즘 하고 있는 일", done: Boolean(userProfile?.now?.trim()), tab: "design" },
+    { label: "SNS 주소 연결", done: Boolean(userProfile?.socialLinks?.length), tab: "design" },
+    { label: "설명 있는 링크 등록", done: links.some((link) => Boolean(link.description?.trim())), tab: "links" },
+    { label: "대표 링크 설정", done: links.some((link) => link.isFeatured === true), tab: "links" },
+  ];
+  const completedCount = profileChecklist.filter((item) => item.done).length;
+  const nextSuggestion = profileChecklist.find((item) => !item.done);
+
   useEffect(() => {
     const handlePointerDown = (event: PointerEvent) => {
       if (accountMenuRef.current && !accountMenuRef.current.contains(event.target as Node)) {
@@ -654,7 +665,7 @@ export default function MyPage() {
           <nav aria-label="관리 메뉴" className="flex flex-wrap gap-2 rounded-2xl border border-[#252823]/10 bg-white p-2 text-[#252823] dark:border-white/10 dark:bg-[#282E29] dark:text-[#F8F6F1]">
             {([["links", "링크 관리"], ["profile", "프로필"], ["design", "디자인·SNS"]] as const).map(([tab, name]) => (
               <button key={tab} type="button" aria-current={activeTab === tab ? "page" : undefined}
-                onClick={() => setActiveTab(tab)}
+                onClick={() => { if (activeTab === "design" && tab !== "design") setAppearanceDraft(null); setActiveTab(tab); }}
                 className={`min-h-11 flex-1 rounded-xl px-3 text-sm font-bold transition-colors ${activeTab === tab ? "bg-[#252823] text-white dark:bg-[#DDF76B] dark:text-[#252823]" : "hover:bg-[#EEF2E4] dark:hover:bg-white/10"}`}>{name}</button>
             ))}
           </nav>
@@ -663,6 +674,30 @@ export default function MyPage() {
             <div><p className="text-[10px] font-extrabold tracking-wider opacity-70">LINKS</p><p className="mt-1 text-sm font-black">{links.length}개 등록 · {links.filter((link) => link.isActive !== false).length}개 공개</p></div>
             <div><p className="text-[10px] font-extrabold tracking-wider opacity-70">PERSONAL STYLE</p><p className="mt-1 text-sm font-black">{userProfile.theme === "midnight" ? "미드나잇" : userProfile.theme === "lavender" ? "라벤더" : "크림 & 라임"} 테마</p></div>
           </div>
+          <section aria-label="개인 페이지 꾸미기 안내" className="rounded-[24px] border border-[#252823]/10 bg-white px-5 py-5 text-[#252823] dark:border-white/10 dark:bg-[#282E29] dark:text-[#F8F6F1]">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-[10px] font-black tracking-[.16em] text-[#677D4A] dark:text-[#DDF76B]">MAKE IT YOURS</p>
+                <h2 className="mt-1 text-base font-black tracking-tight">내 페이지를 더 나답게</h2>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">내용을 채우면 공개 페이지에도 실제로 표시돼요. 필수 입력은 아니에요.</p>
+              </div>
+              <span className="rounded-full bg-[#E8F1C8] px-3 py-1.5 text-xs font-black text-[#40582E] dark:bg-[#DDF76B] dark:text-[#252823]">
+                {completedCount} / {profileChecklist.length} 완성
+              </span>
+            </div>
+            <div className="mt-4 h-2 overflow-hidden rounded-full bg-[#E6E8DE] dark:bg-white/15"
+              role="progressbar" aria-label="프로필 꾸미기 진행률" aria-valuemin={0}
+              aria-valuemax={profileChecklist.length} aria-valuenow={completedCount}>
+              <div className="h-full rounded-full bg-[#7D9650] transition-[width] duration-300 dark:bg-[#DDF76B]"
+                style={{ width: `${completedCount / profileChecklist.length * 100}%` }} />
+            </div>
+            {nextSuggestion ? (
+              <button type="button" onClick={() => setActiveTab(nextSuggestion.tab)}
+                className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-full bg-[#252823] px-4 text-xs font-bold text-white transition-colors hover:bg-[#455239] dark:bg-[#DDF76B] dark:text-[#252823]">
+                다음 추천: {nextSuggestion.label} <span aria-hidden="true">↗</span>
+              </button>
+            ) : <p className="mt-3 text-xs font-semibold text-[#556F37] dark:text-[#DDF76B]">나만의 페이지를 풍성하게 채웠어요!</p>}
+          </section>
           <div className="grid gap-7 lg:grid-cols-[minmax(0,1fr)_390px] lg:items-start">
             <div className="min-w-0 space-y-6">
           {activeTab === "profile" ? <ProfileSection
@@ -687,7 +722,7 @@ export default function MyPage() {
               onDraftChange={setAppearanceDraft}
               onSaved={(next) => {
                 setUserProfile((current) => current ? { ...current, ...next } : current);
-                setAppearanceDraft(next);
+                setAppearanceDraft(null);
               }}
             />
           ) : null}
