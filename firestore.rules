@@ -74,8 +74,17 @@ service cloud.firestore {
       allow get: if true;
       allow list: if false;
 
-      allow create, update: if request.auth != null
+      // 신규 Username 등록은 본인의 프로필과 같은 트랜잭션에서만 허용합니다.
+      allow create: if request.auth != null
         && request.resource.data.uid == request.auth.uid
+        && request.resource.data.username == username
+        && profileUsernameAfterWrite(request.auth.uid, username);
+
+      // 이미 등록된 Username은 현재 소유자만 갱신할 수 있습니다.
+      // 새 요청의 uid 검사만으로는 다른 사람의 주소를 빼앗는 것을 막을 수 없습니다.
+      allow update: if request.auth != null
+        && resource.data.uid == request.auth.uid
+        && request.resource.data.uid == resource.data.uid
         && request.resource.data.username == username
         && profileUsernameAfterWrite(request.auth.uid, username);
 
