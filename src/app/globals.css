@@ -245,3 +245,14 @@ body {
   from { opacity: 0; transform: translateY(18px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* MyLink editorial surfaces */
+.mylink-public { position: relative; background: #F5F3E9; }
+.mylink-public::before { content: ""; position: absolute; inset: 0 0 auto; height: 460px; pointer-events: none; background: radial-gradient(ellipse at 85% 10%, #ddf76b66, transparent 60%), radial-gradient(ellipse at 20% 25%, #f6b59e55, transparent 60%); }
+.dark .mylink-public { background: #1D211D; }
+.dark .mylink-public::before { opacity: .23; }
+.mylink-workspace, .mylink-stats { background: #F8F6F1; }
+.dark .mylink-workspace, .dark .mylink-stats { background: #1D211D; }
+.profile-link-list > li:nth-child(4n + 2) a:hover { border-color: #f2b69d; background-color: #fffaf6; }
+.profile-link-list > li:nth-child(4n + 3) a:hover { border-color: #b6baeb; background-color: #f8f8ff; }
+.dark .profile-link-list > li a:hover { background-color: #3e463e; }

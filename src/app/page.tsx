@@ -33,7 +33,7 @@ function LandingPreview() {
   return (
     <div className="relative mx-auto w-full max-w-[420px] motion-safe:animate-[mylink-rise_700ms_ease-out_both]" aria-label="MyLink 프로필 예시 미리보기">
       <div aria-hidden="true" className="pointer-events-none absolute -inset-5 -z-10 rounded-[40px] bg-gradient-to-br from-[var(--tds-blue-50)] via-white to-teal-50 blur-2xl" />
-      <div className="mx-auto max-w-[355px] overflow-hidden rounded-[38px] border-[7px] border-[#252937] bg-card shadow-[0_24px_70px_-30px_rgba(25,31,40,0.30)]">
+      <div className="mx-auto max-w-[355px] overflow-hidden rounded-[38px] border-[7px] border-[#252823] bg-white shadow-[0_24px_70px_-30px_rgba(25,31,40,0.30)]">
         <div aria-hidden="true" className="mx-auto mt-2 h-1.5 w-16 rounded-full bg-[#252937]/30" />
         <div className="flex items-center justify-between border-b border-border/60 px-6 py-4">
           <span className="flex items-center gap-2 text-sm font-bold"><Link2 className="size-4 text-primary" />MyLink</span>
@@ -140,12 +140,12 @@ export default function Home() {
   const loginLabel = isProfileSaving ? "프로필 준비 중..." : isSigningIn ? "로그인 중..." : "Google로 시작하기";
 
   return (
-    <div className="marketing-light min-h-screen overflow-x-hidden bg-white text-foreground">
-      <header className="sticky top-0 z-30 border-b border-border/60 bg-white/95 backdrop-blur-md">
+    <div className="marketing-light min-h-screen overflow-x-hidden bg-[#F8F6F1] text-[#252823]">
+      <header className="sticky top-0 z-30 border-b border-[#252823]/10 bg-[#F8F6F1]/95 backdrop-blur-xl">
         <div className="mx-auto flex h-[72px] max-w-6xl items-center justify-between gap-4 px-5 sm:px-8">
           <Link href="/" aria-label="MyLink 홈" className="flex items-center gap-2.5">
-            <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-white"><Link2 aria-hidden="true" className="size-5" /></span>
-            <span className="text-xl font-extrabold tracking-tight">My<span className="text-primary">Link</span></span>
+            <span className="flex size-9 -rotate-6 items-center justify-center rounded-xl bg-[#252823] text-[#DDF76B]"><Link2 aria-hidden="true" className="size-5" /></span>
+            <span className="text-[23px] font-black tracking-[-0.07em]">my<span className="text-[#F06D4E]">link.</span></span>
           </Link>
           <nav aria-label="서비스 안내" className="hidden items-center gap-7 text-sm font-semibold text-muted-foreground md:flex">
             <a href="#features" className="hover:text-foreground">서비스 소개</a>
@@ -158,22 +158,22 @@ export default function Home() {
       </header>
 
       <main>
-        <section className="relative isolate overflow-hidden bg-gradient-to-b from-white via-[#F8FBFF] to-white">
-          <div aria-hidden="true" className="pointer-events-none absolute -right-24 top-12 -z-10 size-[320px] rounded-full bg-[var(--tds-blue-50)] blur-[95px] sm:size-[450px]" />
-          <div className="mx-auto grid max-w-6xl items-center gap-14 px-5 pb-24 pt-16 sm:px-8 sm:pt-20 lg:min-h-[680px] lg:grid-cols-[1.1fr_0.9fr] lg:gap-12">
+        <section className="relative isolate overflow-hidden border-b border-[#252823]/10 bg-[#F8F6F1]">
+          <div aria-hidden="true" className="pointer-events-none absolute -right-24 top-12 -z-10 size-[320px] rounded-full bg-[#DDF76B]/45 blur-[95px] sm:size-[450px]" />
+          <div className="mx-auto grid max-w-7xl items-center gap-14 px-5 pb-28 pt-20 sm:px-8 lg:min-h-[720px] lg:grid-cols-[1.05fr_0.95fr] lg:gap-12 lg:px-12">
             <div className="max-w-xl text-center lg:text-left">
               <p className="inline-flex items-center gap-2 rounded-full bg-[var(--tds-blue-50)] px-4 py-2 text-xs font-bold text-primary">
-                <Sparkles aria-hidden="true" className="size-4" /> 나를 소개하는 가장 간단한 방법
+                <Sparkles aria-hidden="true" className="size-4" /> YOUR SPACE ON THE INTERNET
               </p>
-              <h1 className="mt-7 text-[clamp(2.5rem,6vw,4.8rem)] font-extrabold leading-[1.16] tracking-[-0.055em]">
-                내 모든 링크,<br /><span className="text-primary">딱 한 페이지에.</span>
+              <h1 className="mt-7 text-[clamp(3.4rem,7vw,6.5rem)] font-black leading-[1.05] tracking-[-0.075em]">
+                모든 나를<br /><span className="relative inline-block text-[#252823] after:absolute after:bottom-2 after:left-0 after:-z-10 after:h-[22%] after:w-full after:-rotate-2 after:bg-[#DDF76B]">한 곳에.</span>
               </h1>
               <p className="mx-auto mt-6 max-w-[480px] text-[15px] leading-[1.8] text-muted-foreground sm:text-[17px] lg:mx-0">
-                블로그, 프로젝트, 포트폴리오까지.<br className="hidden sm:block" />
-                나를 보여주는 링크를 모아 <strong className="font-semibold text-foreground">하나의 주소로 공유</strong>하세요.
+                프로젝트, 블로그, SNS, 지금 하고 있는 일까지.<br className="hidden sm:block" />
+                흩어진 링크를 모아 <strong className="font-extrabold text-[#252823]">나를 닮은 한 페이지</strong>로 소개해요.
               </p>
               <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row sm:justify-center lg:justify-start">
-                <Button size="lg" className="h-12 w-full rounded-2xl px-7 text-sm font-bold sm:w-auto" disabled={busy} onClick={handleGoogleSignIn}>
+                <Button size="lg" className="h-14 w-full rounded-2xl bg-[#252823] px-7 text-sm font-bold text-white hover:bg-[#373D32] sm:w-auto" disabled={busy} onClick={handleGoogleSignIn}>
                   {loginLabel}<ArrowRight aria-hidden="true" className="ml-1 size-4" />
                 </Button>
                 <a href="#steps" className="inline-flex h-12 w-full items-center justify-center gap-1.5 rounded-2xl px-5 text-sm font-semibold text-muted-foreground hover:bg-muted sm:w-auto">
@@ -194,19 +194,20 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="features" className="scroll-mt-24 bg-[#F8FAFC] py-20 sm:py-24">
+        <div className="border-b border-[#252823]/10 bg-[#DDF76B] py-4 text-center text-xs font-black tracking-[0.15em] text-[#333B29] sm:text-sm">YOUR LINKS <span className="mx-4">✳</span> YOUR STORIES <span className="mx-4">✳</span> YOUR SPACE</div>
+        <section id="features" className="scroll-mt-24 bg-[#F8F6F1] py-24 sm:py-32">
           <div className="mx-auto max-w-6xl px-5 sm:px-8">
             <p className="text-sm font-bold text-primary">WHY MYLINK?</p>
-            <h2 className="mt-3 text-[clamp(1.8rem,4vw,2.65rem)] font-bold leading-tight tracking-tight">링크 정리는 간단하게,<br />소개는 더 근사하게.</h2>
+            <h2 className="mt-3 text-[clamp(1.8rem,4vw,2.65rem)] font-bold leading-tight tracking-tight">작은 링크 하나에도,<br />나만의 이야기가 있어.</h2>
             <p className="mt-4 text-sm text-muted-foreground">작은 링크 하나도 나를 설명할 수 있으니까요.</p>
             <div className="mt-10 grid gap-4 md:grid-cols-3">
               {highlights.map((item) => {
                 const Icon = item.icon;
                 return (
-                  <article key={item.title} className="rounded-[26px] border border-border/60 bg-white p-6 shadow-[var(--tds-shadow-1)] transition-transform duration-300 hover:-translate-y-1 sm:p-7">
+                  <article key={item.title} className="rounded-[26px] border border-[#252823]/10 bg-[#252823] p-6 text-white transition-transform duration-300 hover:-translate-y-1 sm:p-7">
                     <span className="flex size-12 items-center justify-center rounded-2xl bg-[var(--tds-blue-50)] text-primary"><Icon aria-hidden="true" className="size-6" /></span>
                     <h3 className="mt-6 text-lg font-bold">{item.title}</h3>
-                    <p className="mt-3 text-sm leading-[1.8] text-muted-foreground">{item.body}</p>
+                    <p className="mt-3 text-sm leading-[1.8] text-white/65">{item.body}</p>
                   </article>
                 );
               })}
@@ -214,7 +215,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="steps" className="scroll-mt-24 bg-white py-20 sm:py-24">
+        <section id="steps" className="scroll-mt-24 border-t border-[#252823]/10 bg-[#F0EEE6] py-24 sm:py-28">
           <div className="mx-auto max-w-6xl px-5 sm:px-8">
             <p className="text-center text-sm font-bold text-primary">HOW IT WORKS</p>
             <h2 className="mt-3 text-center text-[clamp(1.8rem,4vw,2.65rem)] font-bold tracking-tight">세 단계면 충분해요</h2>
@@ -237,17 +238,17 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="bg-[#EDF5FF] px-5 py-16 text-center sm:py-20">
+        <section className="bg-[#DDF76B] px-5 py-20 text-center sm:py-24">
           <div className="mx-auto max-w-3xl">
             <p className="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-xs font-bold text-primary"><Sparkles aria-hidden="true" className="size-4" /> 나만의 작은 홈페이지</p>
-            <h2 className="mt-5 text-[clamp(1.8rem,4vw,2.8rem)] font-extrabold tracking-tight">이제, 나를 링크해 볼까요?</h2>
+            <h2 className="mt-5 text-[clamp(1.8rem,4vw,2.8rem)] font-extrabold tracking-tight">당신의 링크에도 무대가 필요해.</h2>
             <p className="mt-4 text-sm text-muted-foreground">한 페이지에 나다운 이야기를 담아보세요.</p>
             <Button className="mt-8 h-12 rounded-2xl px-7" disabled={busy} onClick={handleGoogleSignIn}>{loginLabel}<ArrowRight aria-hidden="true" className="size-4" /></Button>
           </div>
         </section>
       </main>
-      <footer className="border-t border-border/60 bg-white px-5 py-7">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 text-xs text-muted-foreground sm:flex-row">
+      <footer className="border-t border-[#252823]/10 bg-[#252823] px-5 py-9 text-white">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 text-xs text-white/60 sm:flex-row">
           <strong className="flex items-center gap-2 text-foreground"><Link2 aria-hidden="true" className="size-4 text-primary" /> MyLink</strong>
           <p>© 2026 MyLink. 하나의 링크로 나를 소개해요.</p>
           <a href="#features" className="hover:text-foreground">서비스 소개로 이동</a>
