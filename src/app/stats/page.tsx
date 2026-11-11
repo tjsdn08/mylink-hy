@@ -124,7 +124,7 @@ export default function StatsPage() {
           <h1 className="mt-3 text-[clamp(2.4rem,6vw,4rem)] font-black leading-tight tracking-[-0.065em] text-[#252823] dark:text-[#F8F6F1]">링크가 남긴 기록<span className="text-[#F06D4E]">.</span></h1>
           <p className="mt-2 text-sm text-[#7B7F74] dark:text-white/60">어떤 링크가 관심을 받았는지, 실제 클릭 수로 확인해 보세요.</p>
         </div>
-        <Button variant="outline" className="h-10 rounded-xl" render={<NextLink href="/" />}>
+        <Button variant="outline" className="h-11 rounded-xl bg-white text-[#252823] dark:bg-[#323A33] dark:text-[#F8F6F1]" render={<NextLink href="/" />}>
           <ArrowLeft aria-hidden="true" /> 마이페이지
         </Button>
       </header>
@@ -149,28 +149,28 @@ export default function StatsPage() {
                 <p className="text-sm text-white/65">등록된 링크에서 발생한 클릭의 합계예요. 동일 방문자의 반복 클릭도 포함돼요.</p>
               </div>
             </Card>
-            <Card className="rounded-[24px] border border-[#252823]/10 bg-white p-6 shadow-none dark:border-white/10 dark:bg-[#323A33]">
-              <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground"><Link2 aria-hidden="true" className="size-4 text-[#71864D]" /> 등록한 링크</div>
+            <Card className="rounded-[24px] border border-[#252823]/10 bg-white p-6 text-[#252823] shadow-none dark:border-white/10 dark:bg-[#323A33] dark:text-[#F8F6F1]">
+              <div className="flex items-center gap-2 text-sm font-semibold text-[#485643] dark:text-[#D0D9C9]"><Link2 aria-hidden="true" className="size-4 text-[#71864D]" /> 등록한 링크</div>
               <p className="mt-3 text-3xl font-bold tabular-nums">{formatCount(links.length)}<span className="ml-1 text-sm font-normal text-muted-foreground">개</span></p>
             </Card>
-            <Card className="rounded-[24px] border border-[#252823]/10 bg-[#E8F1C8] p-6 shadow-none dark:border-white/10 dark:bg-[#303C2D]">
+            <Card className="rounded-[24px] border border-[#252823]/10 bg-[#E8F1C8] p-6 text-[#252823] shadow-none dark:border-white/10 dark:bg-[#303C2D] dark:text-[#F8F6F1]">
               <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground"><Trophy aria-hidden="true" className="size-4 text-[#71864D]" /> 가장 인기 있는 링크</div>
               <p className="mt-3 truncate text-lg font-bold" title={topLink?.title ?? ""}>{topLink?.title ?? "아직 등록한 링크가 없어요"}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{formatCount(topLink?.clickCount ?? 0)}회 클릭</p>
+              <p className="mt-1 text-xs text-[#4D5A45] dark:text-[#CFD8C8]">{formatCount(topLink?.clickCount ?? 0)}회 클릭</p>
             </Card>
             <Card className="rounded-[24px] border border-[#252823]/10 bg-white p-6 shadow-none dark:border-white/10 dark:bg-[#323A33]">
               <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground"><Eye aria-hidden="true" className="size-4 text-[#71864D]" /> 프로필 방문 수</div>
               <p className="mt-3 text-3xl font-bold tabular-nums">{profileViews === null ? "미집계" : formatCount(profileViews)}{profileViews !== null ? <span className="ml-1 text-sm font-normal text-muted-foreground">회</span> : null}</p>
-              <p className="mt-2 text-xs text-muted-foreground">방문 수 집계 도입 이후 기록, 새로고침 포함</p>
+              <p className="mt-2 text-xs text-[#4D5A45] dark:text-[#CFD8C8]">방문 수 집계 도입 이후 기록, 새로고침 포함</p>
             </Card>
             <Card className="rounded-[24px] border border-[#252823]/10 bg-[#E8F1C8] p-6 shadow-none dark:border-white/10 dark:bg-[#303C2D]">
-              <div className="text-sm font-semibold text-muted-foreground">방문당 링크 클릭</div>
+              <div className="text-sm font-semibold text-[#485643] dark:text-[#D0D9C9]">방문당 링크 클릭</div>
               <p className="mt-3 text-3xl font-bold tabular-nums">{profileViews && profileViews > 0 ? (totalClicks / profileViews).toFixed(2) : "—"} <span className="text-sm font-normal text-muted-foreground">회</span></p>
               <p className="mt-2 text-xs text-muted-foreground">전체 누적 클릭 수 ÷ 집계 이후 방문 수로, 기간이 달라 참고용이에요.</p>
             </Card>
           </section>
 
-          <Card className="overflow-hidden rounded-[28px] border border-[#252823]/10 bg-white shadow-none dark:border-white/10 dark:bg-[#323A33]">
+          <Card className="overflow-hidden rounded-[28px] border border-[#252823]/10 bg-white text-[#252823] shadow-none dark:border-white/10 dark:bg-[#323A33] dark:text-[#F8F6F1]">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-title-2">
                 <ChartNoAxesColumn aria-hidden="true" className="size-5 text-[#71864D]" />

@@ -36,7 +36,7 @@
   --secondary: var(--tds-grey-100);
   --secondary-foreground: var(--tds-grey-800);
   --muted: var(--tds-grey-100);
-  --muted-foreground: var(--tds-grey-600);
+  --muted-foreground: #525B53;
   --accent: #EAF4CB;
   --accent-foreground: #43582B;
   --destructive: var(--tds-red-500);
@@ -52,7 +52,7 @@
   --sidebar: oklch(1 0 0);
   --sidebar-foreground: var(--tds-grey-900);
   --sidebar-primary: #252823;
-  --sidebar-primary-foreground: #252823;
+  --sidebar-primary-foreground: #FFFFFF;
   --sidebar-accent: #EAF4CB;
   --sidebar-accent-foreground: #43582B;
   --sidebar-border: var(--tds-grey-200);
@@ -188,7 +188,7 @@ body {
   --secondary: oklch(0.361 0.019 285);
   --secondary-foreground: oklch(0.919 0.001 286);
   --muted: oklch(0.297 0.016 285);
-  --muted-foreground: oklch(0.701 0.009 286);
+  --muted-foreground: #C2C9BE;
   --accent: #34412E;
   --accent-foreground: #DDF76B;
   --destructive: oklch(0.639 0.209 21);
@@ -203,7 +203,7 @@ body {
   --sidebar: oklch(0.297 0.016 285);
   --sidebar-foreground: oklch(1 0 0);
   --sidebar-primary: #DDF76B;
-  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-primary-foreground: #252823;
   --sidebar-accent: #34412E;
   --sidebar-accent-foreground: #DDF76B;
   --sidebar-border: oklch(0.361 0.019 285);
@@ -236,7 +236,7 @@ body {
   --secondary: oklch(0.966 0.003 248);
   --secondary-foreground: oklch(0.357 0.028 257);
   --muted: oklch(0.966 0.003 248);
-  --muted-foreground: oklch(0.562 0.025 254);
+  --muted-foreground: #525B53;
   --border: oklch(0.930 0.005 248);
   --input: oklch(0.930 0.005 248);
 }
@@ -278,3 +278,38 @@ body {
 .mylink-public[data-theme="midnight"] > main > section:first-child p { color: #d2dce1; }
 .mylink-public[data-theme="midnight"] .text-muted-foreground { color: #d0d8dd; }
 .mylink-public[data-theme="midnight"] .public-link-button .text-muted-foreground { color: #b9c1c5; }
+
+/* Contrast standards: light foregrounds stay dark; dark surfaces keep readable secondary text. */
+.marketing-light { color: #252823; }
+.marketing-light .text-primary { color: #252823; }
+.marketing-light .text-muted-foreground { color: #525B53; }
+.marketing-light .bg-primary { background-color: #252823; }
+.marketing-light .text-primary-foreground { color: #FFFFFF; }
+.marketing-light .text-white\/65 { color: rgba(255,255,255,.82); }
+.marketing-light .text-white\/60 { color: rgba(255,255,255,.80); }
+.dark .mylink-workspace,
+.dark .mylink-stats { color: #F8F6F1; }
+.dark .mylink-workspace .text-muted-foreground,
+.dark .mylink-stats .text-muted-foreground { color: #C2C9BE; }
+.dark .mylink-workspace .bg-white,
+.dark .mylink-stats .bg-white { background-color: #282E29; }
+.dark .mylink-workspace .text-foreground,
+.dark .mylink-stats .text-foreground { color: #F8F6F1; }
+.dark .mylink-workspace .bg-\[\#EFF5D6\] { background-color: #35462C; }
+.dark .mylink-workspace .text-\[\#526C36\],
+.dark .mylink-workspace .text-\[\#4F6431\] { color: #DDF76B; }
+/* User-selected profile colors must not inherit the app's dark-mode palette. */
+.mylink-public { --color-foreground: var(--profile-text); }
+.mylink-public > header,
+.mylink-public > main,
+.mylink-public > footer { color: var(--profile-text); }
+.mylink-public .public-link-button .text-muted-foreground {
+  color: var(--profile-button-text) !important;
+  opacity: .78;
+}
+.mylink-public .profile-link-list a:hover {
+  background: var(--profile-button-bg) !important;
+  color: var(--profile-button-text);
+  filter: brightness(.96);
+}
+.mylink-public .profile-link-list a .link-title { color: var(--profile-button-text) !important; }

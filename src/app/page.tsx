@@ -33,10 +33,10 @@ function LandingPreview() {
   return (
     <div className="relative mx-auto w-full max-w-[420px] motion-safe:animate-[mylink-rise_700ms_ease-out_both]" aria-label="MyLink 프로필 예시 미리보기">
       <div aria-hidden="true" className="pointer-events-none absolute -inset-5 -z-10 rounded-[40px] bg-gradient-to-br from-[#EAF4CB] via-white to-teal-50 blur-2xl" />
-      <div className="mx-auto max-w-[355px] overflow-hidden rounded-[38px] border-[7px] border-[#252823] bg-white shadow-[0_24px_70px_-30px_rgba(25,31,40,0.30)]">
+      <div className="mx-auto max-w-[355px] overflow-hidden rounded-[38px] border-[7px] border-[#252823] bg-white text-[#252823] shadow-[0_24px_70px_-30px_rgba(25,31,40,0.30)]">
         <div aria-hidden="true" className="mx-auto mt-2 h-1.5 w-16 rounded-full bg-[#252937]/30" />
         <div className="flex items-center justify-between border-b border-border/60 px-6 py-4">
-          <span className="flex items-center gap-2 text-sm font-bold"><Link2 className="size-4 text-primary" />MyLink</span>
+          <span className="flex items-center gap-2 text-sm font-bold text-[#252823]"><Link2 className="size-4 text-[#40592C]" />MyLink</span>
           <span className="rounded-full bg-[#EAF4CB] px-3 py-1 text-xs font-semibold text-[#344A25]">미리보기</span>
         </div>
         <div className="px-5 py-7 sm:px-7">
@@ -55,15 +55,15 @@ function LandingPreview() {
               </button>
             ))}
           </div>
-          <div className="mt-3 flex items-center gap-3 rounded-2xl border border-border bg-white p-4 shadow-[var(--tds-shadow-1)]">
-            <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-muted"><ItemIcon aria-hidden="true" className="size-5" /></span>
+          <div className="mt-3 flex items-center gap-3 rounded-2xl border border-[#D9DDD3] bg-white p-4 shadow-[var(--tds-shadow-1)]">
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#EAF4CB] text-[#324726]"><ItemIcon aria-hidden="true" className="size-5" /></span>
             <div className="min-w-0 flex-1">
               <p className="font-semibold">{demoLinks[active].title}</p>
               <p className="truncate text-xs text-muted-foreground">{demoLinks[active].subtitle}</p>
             </div>
             <ArrowUpRight aria-hidden="true" className="size-4 text-primary" />
           </div>
-          <div className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-muted/70 py-3 text-xs text-muted-foreground">
+          <div className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-[#EFF1EA] py-3 text-xs text-[#525B53]">
             <Link2 aria-hidden="true" className="size-4" /> mylink.example/yourname
           </div>
         </div>
