@@ -9,9 +9,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LinkList } from "@/components/links/LinkList";
 import { getFirebaseFirestore } from "@/lib/firebase";
 import { showToast } from "@/lib/toast";
+import { appearanceVariables, normalizeSocialLinks, type ProfileAppearance } from "@/lib/profile-design";
 import type { Link } from "@/types/link";
 
-interface PublicProfile {
+interface PublicProfile extends ProfileAppearance {
   username: string;
   displayName: string;
   photoURL: string;
@@ -67,6 +68,10 @@ export function PublicProfileClient({ username }: { username: string }) {
           displayName: typeof data.displayName === "string" ? data.displayName : usernameKey,
           photoURL: typeof data.photoURL === "string" ? data.photoURL : "",
           bio: typeof data.bio === "string" ? data.bio : "",
+          theme: data.theme === "lavender" || data.theme === "midnight" ? data.theme : "cream",
+          backgroundColor: typeof data.backgroundColor === "string" ? data.backgroundColor : "",
+          buttonStyle: data.buttonStyle === "pill" || data.buttonStyle === "square" ? data.buttonStyle : "rounded",
+          socialLinks: normalizeSocialLinks(data.socialLinks),
         });
 
         step = "links";
@@ -195,7 +200,7 @@ export function PublicProfileClient({ username }: { username: string }) {
   }
 
   return (
-    <div className="mylink-public min-h-screen pb-20 text-[#262920] dark:text-[#F9F8F3]">
+    <div className="mylink-public min-h-screen pb-20" data-theme={profile.theme ?? "cream"} style={appearanceVariables(profile)}>
       <header className="relative z-20 mx-auto flex h-[76px] w-full max-w-5xl items-center justify-between px-5 sm:px-8">
         <NextLink href="/" className="inline-flex items-center gap-2 text-xl font-black tracking-[-0.07em]">
           <span className="inline-flex size-8 -rotate-6 items-center justify-center rounded-[10px] bg-[#252823] text-[#DDF76B] dark:bg-[#DDF76B] dark:text-[#252823]">
@@ -211,7 +216,7 @@ export function PublicProfileClient({ username }: { username: string }) {
 
       <main className="relative mx-auto w-full max-w-[620px] px-5 pb-10 sm:px-7">
         <section className="relative mt-4 overflow-hidden rounded-[30px] border border-[#262920]/10 bg-white shadow-[0_22px_80px_rgba(52,48,34,0.08)] dark:border-white/10 dark:bg-[#282E29]">
-          <div className="relative h-44 overflow-hidden bg-[#DCECA8] sm:h-52">
+          <div className="relative h-44 overflow-hidden sm:h-52" style={{ background: "var(--profile-cover)" }}>
             <div aria-hidden="true" className="absolute -left-10 -top-20 size-64 rounded-full border-[30px] border-white/35" />
             <div aria-hidden="true" className="absolute -right-10 -bottom-24 size-64 rounded-full bg-[#F6B59E]/70 blur-[3px]" />
             <span className="absolute bottom-4 right-5 rotate-[-7deg] text-[11px] font-black tracking-[0.13em] text-[#51632E]">MY LITTLE CORNER ✳</span>
