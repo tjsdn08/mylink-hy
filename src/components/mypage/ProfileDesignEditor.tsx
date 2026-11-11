@@ -29,6 +29,8 @@ export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange
   const [buttonStyle, setButtonStyle] = useState<ButtonStyle>(appearance.buttonStyle ?? "rounded");
   const [coverStyle, setCoverStyle] = useState<CoverStyle>(appearance.coverStyle ?? "orbits");
   const [headline, setHeadline] = useState(appearance.headline ?? "");
+  const [about, setAbout] = useState(appearance.about ?? "");
+  const [now, setNow] = useState(appearance.now ?? "");
   const [socialUrls, setSocialUrls] = useState<Record<string, string>>(
     Object.fromEntries((appearance.socialLinks ?? []).map((item) => [item.platform, item.url]))
   );
@@ -37,7 +39,7 @@ export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange
 
   const updateDraft = (patch: Partial<ProfileAppearance>) => {
     const next = {
-      theme, backgroundColor, buttonStyle, coverStyle, headline,
+      theme, backgroundColor, buttonStyle, coverStyle, headline, about, now,
       socialLinks: SOCIAL_PLATFORMS.flatMap((platform) => {
         const url = socialUrls[platform]?.trim();
         return url ? [{ platform, url }] : [];
@@ -53,6 +55,7 @@ export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange
       setError("배경색은 #RRGGBB 형식으로 입력해 주세요.");
       return;
     }
+    if (about.trim().length > 600 || now.trim().length > 240) { setError("소개는 600자, 최근 활동은 240자 이내로 입력해 주세요."); return; }
     if (headline.trim().length > 60) { setError("한 줄 소개는 60자 이내로 입력해 주세요."); return; }
     const socialLinks: { platform: string; url: string }[] = [];
     for (const platform of SOCIAL_PLATFORMS) {
@@ -67,7 +70,7 @@ export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange
     }
     setSaving(true);
     try {
-      const next: ProfileAppearance = { theme, backgroundColor, buttonStyle, coverStyle, headline: headline.trim(), socialLinks };
+      const next: ProfileAppearance = { theme, backgroundColor, buttonStyle, coverStyle, headline: headline.trim(), about: about.trim(), now: now.trim(), socialLinks };
       await updateDoc(doc(getFirebaseFirestore(), "users", userId, "profile", "main"), {
         ...next, updatedAt: serverTimestamp(),
       });
@@ -116,6 +119,28 @@ export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange
           onChange={(event) => { setHeadline(event.target.value); updateDraft({ headline: event.target.value }); }}
           className="h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground" />
         <p className="text-right text-xs text-muted-foreground">{headline.length}/60 · 프로필 이름 아래에 표시돼요.</p>
+      </div>
+      <div className="space-y-4 rounded-2xl border border-border bg-muted/30 p-4">
+        <div>
+          <h3 className="text-sm font-extrabold">나의 이야기</h3>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">공개 페이지에 나만의 소개와 최근 활동을 추가해요. 입력하지 않으면 보이지 않아요.</p>
+        </div>
+        <label className="block space-y-2 text-xs font-bold">
+          <span>About me · 나에 대해</span>
+          <textarea rows={4} maxLength={600} value={about}
+            placeholder="어떤 일을 하고, 무엇에 관심이 있는지 이야기해 보세요."
+            onChange={(event) => { setAbout(event.target.value); updateDraft({ about: event.target.value }); }}
+            className="w-full resize-y rounded-xl border border-border bg-background px-3 py-3 text-sm font-normal text-foreground placeholder:text-muted-foreground" />
+          <span className="block text-right font-normal text-muted-foreground">{about.length}/600</span>
+        </label>
+        <label className="block space-y-2 text-xs font-bold">
+          <span>Now · 요즘 하고 있는 일</span>
+          <textarea rows={2} maxLength={240} value={now}
+            placeholder="요즘 집중하는 프로젝트나 목표를 적어 보세요."
+            onChange={(event) => { setNow(event.target.value); updateDraft({ now: event.target.value }); }}
+            className="w-full resize-y rounded-xl border border-border bg-background px-3 py-3 text-sm font-normal text-foreground placeholder:text-muted-foreground" />
+          <span className="block text-right font-normal text-muted-foreground">{now.length}/240</span>
+        </label>
       </div>
       <fieldset className="space-y-3">
         <legend className="text-sm font-extrabold">커버 패턴</legend>
