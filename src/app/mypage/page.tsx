@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { ChartNoAxesColumn, ChevronDown, Globe2, Link2, LogOut, Moon, Pencil, Plus, Save, Sun } from "lucide-react";
+import { ChartNoAxesColumn, Check, ChevronDown, Copy, Eye, Globe2, Link2, LogOut, Moon, Pencil, Plus, Save, Sun } from "lucide-react";
 import {
   GoogleAuthProvider,
   onAuthStateChanged,
@@ -104,6 +104,7 @@ export default function MyPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [form, setForm] = useState<LinkFormValues>(emptyForm);
   const [error, setError] = useState("");
+  const [copied, setCopied] = useState(false);
   const links =
     user && isProfileReady && linksUserId === user.uid ? firestoreLinks : [];
 
@@ -529,6 +530,34 @@ export default function MyPage() {
                   >
                     <Globe2 className="size-4" aria-hidden="true" /> 내 공개 페이지
                   </NextLink>
+                ) : null}
+                {userProfile?.username ? (
+                  <>
+                    <button type="button"
+                      onClick={() => {
+                        const url = `${window.location.origin}/${encodeURIComponent(userProfile.username)}`;
+                        window.open(url, "_blank", "noopener,noreferrer");
+                        if (accountMenuRef.current) accountMenuRef.current.open = false;
+                      }}
+                      className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm transition-colors hover:bg-muted">
+                      <Eye className="size-4" aria-hidden="true" /> 내 프로필 미리보기
+                    </button>
+                    <button type="button"
+                      onClick={async () => {
+                        const url = `${window.location.origin}/${encodeURIComponent(userProfile.username)}`;
+                        try {
+                          await navigator.clipboard.writeText(url);
+                          setCopied(true);
+                          showToast("내 페이지 주소를 복사했어요.");
+                        } catch {
+                          showToast("주소 복사에 실패했어요. 브라우저 권한을 확인해 주세요.", "error");
+                        }
+                      }}
+                      className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm transition-colors hover:bg-muted">
+                      {copied ? <Check className="size-4" aria-hidden="true" /> : <Copy className="size-4" aria-hidden="true" />}
+                      {copied ? "주소 복사 완료" : "내 페이지 링크 복사"}
+                    </button>
+                  </>
                 ) : null}
                 <NextLink
                   href="/stats"
