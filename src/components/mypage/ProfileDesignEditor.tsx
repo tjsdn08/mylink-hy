@@ -19,9 +19,10 @@ interface Props {
   userId: string;
   appearance: ProfileAppearance;
   onSaved: (next: ProfileAppearance) => void;
+  onDraftChange?: (draft: ProfileAppearance) => void;
 }
 
-export function ProfileDesignEditor({ userId, appearance, onSaved }: Props) {
+export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange }: Props) {
   const [theme, setTheme] = useState<ProfileTheme>(appearance.theme ?? "cream");
   const [backgroundColor, setBackgroundColor] = useState(appearance.backgroundColor ?? "");
   const [buttonStyle, setButtonStyle] = useState<ButtonStyle>(appearance.buttonStyle ?? "rounded");
@@ -30,6 +31,18 @@ export function ProfileDesignEditor({ userId, appearance, onSaved }: Props) {
   );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  const updateDraft = (patch: Partial<ProfileAppearance>) => {
+    const next = {
+      theme, backgroundColor, buttonStyle,
+      socialLinks: SOCIAL_PLATFORMS.flatMap((platform) => {
+        const url = socialUrls[platform]?.trim();
+        return url ? [{ platform, url }] : [];
+      }),
+      ...patch,
+    };
+    onDraftChange?.(next);
+  };
 
   async function saveDesign() {
     setError("");
@@ -81,7 +94,7 @@ export function ProfileDesignEditor({ userId, appearance, onSaved }: Props) {
             const item = THEME_PRESETS[key];
             return (
               <button type="button" key={key} aria-pressed={theme === key}
-                onClick={() => { setTheme(key); setBackgroundColor(""); }}
+                onClick={() => { setTheme(key); setBackgroundColor(""); updateDraft({ theme: key, backgroundColor: "" }); }}
                 className={`rounded-2xl border-2 p-2 text-left transition-colors ${theme === key ? "border-[#637D40]" : "border-transparent hover:border-[#B3C18F]"}`}>
                 <span className="relative block h-20 rounded-xl" style={{ backgroundColor: item.background }}>
                   <span className="absolute bottom-3 left-3 right-3 h-6 rounded-md" style={{ backgroundColor: item.button }} />
@@ -98,14 +111,14 @@ export function ProfileDesignEditor({ userId, appearance, onSaved }: Props) {
           <label htmlFor="profile-background" className="mb-2 block text-sm font-extrabold">배경색 직접 지정</label>
           <div className="flex items-center gap-3">
             <input type="color" id="profile-background" aria-label="배경색 고르기" value={validColor(backgroundColor) ?? THEME_PRESETS[theme].background}
-              onChange={(event) => setBackgroundColor(event.target.value)} className="size-11 cursor-pointer rounded-lg border border-border bg-transparent p-1" />
-            <button type="button" onClick={() => setBackgroundColor("")} className="text-xs font-medium text-muted-foreground underline">테마 기본색</button>
+              onChange={(event) => { setBackgroundColor(event.target.value); updateDraft({ backgroundColor: event.target.value }); }} className="size-11 cursor-pointer rounded-lg border border-border bg-transparent p-1" />
+            <button type="button" onClick={() => { setBackgroundColor(""); updateDraft({ backgroundColor: "" }); }} className="text-xs font-medium text-muted-foreground underline">테마 기본색</button>
             {backgroundColor ? <span className="text-xs tabular-nums text-muted-foreground">{backgroundColor}</span> : null}
           </div>
         </div>
         <div>
           <label htmlFor="profile-button-style" className="mb-2 block text-sm font-extrabold">링크 버튼 모양</label>
-          <select id="profile-button-style" value={buttonStyle} onChange={(event) => setButtonStyle(event.target.value as ButtonStyle)}
+          <select id="profile-button-style" value={buttonStyle} onChange={(event) => { const value = event.target.value as ButtonStyle; setButtonStyle(value); updateDraft({ buttonStyle: value }); }}
             className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm">
             <option value="rounded">둥근 모서리</option>
             <option value="pill">캡슐형</option>
@@ -121,7 +134,14 @@ export function ProfileDesignEditor({ userId, appearance, onSaved }: Props) {
             <label key={platform} className="space-y-1.5 text-xs font-semibold">
               <span>{platform}</span>
               <input type="url" value={socialUrls[platform] ?? ""} placeholder="https://..."
-                onChange={(event) => setSocialUrls((previous) => ({ ...previous, [platform]: event.target.value }))}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  const nextUrls = { ...socialUrls, [platform]: value };
+                  setSocialUrls(nextUrls);
+                  onDraftChange?.({ theme, backgroundColor, buttonStyle,
+                    socialLinks: SOCIAL_PLATFORMS.flatMap((p) => nextUrls[p]?.trim() ? [{ platform: p, url: nextUrls[p].trim() }] : []),
+                  });
+                }}
                 className="h-11 w-full rounded-xl border border-border bg-background px-3 text-sm font-normal outline-none focus:border-[#71864D]" />
             </label>
           ))}

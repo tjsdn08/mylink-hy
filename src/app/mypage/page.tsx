@@ -36,6 +36,9 @@ import {
 import { LinkList } from "@/components/links/LinkList";
 import { ProfileSection } from "@/components/mypage/ProfileSection";
 import { ProfileDesignEditor } from "@/components/mypage/ProfileDesignEditor";
+import { ProfileLivePreview } from "@/components/mypage/ProfileLivePreview";
+import { normalizeExternalUrl } from "@/lib/url-normalize";
+import type { ProfileAppearance } from "@/lib/profile-design";
 import { getFirebaseFirestore } from "@/lib/firebase";
 import { useAuth } from "@/components/auth-provider";
 import { showToast } from "@/lib/toast";
@@ -53,6 +56,7 @@ import NextLink from "next/link";
 interface LinkFormValues {
   title: string;
   url: string;
+  group: string;
 }
 
 interface ProfileFormValues {
@@ -61,7 +65,7 @@ interface ProfileFormValues {
   bio: string;
 }
 
-const emptyForm: LinkFormValues = { title: "", url: "" };
+const emptyForm: LinkFormValues = { title: "", url: "", group: "" };
 const reservedUsernames = new Set([
   "api",
   "dashboard",
@@ -100,6 +104,8 @@ export default function MyPage() {
   const [form, setForm] = useState<LinkFormValues>(emptyForm);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [activeTab, setActiveTab] = useState<"profile" | "links" | "design">("links");
+  const [appearanceDraft, setAppearanceDraft] = useState<ProfileAppearance | null>(null);
   const [linkFieldErrors, setLinkFieldErrors] = useState<{ title?: string; url?: string }>({});
   const links = user && isProfileReady && linksUserId === user.uid
     ? [...firestoreLinks].sort((a, b) => (a.sortOrder ?? 100000) - (b.sortOrder ?? 100000))
@@ -207,6 +213,7 @@ export default function MyPage() {
                     typeof data.description === "string"
                       ? data.description
                       : "",
+                  group: typeof data.group === "string" ? data.group : "",
                   category:
                     typeof data.category === "string" &&
                     ["github", "blog", "portfolio", "project", "other"].includes(
@@ -371,7 +378,7 @@ export default function MyPage() {
     }
 
     const title = form.title.trim();
-    const url = form.url.trim();
+    const url = normalizeExternalUrl(form.url);
 
     const fieldErrors = getLinkFieldErrors({ title, url });
     setLinkFieldErrors(fieldErrors);
@@ -390,6 +397,7 @@ export default function MyPage() {
         {
           title,
           url,
+          group: form.group.trim(),
           description: "",
           category: "other",
           clickCount: 0,
@@ -422,6 +430,7 @@ export default function MyPage() {
         title: link.title,
         url: link.url,
         description: link.description ?? "",
+        group: link.group ?? "",
         thumbnailUrl: link.thumbnailUrl ?? "",
         isActive: link.isActive !== false,
         isFeatured: link.isFeatured === true,
@@ -641,18 +650,33 @@ export default function MyPage() {
 
       {user && isProfileReady && userProfile ? (
         <>
-          <ProfileSection
+          <nav aria-label="관리 메뉴" className="flex flex-wrap gap-2 rounded-2xl border border-[#252823]/10 bg-white p-2 dark:border-white/10 dark:bg-[#282E29]">
+            {([["links", "링크 관리"], ["profile", "프로필"], ["design", "디자인·SNS"]] as const).map(([tab, name]) => (
+              <button key={tab} type="button" aria-current={activeTab === tab ? "page" : undefined}
+                onClick={() => setActiveTab(tab)}
+                className={`min-h-11 flex-1 rounded-xl px-3 text-sm font-bold transition-colors ${activeTab === tab ? "bg-[#252823] text-white dark:bg-[#DDF76B] dark:text-[#252823]" : "hover:bg-[#EEF2E4] dark:hover:bg-white/10"}`}>{name}</button>
+            ))}
+          </nav>
+          <div className="grid gap-7 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
+            <div className="min-w-0 space-y-6">
+          {activeTab === "profile" ? <ProfileSection
             displayName={userProfile.displayName}
             username={userProfile.username}
             photoURL={userProfile.photoURL}
             bio={userProfile.bio}
             onEdit={openProfileEditor}
-          />
-          <ProfileDesignEditor
-            userId={user.uid}
-            appearance={userProfile}
-            onSaved={(next) => setUserProfile((current) => current ? { ...current, ...next } : current)}
-          />
+          /> : null}
+          {activeTab === "design" ? (
+            <ProfileDesignEditor
+              userId={user.uid}
+              appearance={userProfile}
+              onDraftChange={setAppearanceDraft}
+              onSaved={(next) => {
+                setUserProfile((current) => current ? { ...current, ...next } : current);
+                setAppearanceDraft(next);
+              }}
+            />
+          ) : null}
           <Dialog
             open={isProfileDialogOpen}
             onOpenChange={setIsProfileDialogOpen}
@@ -748,6 +772,13 @@ export default function MyPage() {
               </form>
             </DialogContent>
           </Dialog>
+            </div>
+            <aside className="min-w-0 rounded-[26px] border border-[#252823]/10 bg-white p-4 dark:border-white/10 dark:bg-[#282E29] lg:sticky lg:top-24" aria-label="실시간 미리보기">
+              <ProfileLivePreview username={userProfile.username} displayName={activeTab === "profile" && isProfileDialogOpen ? profileForm.displayName : userProfile.displayName}
+                bio={activeTab === "profile" && isProfileDialogOpen ? profileForm.bio : userProfile.bio}
+                photoURL={userProfile.photoURL} appearance={appearanceDraft ?? userProfile} links={links} />
+            </aside>
+          </div>
         </>
       ) : null}
 
@@ -767,7 +798,7 @@ export default function MyPage() {
           </p>
         </section>
       ) : (
-        <>
+        <div className={activeTab === "links" ? "space-y-6" : "hidden"}>
           <section className="w-full rounded-[26px] border border-[#252823]/10 bg-white p-5 shadow-[0_8px_30px_rgba(32,33,30,0.04)] dark:border-white/10 dark:bg-[#282E29] sm:p-6" aria-label="내 링크 추가">
             {isDialogOpen ? (
               <form onSubmit={handleSubmit} noValidate className="space-y-3 rounded-xl border border-border bg-card p-4 shadow-sm">
@@ -789,9 +820,13 @@ export default function MyPage() {
                   placeholder="https://example.com"
                   aria-label="링크 URL"
                   aria-invalid={Boolean(linkFieldErrors.url)}
+                  onBlur={() => setForm((current) => ({ ...current, url: normalizeExternalUrl(current.url) }))}
                   onChange={(event) => { setForm((current) => ({ ...current, url: event.target.value })); setError(""); setLinkFieldErrors((current) => ({ ...current, url: undefined })); }}
                   className="h-11 text-left text-sm"
                 />
+                <Input value={form.group} maxLength={40} aria-label="링크 그룹" placeholder="그룹 이름 (선택): 프로젝트, SNS 등"
+                  onChange={(event) => setForm((current) => ({ ...current, group: event.target.value }))}
+                  className="h-11 text-left text-sm" />
                 {linkFieldErrors.title ? <p role="alert" className="text-xs text-destructive">{linkFieldErrors.title}</p> : null}
                 {linkFieldErrors.url ? <p role="alert" className="text-xs text-destructive">{linkFieldErrors.url}</p> : null}
                 {error && !linkFieldErrors.title && !linkFieldErrors.url ? <p role="alert" className="text-center text-xs font-medium text-destructive">{error}</p> : null}
@@ -827,7 +862,7 @@ export default function MyPage() {
               <LinkList links={links} onUpdate={handleUpdateLink} onDelete={setLinkToDelete} onReorder={handleReorder} trackingUserId={user.uid} compact />
             )}
           </section>
-        </>
+        </div>
       )}
 
       <footer className="py-8 text-center text-xs font-semibold tracking-wide text-[#898D7C]">
