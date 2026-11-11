@@ -12,6 +12,7 @@ import {
   Package,
   Trash2,
   MousePointerClick,
+  LoaderCircle,
   type LucideIcon,
 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
@@ -96,7 +97,7 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId, compact = f
 
   async function handleUpdate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!onUpdate) return;
+    if (!onUpdate || isSaving) return;
 
     const updatedLink = { ...link, title: title.trim(), url: normalizeExternalUrl(url), description: description.trim(), group: group.trim(), thumbnailUrl: thumbnailUrl.trim(), isActive, isFeatured };
     if (thumbnailUrl.trim() && !safeHttpUrl(thumbnailUrl.trim())) { setError("썸네일은 http 또는 https 이미지 주소를 입력해 주세요."); return; }
@@ -128,7 +129,8 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId, compact = f
   if (compact) {
     if (isEditing) {
       return (
-        <form noValidate onSubmit={handleUpdate} className="space-y-3 rounded-xl border border-border bg-card p-4 shadow-sm">
+        <form noValidate onSubmit={handleUpdate} aria-busy={isSaving} className="space-y-3 rounded-2xl border border-border bg-card p-4 shadow-sm">
+          <div className="mb-3"><h3 className="text-sm font-extrabold">링크 정보 수정</h3><p className="mt-1 text-xs text-muted-foreground">수정한 내용은 저장 후 공개 페이지에 반영돼요.</p></div>
           <Input aria-label="링크 제목" aria-invalid={Boolean(fieldErrors.title)} value={title} onChange={(event) => { setTitle(event.target.value); setError(""); setFieldErrors((current) => ({ ...current, title: undefined })); }} placeholder="링크 제목" className="h-10" />
           <Input aria-label="링크 URL" type="url" aria-invalid={Boolean(fieldErrors.url)} value={url} onBlur={() => setUrl((previous) => normalizeExternalUrl(previous))} onChange={(event) => { setUrl(event.target.value); setError(""); setFieldErrors((current) => ({ ...current, url: undefined })); }} placeholder="https://example.com" className="h-10 text-sm" />
           {fieldErrors.title ? <p role="alert" className="text-xs text-destructive">{fieldErrors.title}</p> : null}
@@ -164,7 +166,7 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId, compact = f
           </div>
           <div className="flex justify-end gap-2">
             <Button variant="outline" size="sm" type="button" onClick={cancelEdit} disabled={isSaving}>취소</Button>
-            <Button size="sm" type="submit" disabled={isSaving} className="bg-[#405B2C] text-white hover:bg-[#304821] dark:bg-[#DDF76B] dark:text-[#252823] dark:hover:bg-[#C4E455]">{isSaving ? "저장 중..." : "저장"}</Button>
+            <Button size="sm" type="submit" disabled={isSaving} className="bg-[#405B2C] text-white hover:bg-[#304821] dark:bg-[#DDF76B] dark:text-[#252823] dark:hover:bg-[#C4E455]">{isSaving ? <><LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> 저장 중...</> : "변경사항 저장"}</Button>
           </div>
         </form>
       );
@@ -272,7 +274,7 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId, compact = f
               취소
             </Button>
             <Button type="submit" disabled={isSaving}>
-              {isSaving ? "저장 중..." : "저장"}
+              {isSaving ? <><LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> 저장 중...</> : "변경사항 저장"}
             </Button>
           </CardFooter>
         </form>
