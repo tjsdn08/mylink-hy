@@ -3,13 +3,6 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { ChartNoAxesColumn, Check, ChevronDown, Copy, Eye, Globe2, Link2, LogOut, Moon, Pencil, Plus, Save, Sun } from "lucide-react";
 import {
-  GoogleAuthProvider,
-  onAuthStateChanged,
-  signInWithPopup,
-  signOut,
-  type User,
-} from "firebase/auth";
-import {
   addDoc,
   collection,
   deleteDoc,
@@ -41,7 +34,8 @@ import {
 } from "@/components/ui/avatar";
 import { LinkList } from "@/components/links/LinkList";
 import { ProfileSection } from "@/components/mypage/ProfileSection";
-import { getFirebaseAuth, getFirebaseFirestore } from "@/lib/firebase";
+import { getFirebaseFirestore } from "@/lib/firebase";
+import { useAuth } from "@/components/auth-provider";
 import { showToast } from "@/lib/toast";
 import { getLinkFieldErrors, validateLinkForm } from "@/lib/link-validation";
 import {
@@ -77,10 +71,9 @@ const reservedUsernames = new Set([
 
 export default function MyPage() {
   const router = useRouter();
+  const { user, loading: isAuthLoading, error: authContextError, signInWithGoogle, signOut } = useAuth();
   const { isDark, setTheme } = useTheme();
   const accountMenuRef = useRef<HTMLDetailsElement>(null);
-  const [user, setUser] = useState<User | null>(null);
-  const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [authError, setAuthError] = useState("");
   const [isProfileReady, setIsProfileReady] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfileDocument | null>(null);
@@ -130,81 +123,45 @@ export default function MyPage() {
   }, []);
 
   useEffect(() => {
-    let isCancelled = false;
-    let activeUid: string | null = null;
-    let unsubscribe: (() => void) | undefined;
-
-    void Promise.resolve()
-      .then(() => {
-        if (isCancelled) return;
-
-        unsubscribe = onAuthStateChanged(
-          getFirebaseAuth(),
-          (authenticatedUser) => {
-            activeUid = authenticatedUser?.uid ?? null;
-            setUser(authenticatedUser);
-            setAuthError("");
-            setProfileError("");
-            setLoadError("");
-            setFirestoreLinks([]);
-            setLinksUserId(null);
-            setIsProfileReady(false);
-            setUserProfile(null);
-            setIsProfileDialogOpen(false);
-            setProfileSaveError("");
-                    setIsDialogOpen(false);
-            setLinkToDelete(null);
-            setForm(emptyForm);
-            setError("");
-            if (!authenticatedUser) {
-              setIsAuthLoading(false);
-              router.replace("/");
-              return;
-            }
-
-            void ensureUserProfileDocument(authenticatedUser)
-              .then((profile) => {
-                if (isCancelled || activeUid !== authenticatedUser.uid) return;
-                setUserProfile(profile);
-                setProfileForm({
-                  username: profile.username,
-                  displayName: profile.displayName,
-                  bio: profile.bio,
-                });
-                setIsProfileReady(true);
-                setIsAuthLoading(false);
-              })
-              .catch((profileSaveError: unknown) => {
-                if (isCancelled || activeUid !== authenticatedUser.uid) return;
-                setProfileError(
-                  profileSaveError instanceof Error
-                    ? `로그인은 성공했지만 Firestore 프로필 저장에 실패했어요: ${profileSaveError.message}`
-                    : "로그인은 성공했지만 Firestore 프로필 저장에 실패했어요. 권한과 연결을 확인해 주세요."
-                );
-                setIsAuthLoading(false);
-              });
-          },
-          (observerError) => {
-            setAuthError(`로그인 상태를 확인하지 못했어요: ${observerError.message}`);
-            setIsAuthLoading(false);
-          }
-        );
-      })
-      .catch((initializationError: unknown) => {
-        if (isCancelled) return;
-        setAuthError(
-          initializationError instanceof Error
-            ? `Firebase 인증을 초기화하지 못했어요: ${initializationError.message}`
-            : "Firebase 인증을 초기화하지 못했어요. 설정을 확인해 주세요."
-        );
-        setIsAuthLoading(false);
+    let cancelled = false;
+    const uid = user?.uid;
+    void Promise.resolve().then(() => {
+      if (cancelled) return;
+      setAuthError(authContextError ? `로그인 상태 확인 오류: ${authContextError}` : "");
+      setProfileError("");
+      setLoadError("");
+      setFirestoreLinks([]);
+      setLinksUserId(null);
+      setIsProfileReady(false);
+      setUserProfile(null);
+      setIsProfileDialogOpen(false);
+      setProfileSaveError("");
+      setIsDialogOpen(false);
+      setLinkToDelete(null);
+      setForm(emptyForm);
+      setError("");
+      if (!user) {
+        if (!isAuthLoading && !authContextError) router.replace("/");
+        return;
+      }
+      void ensureUserProfileDocument(user).then((profile) => {
+        if (cancelled || uid !== user.uid) return;
+        setUserProfile(profile);
+        setProfileForm({
+          username: profile.username,
+          displayName: profile.displayName,
+          bio: profile.bio,
+        });
+        setIsProfileReady(true);
+      }).catch((cause: unknown) => {
+        if (cancelled || uid !== user.uid) return;
+        setProfileError(cause instanceof Error
+          ? `프로필 정보를 불러오지 못했어요: ${cause.message}`
+          : "프로필을 불러오지 못했어요.");
       });
-
-    return () => {
-      isCancelled = true;
-      unsubscribe?.();
-    };
-  }, [router]);
+    });
+    return () => { cancelled = true; };
+  }, [user, isAuthLoading, authContextError, router]);
 
   useEffect(() => {
     if (!user || !isProfileReady) return;
@@ -293,7 +250,7 @@ export default function MyPage() {
     setAuthError("");
     setIsSigningIn(true);
     try {
-      await signInWithPopup(getFirebaseAuth(), new GoogleAuthProvider());
+      await signInWithGoogle();
     } catch (signInError) {
       const errorCode =
         typeof signInError === "object" &&
@@ -317,7 +274,7 @@ export default function MyPage() {
     setAuthError("");
     setIsSigningOut(true);
     try {
-      await signOut(getFirebaseAuth());
+      await signOut();
       setFirestoreLinks([]);
       setLinksUserId(null);
     } catch (signOutError) {
