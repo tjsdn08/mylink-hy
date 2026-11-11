@@ -24,7 +24,7 @@ export interface LinkListProps {
 export function LinkList({ links, onUpdate, onDelete, trackingUserId, compact = false }: LinkListProps) {
   if (compact) {
     return (
-      <ul className="flex flex-col gap-3">
+      <ul className="profile-link-list flex flex-col gap-3">
         {links.map((link) => (
           <li key={link.id}><LinkCard link={link} onUpdate={onUpdate} onDelete={onDelete} trackingUserId={trackingUserId} compact /></li>
         ))}

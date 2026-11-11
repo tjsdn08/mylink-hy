@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import { collection, doc, getDoc, onSnapshot, orderBy, query, Timestamp } from "firebase/firestore";
 import { notFound } from "next/navigation";
 import NextLink from "next/link";
-import { Globe2, Link2 } from "lucide-react";
+import { ArrowUpRight, Check, Copy, Globe2, Link2, Share2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LinkList } from "@/components/links/LinkList";
 import { getFirebaseFirestore } from "@/lib/firebase";
+import { showToast } from "@/lib/toast";
 import type { Link } from "@/types/link";
 
 interface PublicProfile {
@@ -25,6 +26,7 @@ export function PublicProfileClient({ username }: { username: string }) {
   const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [links, setLinks] = useState<Link[]>([]);
   const [ownerId, setOwnerId] = useState("");
+  const [copied, setCopied] = useState(false);
   const [error, setError] = useState<{ step: LoadStep; message: string; code?: string } | null>(null);
 
   useEffect(() => {
@@ -156,35 +158,104 @@ export function PublicProfileClient({ username }: { username: string }) {
 
   if (!profile || !ownerId) return null;
 
+
+  async function copyPublicUrl() {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      showToast("프로필 주소를 복사했어요.");
+    } catch {
+      showToast("주소 복사에 실패했어요.", "error");
+    }
+  }
+
+  async function shareProfile() {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${profile?.displayName ?? "MyLink"} | MyLink`,
+          text: profile?.bio || "내 링크를 확인해 보세요.",
+          url: window.location.href,
+        });
+      } catch (cause) {
+        if (cause instanceof Error && cause.name !== "AbortError") {
+          await copyPublicUrl();
+        }
+      }
+    } else {
+      await copyPublicUrl();
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-background pb-20 text-foreground">
-      <header className="sticky top-0 z-40 flex h-16 items-center border-b border-border/50 bg-background/90 px-5 backdrop-blur-md">
-        <NextLink href="/" className="flex items-center gap-2 text-lg font-bold tracking-tight">
-          <Globe2 aria-hidden="true" className="size-5 text-[#5b5fc7]" /> MyLink
+    <div className="mylink-public min-h-screen pb-20 text-[#262920] dark:text-[#F9F8F3]">
+      <header className="relative z-20 mx-auto flex h-[76px] w-full max-w-5xl items-center justify-between px-5 sm:px-8">
+        <NextLink href="/" className="inline-flex items-center gap-2 text-xl font-black tracking-[-0.07em]">
+          <span className="inline-flex size-8 -rotate-6 items-center justify-center rounded-[10px] bg-[#252823] text-[#DDF76B] dark:bg-[#DDF76B] dark:text-[#252823]">
+            <Link2 className="size-4" aria-hidden="true" />
+          </span>
+          mylink<span className="text-[#F06D4E]">.</span>
         </NextLink>
+        <button type="button" onClick={() => void shareProfile()}
+          className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[#262920]/15 bg-white/85 px-5 text-sm font-extrabold text-[#252823] transition-transform hover:-translate-y-0.5 dark:border-white/20 dark:bg-[#282E29] dark:text-white">
+          <Share2 className="size-4" aria-hidden="true" /> 공유하기
+        </button>
       </header>
-      <main className="mx-auto flex w-full max-w-md flex-col items-center gap-8 px-4 pt-10">
-        <section className="flex w-full flex-col items-center text-center">
-          <Avatar className="mb-4 size-24 border-4 border-background bg-muted shadow-sm">
-            {profile.photoURL ? <AvatarImage src={profile.photoURL} alt={`${profile.displayName} 프로필 사진`} /> : null}
-            <AvatarFallback className="text-xl font-semibold">{profile.displayName.slice(0, 1) || "?"}</AvatarFallback>
-          </Avatar>
-          <h1 className="text-2xl font-bold tracking-tight">{profile.displayName}</h1>
-          {profile.bio ? <p className="mt-3 max-w-[300px] whitespace-pre-wrap break-words text-sm leading-relaxed">{profile.bio}</p> : null}
+
+      <main className="relative mx-auto w-full max-w-[620px] px-5 pb-10 sm:px-7">
+        <section className="relative mt-4 overflow-hidden rounded-[30px] border border-[#262920]/10 bg-white shadow-[0_22px_80px_rgba(52,48,34,0.08)] dark:border-white/10 dark:bg-[#282E29]">
+          <div className="relative h-44 overflow-hidden bg-[#DCECA8] sm:h-52">
+            <div aria-hidden="true" className="absolute -left-10 -top-20 size-64 rounded-full border-[30px] border-white/35" />
+            <div aria-hidden="true" className="absolute -right-10 -bottom-24 size-64 rounded-full bg-[#F6B59E]/70 blur-[3px]" />
+            <span className="absolute bottom-4 right-5 rotate-[-7deg] text-[11px] font-black tracking-[0.13em] text-[#51632E]">MY LITTLE CORNER ✳</span>
+          </div>
+          <div className="relative px-6 pb-8 pt-16 text-center sm:px-10">
+            <div className="absolute -top-12 left-1/2 -translate-x-1/2">
+              <Avatar className="size-24 border-[5px] border-white bg-[#EFF1E5] shadow-md">
+                {profile.photoURL ? <AvatarImage src={profile.photoURL} alt={`${profile.displayName} 프로필 사진`} /> : null}
+                <AvatarFallback className="text-3xl font-black">{profile.displayName.slice(0, 1) || "?"}</AvatarFallback>
+              </Avatar>
+            </div>
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#EFF5D6] px-3 py-1.5 text-xs font-extrabold text-[#526C36]">
+              <span className="size-1.5 rounded-full bg-[#839D50]" /> @{profile.username}
+            </div>
+            <h1 className="break-words text-[clamp(1.9rem,5vw,2.7rem)] font-black leading-tight tracking-[-0.065em]">{profile.displayName}</h1>
+            {profile.bio ? <p className="mx-auto mt-4 max-w-md whitespace-pre-wrap break-words text-sm leading-7 text-[#656B60] dark:text-white/70">{profile.bio}</p> : null}
+            <button type="button" onClick={() => void copyPublicUrl()}
+              className="mt-6 inline-flex min-h-10 items-center gap-2 rounded-full border border-[#252823]/15 bg-[#F7F6F0] px-4 text-xs font-bold text-[#444A3F] transition-colors hover:bg-[#DDF76B] dark:border-white/20 dark:bg-white/10 dark:text-white">
+              {copied ? <Check className="size-4" aria-hidden="true" /> : <Copy className="size-4" aria-hidden="true" />}
+              {copied ? "주소 복사 완료" : "내 페이지 주소 복사"}
+            </button>
+          </div>
         </section>
-        <section className="w-full" aria-label="공개 링크">
+
+        <section className="mt-9 w-full" aria-label="공개 링크">
+          <div className="mb-5 flex items-center justify-between gap-3">
+            <div>
+              <p className="text-[11px] font-extrabold tracking-[0.18em] text-[#D97757]">DISCOVER MORE</p>
+              <h2 className="mt-1 text-[23px] font-black tracking-[-0.05em]">여기서 더 만나보세요.</h2>
+            </div>
+            <span className="rounded-full border border-[#262920]/15 px-3 py-1 text-xs font-bold dark:border-white/15">{links.length} links</span>
+          </div>
           {links.length > 0 ? (
             <LinkList links={links} trackingUserId={ownerId} compact />
           ) : (
-            <div className="flex flex-col items-center py-10 text-center">
-              <Link2 aria-hidden="true" className="mb-3 size-8 text-muted-foreground/30" />
-              <p className="text-sm text-muted-foreground">아직 등록된 링크가 없습니다.</p>
+            <div className="rounded-[24px] border border-dashed border-[#262920]/20 bg-white/60 px-6 py-12 text-center dark:border-white/20 dark:bg-white/5">
+              <Link2 aria-hidden="true" className="mx-auto mb-3 size-8 text-[#89917D]" />
+              <p className="text-sm text-[#73796D] dark:text-white/70">아직 등록된 링크가 없어요.</p>
             </div>
           )}
         </section>
+        <div className="mt-12 flex items-center justify-center">
+          <button type="button" onClick={() => void shareProfile()}
+            className="inline-flex min-h-12 items-center gap-2 rounded-full bg-[#252823] px-6 text-sm font-bold text-white transition-transform hover:-translate-y-1 dark:bg-[#DDF76B] dark:text-[#252823]">
+            이 페이지 공유하기 <ArrowUpRight className="size-4" aria-hidden="true" />
+          </button>
+        </div>
       </main>
-      <footer className="mt-16 py-8 text-center text-xs font-semibold text-muted-foreground">
-        <Globe2 aria-hidden="true" className="mr-1 inline size-3" /> Powered by MyLink
+      <footer className="relative mx-auto mt-12 max-w-[620px] border-t border-[#262920]/10 px-5 py-8 text-center text-xs font-medium text-[#8A8D80] dark:border-white/10">
+        <NextLink href="/" className="font-black tracking-tight text-[#4D5840] hover:underline dark:text-[#DDF76B]">made with mylink.</NextLink>
+        <p className="mt-1">내 링크를 위한 작은 공간.</p>
       </footer>
     </div>
   );
