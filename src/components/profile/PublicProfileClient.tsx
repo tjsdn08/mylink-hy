@@ -1,28 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, doc, getDoc, onSnapshot, orderBy, query, Timestamp, increment, setDoc } from "firebase/firestore";
+import { collection, doc, getDoc, onSnapshot, orderBy, query, Timestamp } from "firebase/firestore";
 import { notFound } from "next/navigation";
 import NextLink from "next/link";
-import { ArrowUpRight, AtSign, BookOpen, Check, Copy, Github, Globe2, Instagram, Link2, Linkedin, Music2, Share2, Youtube, type LucideIcon } from "lucide-react";
+import { ArrowUpRight, Check, Copy, Globe2, Link2, Share2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LinkList } from "@/components/links/LinkList";
 import { getFirebaseFirestore } from "@/lib/firebase";
 import { showToast } from "@/lib/toast";
-import { appearanceVariables, normalizeSocialLinks, type ProfileAppearance } from "@/lib/profile-design";
 import type { Link } from "@/types/link";
 
-interface PublicProfile extends ProfileAppearance {
+interface PublicProfile {
   username: string;
   displayName: string;
   photoURL: string;
   bio: string;
 }
 
-const socialIconMap: Record<string, LucideIcon> = {
-  Instagram, GitHub: Github, YouTube: Youtube, TikTok: Music2,
-  LinkedIn: Linkedin, X: AtSign, Blog: BookOpen, Website: Globe2,
-};
 type LoadState = "loading" | "ready" | "missing" | "error";
 type LoadStep = "username" | "profile" | "links";
 
@@ -64,22 +59,12 @@ export function PublicProfileClient({ username }: { username: string }) {
           return;
         }
 
-        // 방문마다 1회 증가합니다. 게시된 보안 규칙에서 +1만 허용합니다.
-        // 규칙이 아직 배포되지 않았더라도 공개 페이지는 정상 표시되어야 합니다.
-        void setDoc(doc(firestore, "users", uid, "metrics", "profile"),
-          { views: increment(1) }, { merge: true }).catch((cause) => {
-          console.warn("프로필 조회 수 기록 실패:", cause);
-        });
         setOwnerId(uid);
         setProfile({
           username: usernameKey,
           displayName: typeof data.displayName === "string" ? data.displayName : usernameKey,
           photoURL: typeof data.photoURL === "string" ? data.photoURL : "",
           bio: typeof data.bio === "string" ? data.bio : "",
-          theme: data.theme === "lavender" || data.theme === "midnight" ? data.theme : "cream",
-          backgroundColor: typeof data.backgroundColor === "string" ? data.backgroundColor : "",
-          buttonStyle: data.buttonStyle === "pill" || data.buttonStyle === "square" ? data.buttonStyle : "rounded",
-          socialLinks: normalizeSocialLinks(data.socialLinks),
         });
 
         step = "links";
@@ -91,7 +76,6 @@ export function PublicProfileClient({ username }: { username: string }) {
               const link = linkDoc.data();
               if (typeof link.title !== "string" || typeof link.url !== "string") return [];
               const categories: Link["category"][] = ["github", "blog", "portfolio", "project", "other"];
-              if (link.isActive === false) return [];
               return [{
                 id: linkDoc.id,
                 title: link.title,
@@ -99,14 +83,10 @@ export function PublicProfileClient({ username }: { username: string }) {
                 description: typeof link.description === "string" ? link.description : "",
                 category: categories.includes(link.category) ? link.category as Link["category"] : "other",
                 clickCount: typeof link.clickCount === "number" ? link.clickCount : 0,
-                thumbnailUrl: typeof link.thumbnailUrl === "string" ? link.thumbnailUrl : "",
-                isActive: link.isActive !== false,
-                isFeatured: link.isFeatured === true,
-                sortOrder: typeof link.sortOrder === "number" ? link.sortOrder : undefined,
                 updatedAt: link.updatedAt instanceof Timestamp ? link.updatedAt.toDate() : undefined,
               }];
             });
-            setLinks(nextLinks.sort((a, b) => (a.sortOrder ?? 100000) - (b.sortOrder ?? 100000)));
+            setLinks(nextLinks);
             setError(null);
             setState("ready");
           },
@@ -208,7 +188,7 @@ export function PublicProfileClient({ username }: { username: string }) {
   }
 
   return (
-    <div className="mylink-public min-h-screen pb-20" data-theme={profile.theme ?? "cream"} style={appearanceVariables(profile)}>
+    <div className="mylink-public min-h-screen pb-20 text-[#262920] dark:text-[#F9F8F3]">
       <header className="relative z-20 mx-auto flex h-[76px] w-full max-w-5xl items-center justify-between px-5 sm:px-8">
         <NextLink href="/" className="inline-flex items-center gap-2 text-xl font-black tracking-[-0.07em]">
           <span className="inline-flex size-8 -rotate-6 items-center justify-center rounded-[10px] bg-[#252823] text-[#DDF76B] dark:bg-[#DDF76B] dark:text-[#252823]">
@@ -224,7 +204,7 @@ export function PublicProfileClient({ username }: { username: string }) {
 
       <main className="relative mx-auto w-full max-w-[620px] px-5 pb-10 sm:px-7">
         <section className="relative mt-4 overflow-hidden rounded-[30px] border border-[#262920]/10 bg-white shadow-[0_22px_80px_rgba(52,48,34,0.08)] dark:border-white/10 dark:bg-[#282E29]">
-          <div className="relative h-44 overflow-hidden sm:h-52" style={{ background: "var(--profile-cover)" }}>
+          <div className="relative h-44 overflow-hidden bg-[#DCECA8] sm:h-52">
             <div aria-hidden="true" className="absolute -left-10 -top-20 size-64 rounded-full border-[30px] border-white/35" />
             <div aria-hidden="true" className="absolute -right-10 -bottom-24 size-64 rounded-full bg-[#F6B59E]/70 blur-[3px]" />
             <span className="absolute bottom-4 right-5 rotate-[-7deg] text-[11px] font-black tracking-[0.13em] text-[#51632E]">MY LITTLE CORNER ✳</span>
@@ -241,20 +221,6 @@ export function PublicProfileClient({ username }: { username: string }) {
             </div>
             <h1 className="break-words text-[clamp(1.9rem,5vw,2.7rem)] font-black leading-tight tracking-[-0.065em]">{profile.displayName}</h1>
             {profile.bio ? <p className="mx-auto mt-4 max-w-md whitespace-pre-wrap break-words text-sm leading-7 text-[#656B60] dark:text-white/70">{profile.bio}</p> : null}
-            {profile.socialLinks && profile.socialLinks.length > 0 ? (
-              <nav aria-label="SNS 프로필" className="mt-5 flex flex-wrap justify-center gap-2">
-                {profile.socialLinks.map((item) => {
-                  const SocialIcon = socialIconMap[item.platform] ?? Globe2;
-                  return (
-                    <a key={item.platform} href={item.url} target="_blank" rel="noopener noreferrer"
-                      aria-label={`${item.platform} 열기`} title={item.platform}
-                      className="flex size-11 items-center justify-center rounded-full border border-[#252823]/10 bg-[#F3F6E7] text-[#252823] transition-transform hover:-translate-y-1 dark:bg-white/10 dark:text-white">
-                      <SocialIcon className="size-5" aria-hidden="true" />
-                    </a>
-                  );
-                })}
-              </nav>
-            ) : null}
             <button type="button" onClick={() => void copyPublicUrl()}
               className="mt-6 inline-flex min-h-10 items-center gap-2 rounded-full border border-[#252823]/15 bg-[#F7F6F0] px-4 text-xs font-bold text-[#444A3F] transition-colors hover:bg-[#DDF76B] dark:border-white/20 dark:bg-white/10 dark:text-white">
               {copied ? <Check className="size-4" aria-hidden="true" /> : <Copy className="size-4" aria-hidden="true" />}
