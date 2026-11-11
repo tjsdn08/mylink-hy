@@ -6,6 +6,8 @@ export interface PublicOgProfile {
   username: string;
   displayName: string;
   bio: string;
+  theme?: "cream" | "lavender" | "midnight";
+  backgroundColor?: string;
 }
 
 async function getPublicDocument(projectId: string, path: string): Promise<FirestoreDocument | null> {
@@ -37,6 +39,8 @@ export async function getPublicOgProfile(username: string): Promise<PublicOgProf
       username: key,
       displayName: fields.displayName?.stringValue?.trim() || key,
       bio: fields.bio?.stringValue?.trim() || "",
+      theme: fields.theme?.stringValue === "lavender" || fields.theme?.stringValue === "midnight" ? fields.theme.stringValue : "cream",
+      backgroundColor: /^#[a-fA-F0-9]{6}$/.test(fields.backgroundColor?.stringValue ?? "") ? fields.backgroundColor?.stringValue : "",
     };
   } catch {
     return null;
