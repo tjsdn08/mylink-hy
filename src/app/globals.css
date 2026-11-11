@@ -313,3 +313,35 @@ body {
   filter: brightness(.96);
 }
 .mylink-public .profile-link-list a .link-title { color: var(--profile-button-text) !important; }
+
+/* 공통 프로필 디자인: 랜딩 데모, 편집 미리보기, 실제 공개 페이지에 동일 적용 */
+.profile-visual {
+  background: var(--profile-background, #F5F3E9);
+  color: var(--profile-text, #252823);
+}
+.profile-visual .profile-visual-links {
+  background: var(--profile-background, #F5F3E9);
+  color: var(--profile-text, #252823);
+}
+.profile-visual .public-link-button,
+.profile-visual .public-link-button:hover {
+  border-color: var(--profile-outline, #C8CEB7) !important;
+  border-radius: var(--profile-radius, 19px) !important;
+  background: var(--profile-button-bg, #FFF) !important;
+  color: var(--profile-button-text, #252823) !important;
+}
+.profile-visual .public-link-button .link-title {
+  color: var(--profile-button-text, #252823) !important;
+}
+.profile-visual .public-link-button .text-muted-foreground {
+  color: var(--profile-button-text, #252823) !important;
+  opacity: .75;
+}
+.profile-visual .public-link-button:hover { filter: brightness(.96); }
+.profile-visual[data-theme="midnight"] .public-link-button:hover { filter: brightness(1.12); }
+.profile-visual .profile-link-list > li a:hover {
+  background: var(--profile-button-bg, #FFF) !important;
+}
+.profile-visual-demo-links .profile-link-list li {
+  animation: none !important;
+}
