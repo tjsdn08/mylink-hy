@@ -345,3 +345,26 @@ body {
 .profile-visual-demo-links .profile-link-list li {
   animation: none !important;
 }
+
+/* Cover patterns stay identical in landing, editor preview, and public pages. */
+.profile-visual[data-cover="grid"] .profile-visual-cover {
+  background-image: linear-gradient(rgba(255,255,255,.38) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.38) 1px, transparent 1px),
+    linear-gradient(120deg, var(--profile-cover), color-mix(in srgb, var(--profile-cover), #EFAE91 35%));
+  background-size: 28px 28px, 28px 28px, auto;
+}
+.profile-visual[data-cover="grid"] .profile-cover-circle,
+.profile-visual[data-cover="grid"] .profile-cover-orb { display: none; }
+.profile-visual[data-cover="minimal"] .profile-visual-cover {
+  background: linear-gradient(125deg, var(--profile-cover), color-mix(in srgb, var(--profile-cover), white 35%));
+}
+.profile-visual[data-cover="minimal"] .profile-cover-circle,
+.profile-visual[data-cover="minimal"] .profile-cover-orb { display: none; }
+.profile-cover-swatch-orbits { background-image: radial-gradient(circle at 20% 18%, rgba(255,255,255,.55) 0 27%, transparent 28%), radial-gradient(circle at 85% 85%, #F6B59E 0 30%, transparent 31%); }
+.profile-cover-swatch-grid { background-image: linear-gradient(#fff8 1px,transparent 1px),linear-gradient(90deg,#fff8 1px,transparent 1px);background-size:12px 12px; }
+.profile-cover-swatch-minimal { background-image: linear-gradient(130deg, transparent, #fff8); }
+.profile-featured-list .public-link-button {
+  box-shadow: 0 7px 0 color-mix(in srgb, var(--profile-outline), transparent 45%) !important;
+  border-width: 2px !important;
+}
+.profile-featured-list .public-link-button:hover { transform: translateY(-2px); }

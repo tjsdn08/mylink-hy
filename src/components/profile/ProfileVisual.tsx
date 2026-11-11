@@ -30,12 +30,13 @@ export function ProfileVisual({ profile, links, compact = false, trackingUserId,
     .sort((a, b) => (a.sortOrder ?? 100000) - (b.sortOrder ?? 100000));
 
   const highlighted = visibleLinks.filter((link) => link.isFeatured).length;
-  const hasDetails = Boolean(profile.bio.trim() || social.length > 0);
+  const hasDetails = Boolean(profile.bio.trim() || profile.headline?.trim() || social.length > 0);
 
   return (
     <div
       className={`profile-visual min-w-0 overflow-hidden ${compact ? "rounded-[28px]" : "rounded-[32px]"}`}
       data-theme={profile.theme ?? "cream"}
+      data-cover={profile.coverStyle ?? "orbits"}
       style={appearanceVariables(profile)}
     >
       <section className="profile-visual-hero overflow-hidden bg-[var(--profile-button-bg)] text-[var(--profile-button-text)]">
@@ -65,6 +66,7 @@ export function ProfileVisual({ profile, links, compact = false, trackingUserId,
           <h2 className={`mt-3 break-words font-black leading-tight tracking-[-.06em] ${compact ? "text-[22px]" : "text-[clamp(2rem,5vw,2.9rem)]"}`}>
             {profile.displayName}
           </h2>
+          {profile.headline ? <p className={`mx-auto mt-3 max-w-sm font-extrabold tracking-tight ${compact ? "text-[13px]" : "text-base"}`}>{profile.headline}</p> : null}
           {profile.bio ? <p className={`mx-auto mt-3 max-w-md whitespace-pre-wrap break-words leading-relaxed opacity-85 ${compact ? "text-xs" : "text-sm"}`}>{profile.bio}</p> : null}
           {!hasDetails ? <p className="mt-3 text-xs leading-6 opacity-60">소개글과 SNS를 추가해 나만의 공간을 완성해 보세요.</p> : null}
           {social.length > 0 ? (

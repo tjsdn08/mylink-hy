@@ -73,6 +73,8 @@ export function PublicProfileClient({ username }: { username: string }) {
           backgroundColor: typeof data.backgroundColor === "string" ? data.backgroundColor : "",
           buttonStyle: data.buttonStyle === "pill" || data.buttonStyle === "square" ? data.buttonStyle : "rounded",
           socialLinks: normalizeSocialLinks(data.socialLinks),
+          coverStyle: data.coverStyle === "grid" || data.coverStyle === "minimal" ? data.coverStyle : "orbits",
+          headline: typeof data.headline === "string" ? data.headline : "",
         });
 
         step = "links";
