@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, doc, getDoc, onSnapshot, orderBy, query, Timestamp } from "firebase/firestore";
+import { collection, doc, getDoc, onSnapshot, orderBy, query, Timestamp, setDoc, increment } from "firebase/firestore";
 import { notFound } from "next/navigation";
 import NextLink from "next/link";
 import { ArrowUpRight, Check, Copy, Globe2, Link2, Share2 } from "lucide-react";
@@ -59,6 +59,8 @@ export function PublicProfileClient({ username }: { username: string }) {
           return;
         }
 
+        void setDoc(doc(firestore, "users", uid, "metrics", "profile"),
+          { views: increment(1) }, { merge: true }).catch(() => {});
         setOwnerId(uid);
         setProfile({
           username: usernameKey,
@@ -76,6 +78,7 @@ export function PublicProfileClient({ username }: { username: string }) {
               const link = linkDoc.data();
               if (typeof link.title !== "string" || typeof link.url !== "string") return [];
               const categories: Link["category"][] = ["github", "blog", "portfolio", "project", "other"];
+              if (link.isActive === false) return [];
               return [{
                 id: linkDoc.id,
                 title: link.title,
@@ -83,10 +86,14 @@ export function PublicProfileClient({ username }: { username: string }) {
                 description: typeof link.description === "string" ? link.description : "",
                 category: categories.includes(link.category) ? link.category as Link["category"] : "other",
                 clickCount: typeof link.clickCount === "number" ? link.clickCount : 0,
+                isActive: link.isActive !== false,
+                isFeatured: link.isFeatured === true,
+                thumbnailUrl: typeof link.thumbnailUrl === "string" ? link.thumbnailUrl : "",
+                sortOrder: typeof link.sortOrder === "number" ? link.sortOrder : undefined,
                 updatedAt: link.updatedAt instanceof Timestamp ? link.updatedAt.toDate() : undefined,
               }];
             });
-            setLinks(nextLinks);
+            setLinks(nextLinks.sort((a, b) => (a.sortOrder ?? 100000) - (b.sortOrder ?? 100000)));
             setError(null);
             setState("ready");
           },
