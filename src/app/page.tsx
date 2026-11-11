@@ -14,7 +14,7 @@ import {
   type UserProfileDocument,
 } from "@/lib/user-profile";
 import MyPage from "@/app/mypage/page";
-import { ProfileVisual } from "@/components/profile/ProfileVisual";
+import { ProfilePhoneFrame } from "@/components/profile/ProfilePhoneFrame";
 
 
 const highlights = [
@@ -33,26 +33,19 @@ function LandingPreview() {
     <div className="relative mx-auto w-full max-w-[410px] motion-safe:animate-[mylink-rise_700ms_ease-out_both]"
       aria-label="실제 공개 프로필과 동일한 디자인으로 만든 예시 화면">
       <div aria-hidden="true" className="pointer-events-none absolute -inset-6 -z-10 rounded-[45px] bg-[#DDF76B]/30 blur-3xl" />
-      <div className="mx-auto max-w-[350px] overflow-hidden rounded-[39px] border-[7px] border-[#252823] bg-[#252823] shadow-[0_30px_80px_-35px_rgba(24,28,25,.4)]">
-        <div className="flex h-7 items-center justify-center bg-white">
-          <div aria-hidden="true" className="h-1.5 w-16 rounded-full bg-[#B8B9BA]" />
-        </div>
-        <div className="flex items-center justify-between bg-white px-4 py-3 text-[#252823]">
-          <span className="flex items-center gap-2 text-xs font-black"><Link2 className="size-4 text-[#49622E]" aria-hidden="true" /> mylink.</span>
-          <span className="rounded-full bg-[#EAF4CB] px-3 py-1 text-[10px] font-extrabold text-[#405829]">프로필 예시</span>
-        </div>
-        <ProfileVisual
-          compact
-          profile={{
-            username: "yourname",
-            displayName: "나만의 링크 공간",
-            bio: "만든 것, 배우는 것, 좋아하는 것까지 ✨",
-            theme: "cream",
-            buttonStyle: "rounded",
-          }}
-          links={demoLinks}
-        />
-      </div>
+      <ProfilePhoneFrame
+        label="프로필 예시"
+        profile={{
+          username: "yourname",
+          displayName: "나만의 링크 공간",
+          headline: "만드는 과정도 나만의 이야기",
+          bio: "만든 것, 배우는 것, 좋아하는 것까지 ✨",
+          theme: "cream",
+          coverStyle: "orbits",
+          buttonStyle: "rounded",
+        }}
+        links={demoLinks}
+      />
       <div className="absolute -right-3 -top-5 hidden items-center gap-2 rounded-2xl bg-white px-3 py-2 text-xs font-semibold text-[#252823] shadow-xl sm:flex">
         <MousePointerClick aria-hidden="true" className="size-4 text-[#516D34]" /> 하나의 주소로 공유!
       </div>
