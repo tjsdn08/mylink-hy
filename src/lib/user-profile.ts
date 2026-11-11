@@ -15,6 +15,10 @@ export interface UserProfileDocument {
   photoURL: string;
   username: string;
   bio: string;
+  theme?: "cream" | "lavender" | "midnight";
+  backgroundColor?: string;
+  buttonStyle?: "rounded" | "pill" | "square";
+  socialLinks?: { platform: string; url: string }[];
 }
 
 export interface EditableUserProfile {
@@ -70,6 +74,10 @@ export function ensureUserProfileDocument(
         (typeof storedProfile.bio === "string" && storedProfile.bio) ||
         (typeof userData?.bio === "string" && userData.bio) ||
         "",
+      theme: ["cream", "lavender", "midnight"].includes(storedProfile.theme) ? storedProfile.theme : "cream",
+      backgroundColor: typeof storedProfile.backgroundColor === "string" ? storedProfile.backgroundColor : "",
+      buttonStyle: ["rounded", "pill", "square"].includes(storedProfile.buttonStyle) ? storedProfile.buttonStyle : "rounded",
+      socialLinks: Array.isArray(storedProfile.socialLinks) ? storedProfile.socialLinks.filter((item: unknown) => item !== null && typeof item === "object" && "platform" in item && "url" in item).slice(0, 8) as { platform: string; url: string }[] : [],
     };
 
     await runTransaction(firestore, async (transaction) => {

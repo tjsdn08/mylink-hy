@@ -49,11 +49,30 @@ service cloud.firestore {
             'displayName',
             'photoURL',
             'bio',
+            'theme',
+            'backgroundColor',
+            'buttonStyle',
+            'socialLinks',
             'createdAt',
             'updatedAt'
           ]);
 
         allow delete: if signedInAs(uid) && profileId == 'main';
+      }
+
+      // 비로그인 방문자는 조회 및 원자적 +1만 가능합니다.
+      // 중복 새로고침·봇 트래픽도 포함되는 단순 조회 수입니다.
+      match /metrics/{metricId} {
+        allow get: if metricId == 'profile';
+        allow list: if false;
+        allow create: if metricId == 'profile'
+          && request.resource.data.keys().hasOnly(['views'])
+          && request.resource.data.views == 1;
+        allow update: if metricId == 'profile'
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views'])
+          && request.resource.data.views is int
+          && request.resource.data.views == resource.data.get('views', 0) + 1;
+        allow delete: if signedInAs(uid);
       }
 
       match /links/{linkId} {
