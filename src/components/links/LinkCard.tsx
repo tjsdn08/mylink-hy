@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { validateLinkForm } from "@/lib/link-validation";
+import { LinkFavicon } from "@/components/links/LinkFavicon";
 import { getFirebaseFirestore } from "@/lib/firebase";
 import type { Link as LinkItem, LinkCategory as LinkCategoryId } from "@/types/link";
 
@@ -126,7 +127,7 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId, compact = f
           className={`min-w-0 flex-1 rounded-xl border border-border/70 bg-card transition-all duration-200 hover:-translate-y-0.5 hover:bg-muted/60 hover:shadow-sm ${onUpdate || onDelete ? "rounded-r-none border-r-0" : ""}`}>
           <div className="flex min-h-[76px] items-center gap-3 p-3.5 sm:gap-4 sm:p-4">
             <span className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border/50 bg-muted">
-              <Icon aria-hidden="true" className="size-5 text-muted-foreground transition-colors group-hover:text-[#5b5fc7]" />
+              <LinkFavicon url={link.url} className="size-5 text-muted-foreground" />
             </span>
             <div className="min-w-0 flex-1 text-left">
               <p className="truncate text-[15px] font-semibold text-card-foreground group-hover:text-[#5b5fc7]">
