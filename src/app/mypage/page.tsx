@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
-import { ChartNoAxesColumn, ChevronDown, Globe2, Link2, Pencil, Plus, Save } from "lucide-react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import { ChartNoAxesColumn, ChevronDown, Globe2, Link2, LogOut, Pencil, Plus, Save } from "lucide-react";
 import {
   GoogleAuthProvider,
   onAuthStateChanged,
@@ -32,14 +32,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Avatar,
   AvatarFallback,
@@ -82,6 +74,7 @@ const reservedUsernames = new Set([
 
 export default function MyPage() {
   const router = useRouter();
+  const accountMenuRef = useRef<HTMLDetailsElement>(null);
   const [user, setUser] = useState<User | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [authError, setAuthError] = useState("");
@@ -109,6 +102,26 @@ export default function MyPage() {
   const [error, setError] = useState("");
   const links =
     user && isProfileReady && linksUserId === user.uid ? firestoreLinks : [];
+
+  useEffect(() => {
+    const handlePointerDown = (event: PointerEvent) => {
+      if (accountMenuRef.current && !accountMenuRef.current.contains(event.target as Node)) {
+        accountMenuRef.current.open = false;
+      }
+    };
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && accountMenuRef.current?.open) {
+        accountMenuRef.current.open = false;
+        accountMenuRef.current.querySelector("summary")?.focus();
+      }
+    };
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
 
   useEffect(() => {
     let isCancelled = false;
@@ -484,38 +497,63 @@ export default function MyPage() {
         {isAuthLoading || (user && !isProfileReady && !profileError) ? (
           <span role="status" className="text-xs text-muted-foreground">계정 확인 중...</span>
         ) : user ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger render={<Button variant="ghost" className="h-10 gap-2 rounded-full px-2 hover:bg-muted" aria-label="계정 메뉴 열기" />}>
+          <details ref={accountMenuRef} className="group relative">
+            <summary
+              aria-label="계정 메뉴 열기"
+              className="flex h-10 cursor-pointer list-none items-center gap-2 rounded-full px-2 transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-primary [&::-webkit-details-marker]:hidden"
+            >
               <Avatar className="size-8 border border-border">
                 {userProfile?.photoURL ? <AvatarImage src={userProfile.photoURL} alt="계정 프로필 사진" /> : null}
                 <AvatarFallback>{(userProfile?.displayName ?? user.email ?? "G").slice(0, 1)}</AvatarFallback>
               </Avatar>
-              <span className="hidden max-w-28 truncate text-sm font-medium sm:inline">{userProfile?.username || userProfile?.displayName || "내 계정"} 님</span>
-              <ChevronDown className="size-3.5 text-muted-foreground" aria-hidden="true" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="min-w-64 overflow-hidden rounded-2xl border-border p-2 shadow-xl">
-              <DropdownMenuLabel className="px-3 py-3">
-                <span className="block truncate text-sm font-bold text-foreground">{userProfile?.displayName || "Google 사용자"}</span>
-                <span className="mt-1 block truncate text-xs text-muted-foreground">{userProfile?.email || user.email}</span>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {userProfile?.username ? (
-                <DropdownMenuItem render={<NextLink href={`/${encodeURIComponent(userProfile.username)}`} />}>
-                  <Globe2 className="size-4" aria-hidden="true" /> 내 공개 페이지
-                </DropdownMenuItem>
-              ) : null}
-              <DropdownMenuItem render={<NextLink href="/stats" />}>
-                <ChartNoAxesColumn className="size-4" aria-hidden="true" /> 통계 대시보드
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={openProfileEditor} disabled={!isProfileReady}>
-                <Pencil className="size-4" aria-hidden="true" /> 프로필 수정
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem variant="destructive" onClick={() => void handleGoogleSignOut()} disabled={isSigningOut}>
-                {isSigningOut ? "로그아웃 중..." : "로그아웃"}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              <span className="hidden max-w-28 truncate text-sm font-medium sm:inline">
+                {userProfile?.username || userProfile?.displayName || "내 계정"} 님
+              </span>
+              <ChevronDown className="size-4 text-muted-foreground transition-transform group-open:rotate-180" aria-hidden="true" />
+            </summary>
+            <div className="absolute right-0 top-full z-[70] mt-2 w-64 overflow-hidden rounded-2xl border border-border bg-popover text-popover-foreground shadow-xl">
+              <div className="border-b border-border bg-muted/30 px-4 py-3">
+                <p className="truncate text-sm font-bold">{userProfile?.displayName || "Google 사용자"}</p>
+                <p className="mt-1 truncate text-xs text-muted-foreground">{userProfile?.email || user.email}</p>
+              </div>
+              <nav aria-label="계정 메뉴" className="flex flex-col gap-1 p-2">
+                {userProfile?.username ? (
+                  <NextLink
+                    href={`/${encodeURIComponent(userProfile.username)}`}
+                    onClick={() => { if (accountMenuRef.current) accountMenuRef.current.open = false; }}
+                    className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:outline-none"
+                  >
+                    <Globe2 className="size-4" aria-hidden="true" /> 내 공개 페이지
+                  </NextLink>
+                ) : null}
+                <NextLink
+                  href="/stats"
+                  onClick={() => { if (accountMenuRef.current) accountMenuRef.current.open = false; }}
+                  className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:outline-none"
+                >
+                  <ChartNoAxesColumn className="size-4" aria-hidden="true" /> 통계 대시보드
+                </NextLink>
+                <button
+                  type="button"
+                  onClick={() => { if (accountMenuRef.current) accountMenuRef.current.open = false; openProfileEditor(); }}
+                  disabled={!isProfileReady}
+                  className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Pencil className="size-4" aria-hidden="true" /> 프로필 수정
+                </button>
+                <div className="my-1 h-px bg-border" role="separator" />
+                <button
+                  type="button"
+                  onClick={() => { if (accountMenuRef.current) accountMenuRef.current.open = false; void handleGoogleSignOut(); }}
+                  disabled={isSigningOut}
+                  className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-destructive transition-colors hover:bg-destructive/10 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <LogOut className="size-4" aria-hidden="true" />
+                  {isSigningOut ? "로그아웃 중..." : "로그아웃"}
+                </button>
+              </nav>
+            </div>
+          </details>
         ) : (
           <Button onClick={handleGoogleSignIn} disabled={isSigningIn} className="rounded-full px-4">
             {isSigningIn ? "로그인 중..." : "로그인"}
