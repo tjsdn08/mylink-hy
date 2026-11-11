@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import {
   ArrowRight, ArrowUpRight, BarChart3, BookOpen, CheckCircle2,
-  ChevronRight, CodeXml, Globe2, Link2, MousePointerClick,
+  ChevronRight, Globe2, Link2, MousePointerClick,
   Palette, ShieldCheck, Sparkles, WandSparkles,
 } from "lucide-react";
 import Link from "next/link";
@@ -14,6 +14,7 @@ import {
   type UserProfileDocument,
 } from "@/lib/user-profile";
 import MyPage from "@/app/mypage/page";
+import { ProfileVisual } from "@/components/profile/ProfileVisual";
 
 
 const highlights = [
@@ -22,54 +23,38 @@ const highlights = [
   { icon: BarChart3, title: "관심도 알아보기", body: "어떤 링크가 인기 있는지 클릭 통계로 확인해요." },
 ];
 const demoLinks = [
-  { icon: CodeXml, title: "GitHub", subtitle: "나의 프로젝트와 코드" },
-  { icon: BookOpen, title: "기술 블로그", subtitle: "배운 것을 차곡차곡" },
-  { icon: Globe2, title: "포트폴리오", subtitle: "내 작업 한눈에" },
+  { id: "demo-github", title: "GitHub", description: "프로젝트와 개발 기록", url: "https://github.com", category: "github" as const, group: "프로젝트", isActive: true, sortOrder: 0 },
+  { id: "demo-blog", title: "기술 블로그", description: "배운 것을 차곡차곡", url: "https://velog.io", category: "blog" as const, group: "프로젝트", isActive: true, sortOrder: 1 },
+  { id: "demo-portfolio", title: "포트폴리오", description: "작업과 경험 모아보기", url: "https://example.com", category: "portfolio" as const, group: "소개", isActive: true, isFeatured: true, sortOrder: 2 },
 ];
 
 function LandingPreview() {
-  const [active, setActive] = useState(0);
-  const ItemIcon = demoLinks[active].icon;
   return (
-    <div className="relative mx-auto w-full max-w-[420px] motion-safe:animate-[mylink-rise_700ms_ease-out_both]" aria-label="MyLink 프로필 예시 미리보기">
-      <div aria-hidden="true" className="pointer-events-none absolute -inset-5 -z-10 rounded-[40px] bg-gradient-to-br from-[#EAF4CB] via-white to-teal-50 blur-2xl" />
-      <div className="mx-auto max-w-[355px] overflow-hidden rounded-[38px] border-[7px] border-[#252823] bg-white text-[#252823] shadow-[0_24px_70px_-30px_rgba(25,31,40,0.30)]">
-        <div aria-hidden="true" className="mx-auto mt-2 h-1.5 w-16 rounded-full bg-[#252937]/30" />
-        <div className="flex items-center justify-between border-b border-border/60 px-6 py-4">
-          <span className="flex items-center gap-2 text-sm font-bold text-[#252823]"><Link2 className="size-4 text-[#40592C]" />MyLink</span>
-          <span className="rounded-full bg-[#EAF4CB] px-3 py-1 text-xs font-semibold text-[#344A25]">미리보기</span>
+    <div className="relative mx-auto w-full max-w-[410px] motion-safe:animate-[mylink-rise_700ms_ease-out_both]"
+      aria-label="실제 공개 프로필과 동일한 디자인으로 만든 예시 화면">
+      <div aria-hidden="true" className="pointer-events-none absolute -inset-6 -z-10 rounded-[45px] bg-[#DDF76B]/30 blur-3xl" />
+      <div className="mx-auto max-w-[350px] overflow-hidden rounded-[39px] border-[7px] border-[#252823] bg-[#252823] shadow-[0_30px_80px_-35px_rgba(24,28,25,.4)]">
+        <div className="flex h-7 items-center justify-center bg-white">
+          <div aria-hidden="true" className="h-1.5 w-16 rounded-full bg-[#B8B9BA]" />
         </div>
-        <div className="px-5 py-7 sm:px-7">
-          <div className="flex flex-col items-center text-center">
-            <span aria-hidden="true" className="flex size-20 items-center justify-center rounded-[26px] bg-[#EAF4CB] text-3xl">👩🏻‍💻</span>
-            <h2 className="mt-4 text-xl font-bold">나만의 링크 공간</h2>
-            <p className="mt-1 text-sm text-muted-foreground">만든 것, 배우는 것, 좋아하는 것까지 ✨</p>
-            <span className="mt-3 rounded-full bg-[#EAF4CB] px-3 py-1.5 text-xs font-semibold text-[#344A25]">@yourname</span>
-          </div>
-          <div className="mt-7 grid grid-cols-3 gap-2" aria-label="예시 링크 선택">
-            {demoLinks.map((item, index) => (
-              <button key={item.title} type="button" aria-pressed={active === index}
-                onClick={() => setActive(index)}
-                className={`rounded-xl px-1 py-2.5 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${active === index ? "bg-[#EAF4CB] text-primary" : "bg-muted text-muted-foreground hover:bg-border/70"}`}>
-                {item.title}
-              </button>
-            ))}
-          </div>
-          <div className="mt-3 flex items-center gap-3 rounded-2xl border border-[#D9DDD3] bg-white p-4 shadow-[var(--tds-shadow-1)]">
-            <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#EAF4CB] text-[#324726]"><ItemIcon aria-hidden="true" className="size-5" /></span>
-            <div className="min-w-0 flex-1">
-              <p className="font-semibold">{demoLinks[active].title}</p>
-              <p className="truncate text-xs text-muted-foreground">{demoLinks[active].subtitle}</p>
-            </div>
-            <ArrowUpRight aria-hidden="true" className="size-4 text-primary" />
-          </div>
-          <div className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-[#EFF1EA] py-3 text-xs text-[#525B53]">
-            <Link2 aria-hidden="true" className="size-4" /> mylink.example/yourname
-          </div>
+        <div className="flex items-center justify-between bg-white px-4 py-3 text-[#252823]">
+          <span className="flex items-center gap-2 text-xs font-black"><Link2 className="size-4 text-[#49622E]" aria-hidden="true" /> mylink.</span>
+          <span className="rounded-full bg-[#EAF4CB] px-3 py-1 text-[10px] font-extrabold text-[#405829]">프로필 예시</span>
         </div>
+        <ProfileVisual
+          compact
+          profile={{
+            username: "yourname",
+            displayName: "나만의 링크 공간",
+            bio: "만든 것, 배우는 것, 좋아하는 것까지 ✨",
+            theme: "cream",
+            buttonStyle: "rounded",
+          }}
+          links={demoLinks}
+        />
       </div>
-      <div className="absolute -right-3 -top-5 hidden items-center gap-2 rounded-2xl motion-safe:animate-[mylink-float_5s_ease-in-out_infinite] bg-card px-3 py-2 text-xs font-semibold shadow-[var(--tds-shadow-3)] sm:flex">
-        <MousePointerClick aria-hidden="true" className="size-4 text-primary" /> 하나의 주소로 공유!
+      <div className="absolute -right-3 -top-5 hidden items-center gap-2 rounded-2xl bg-white px-3 py-2 text-xs font-semibold text-[#252823] shadow-xl sm:flex">
+        <MousePointerClick aria-hidden="true" className="size-4 text-[#516D34]" /> 하나의 주소로 공유!
       </div>
     </div>
   );
