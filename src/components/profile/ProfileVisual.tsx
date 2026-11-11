@@ -110,6 +110,24 @@ export function ProfileVisual({ profile, links, compact = false, trackingUserId,
           <p className="rounded-2xl border border-dashed border-current/30 p-6 text-center text-xs opacity-75">아직 등록된 링크가 없어요.</p>
         )}
       </section>
+      {profile.about?.trim() || profile.now?.trim() ? (
+        <div className={`grid gap-3 border-t border-current/10 ${compact ? "px-3 py-5" : "px-6 py-8 sm:px-10"}`}>
+          {profile.about?.trim() ? (
+            <section className="rounded-[20px] border border-current/10 bg-[var(--profile-button-bg)] p-5 text-[var(--profile-button-text)]">
+              <p className="text-[10px] font-black tracking-[.2em] opacity-60">01 / ABOUT ME</p>
+              <h3 className={`mt-2 font-black tracking-tight ${compact ? "text-base" : "text-xl"}`}>나에 대해</h3>
+              <p className={`mt-3 whitespace-pre-wrap break-words leading-6 opacity-80 ${compact ? "text-xs" : "text-sm"}`}>{profile.about}</p>
+            </section>
+          ) : null}
+          {profile.now?.trim() ? (
+            <section className="rounded-[20px] border border-current/10 bg-[var(--profile-cover)] p-5 text-[#252823]">
+              <p className="text-[10px] font-black tracking-[.2em] opacity-65">02 / CURRENTLY</p>
+              <h3 className={`mt-2 font-black tracking-tight ${compact ? "text-base" : "text-xl"}`}>요즘 하고 있는 일</h3>
+              <p className={`mt-3 whitespace-pre-wrap break-words leading-6 opacity-85 ${compact ? "text-xs" : "text-sm"}`}>{profile.now}</p>
+            </section>
+          ) : null}
+        </div>
+      ) : null}
       <div className="flex items-center justify-center gap-1.5 border-t border-current/10 px-5 py-5 text-center text-[10px] font-bold tracking-[.02em] opacity-65">
         <ArrowUpRight className="size-3" aria-hidden="true" /> made with mylink.
       </div>
