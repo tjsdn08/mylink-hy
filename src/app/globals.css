@@ -256,3 +256,20 @@ body {
 .profile-link-list > li:nth-child(4n + 2) a:hover { border-color: #f2b69d; background-color: #fffaf6; }
 .profile-link-list > li:nth-child(4n + 3) a:hover { border-color: #b6baeb; background-color: #f8f8ff; }
 .dark .profile-link-list > li a:hover { background-color: #3e463e; }
+
+/* Per-profile theme controls. Inline CSS variables are derived from validated presets. */
+.mylink-public { background: var(--profile-background, #F5F3E9); color: var(--profile-text); }
+.mylink-public .public-link-button {
+  border-color: var(--profile-outline) !important;
+  border-radius: var(--profile-radius) !important;
+  background: var(--profile-button-bg) !important;
+  color: var(--profile-button-text) !important;
+}
+.mylink-public .public-link-button .link-title { color: inherit !important; }
+.mylink-public .public-link-button:hover { filter: brightness(0.96); }
+.mylink-public[data-theme="midnight"] .public-link-button:hover { filter: brightness(1.13); }
+.mylink-public[data-theme="midnight"] > main > section:first-child { background: #26303a; }
+.mylink-public[data-theme="midnight"] > main > section:first-child h1 { color: #f8f8fa; }
+.mylink-public[data-theme="midnight"] > main > section:first-child p { color: #d2dce1; }
+.mylink-public[data-theme="midnight"] .text-muted-foreground { color: #d0d8dd; }
+.mylink-public[data-theme="midnight"] .public-link-button .text-muted-foreground { color: #b9c1c5; }
