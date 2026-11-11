@@ -5,10 +5,8 @@ import { collection, doc, getDoc, onSnapshot, orderBy, query, Timestamp, setDoc,
 import { notFound } from "next/navigation";
 import NextLink from "next/link";
 import { ArrowUpRight, Check, Copy, Globe2, Link2, Share2 } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { LinkList } from "@/components/links/LinkList";
+import { ProfileVisual } from "@/components/profile/ProfileVisual";
 import { ProfileQrDialog } from "@/components/profile/ProfileQrDialog";
-import { LinkFavicon } from "@/components/links/LinkFavicon";
 import { getFirebaseFirestore } from "@/lib/firebase";
 import { showToast } from "@/lib/toast";
 import { appearanceVariables, normalizeSocialLinks, type ProfileAppearance } from "@/lib/profile-design";
@@ -219,60 +217,15 @@ export function PublicProfileClient({ username }: { username: string }) {
       </header>
 
       <main className="relative mx-auto w-full max-w-[620px] px-5 pb-10 sm:px-7">
-        <section className="relative mt-4 overflow-hidden rounded-[30px] border border-[#262920]/10 bg-white shadow-[0_22px_80px_rgba(52,48,34,0.08)] dark:border-white/10 dark:bg-[#282E29]" style={{ backgroundColor: "var(--profile-button-bg)", color: "var(--profile-button-text)" }}>
-          <div className="relative h-44 overflow-hidden sm:h-52" style={{ background: "var(--profile-cover)" }}>
-            <div aria-hidden="true" className="absolute -left-10 -top-20 size-64 rounded-full border-[30px] border-white/35" />
-            <div aria-hidden="true" className="absolute -right-10 -bottom-24 size-64 rounded-full bg-[#F6B59E]/70 blur-[3px]" />
-            <span className="absolute bottom-4 right-5 rotate-[-7deg] text-[11px] font-black tracking-[0.13em] text-white mix-blend-difference">MY LITTLE CORNER ✳</span>
-          </div>
-          <div className="relative px-6 pb-8 pt-16 text-center sm:px-10">
-            <div className="absolute -top-12 left-1/2 -translate-x-1/2">
-              <Avatar className="size-24 border-[5px] border-white bg-[#EFF1E5] shadow-md">
-                {profile.photoURL ? <AvatarImage src={profile.photoURL} alt={`${profile.displayName} 프로필 사진`} /> : null}
-                <AvatarFallback className="text-3xl font-black">{profile.displayName.slice(0, 1) || "?"}</AvatarFallback>
-              </Avatar>
-            </div>
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#EFF5D6] px-3 py-1.5 text-xs font-extrabold text-[#526C36]">
-              <span className="size-1.5 rounded-full bg-[#839D50]" /> @{profile.username}
-            </div>
-            <h1 className="break-words text-[clamp(1.9rem,5vw,2.7rem)] font-black leading-tight tracking-[-0.065em]">{profile.displayName}</h1>
-            {profile.bio ? <p className="mx-auto mt-4 max-w-md whitespace-pre-wrap break-words text-sm leading-7 opacity-85">{profile.bio}</p> : null}
-            {profile.socialLinks && profile.socialLinks.length > 0 ? (
-              <nav aria-label="SNS 프로필" className="mt-5 flex flex-wrap justify-center gap-2">
-                {profile.socialLinks.map((item) => (
-                  <a key={item.platform} href={item.url} target="_blank" rel="noopener noreferrer"
-                    aria-label={`${item.platform} 열기`} title={item.platform}
-                    className="flex size-11 items-center justify-center rounded-full border border-current/20 bg-transparent transition-transform hover:-translate-y-1 hover:bg-black/5">
-                    <LinkFavicon url={item.url} className="size-5" />
-                  </a>
-                ))}
-              </nav>
-            ) : null}
+        <div className="mt-4 overflow-hidden rounded-[30px] border border-current/10 shadow-[0_22px_80px_rgba(52,48,34,0.08)]">
+          <ProfileVisual profile={profile} links={links} trackingUserId={ownerId}>
             <button type="button" onClick={() => void copyPublicUrl()}
-              className="mt-6 inline-flex min-h-10 items-center gap-2 rounded-full border border-current/25 bg-transparent px-4 text-xs font-bold transition-colors hover:bg-black/10 focus-visible:outline-2 focus-visible:outline-current">
+              className="mt-6 inline-flex min-h-10 items-center gap-2 rounded-full border border-current/25 px-4 text-xs font-bold transition-colors hover:bg-black/10">
               {copied ? <Check className="size-4" aria-hidden="true" /> : <Copy className="size-4" aria-hidden="true" />}
               {copied ? "주소 복사 완료" : "내 페이지 주소 복사"}
             </button>
-          </div>
-        </section>
-
-        <section className="mt-9 w-full" aria-label="공개 링크">
-          <div className="mb-5 flex items-center justify-between gap-3">
-            <div>
-              <p className="text-[11px] font-extrabold tracking-[0.18em] opacity-75">DISCOVER MORE</p>
-              <h2 className="mt-1 text-[23px] font-black tracking-[-0.05em]">여기서 더 만나보세요.</h2>
-            </div>
-            <span className="rounded-full border border-[#262920]/15 px-3 py-1 text-xs font-bold dark:border-white/15">{links.length} links</span>
-          </div>
-          {links.length > 0 ? (
-            <LinkList links={links} trackingUserId={ownerId} compact />
-          ) : (
-            <div className="rounded-[24px] border border-dashed border-current/25 bg-white/10 px-6 py-12 text-center">
-              <Link2 aria-hidden="true" className="mx-auto mb-3 size-8 text-[#89917D]" />
-              <p className="text-sm opacity-75">아직 등록된 링크가 없어요.</p>
-            </div>
-          )}
-        </section>
+          </ProfileVisual>
+        </div>
         <div className="mt-5 flex items-center justify-center">
           <button type="button" onClick={() => setQrOpen(true)}
             className="inline-flex min-h-11 items-center gap-2 rounded-full border border-current/25 px-5 text-sm font-bold transition-colors hover:bg-white/10">
