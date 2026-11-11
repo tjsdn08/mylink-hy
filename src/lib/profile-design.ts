@@ -2,11 +2,14 @@ import type { CSSProperties } from "react";
 
 export type ProfileTheme = "cream" | "lavender" | "midnight";
 export type ButtonStyle = "rounded" | "pill" | "square";
+export type CoverStyle = "orbits" | "grid" | "minimal";
 export type SocialLink = { platform: string; url: string };
 export type ProfileAppearance = {
   theme?: ProfileTheme;
   backgroundColor?: string;
   buttonStyle?: ButtonStyle;
+  coverStyle?: CoverStyle;
+  headline?: string;
   socialLinks?: SocialLink[];
 };
 

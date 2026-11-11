@@ -18,6 +18,8 @@ export interface UserProfileDocument {
   theme?: "cream" | "lavender" | "midnight";
   backgroundColor?: string;
   buttonStyle?: "rounded" | "pill" | "square";
+  coverStyle?: "orbits" | "grid" | "minimal";
+  headline?: string;
   socialLinks?: { platform: string; url: string }[];
 }
 
@@ -77,6 +79,8 @@ export function ensureUserProfileDocument(
       theme: ["cream", "lavender", "midnight"].includes(storedProfile.theme) ? storedProfile.theme : "cream",
       backgroundColor: typeof storedProfile.backgroundColor === "string" ? storedProfile.backgroundColor : "",
       buttonStyle: ["rounded", "pill", "square"].includes(storedProfile.buttonStyle) ? storedProfile.buttonStyle : "rounded",
+      coverStyle: ["orbits", "grid", "minimal"].includes(storedProfile.coverStyle) ? storedProfile.coverStyle : "orbits",
+      headline: typeof storedProfile.headline === "string" ? storedProfile.headline : "",
       socialLinks: Array.isArray(storedProfile.socialLinks) ? storedProfile.socialLinks.filter((item: unknown) => item !== null && typeof item === "object" && "platform" in item && "url" in item).slice(0, 8) as { platform: string; url: string }[] : [],
     };
 
