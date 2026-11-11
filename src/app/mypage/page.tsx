@@ -106,6 +106,7 @@ export default function MyPage() {
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<"profile" | "links" | "design">("links");
   const [appearanceDraft, setAppearanceDraft] = useState<ProfileAppearance | null>(null);
+  const [inlineDraft, setInlineDraft] = useState<{ displayName: string; bio: string } | null>(null);
   const [linkFieldErrors, setLinkFieldErrors] = useState<{ title?: string; url?: string }>({});
   const links = user && isProfileReady && linksUserId === user.uid
     ? [...firestoreLinks].sort((a, b) => (a.sortOrder ?? 100000) - (b.sortOrder ?? 100000))
@@ -665,6 +666,14 @@ export default function MyPage() {
             photoURL={userProfile.photoURL}
             bio={userProfile.bio}
             onEdit={openProfileEditor}
+            onDraftChange={setInlineDraft}
+            onSaveInline={async (name, bio) => {
+              if (!user || !userProfile) throw new Error("로그인 후 수정할 수 있어요.");
+              await saveUserProfile(user.uid, { username: userProfile.username, displayName: name, bio });
+              setUserProfile((current) => current ? { ...current, displayName: name, bio } : current);
+              setInlineDraft(null);
+              showToast("프로필 이름과 소개글을 저장했어요.");
+            }}
           /> : null}
           {activeTab === "design" ? (
             <ProfileDesignEditor
@@ -774,8 +783,8 @@ export default function MyPage() {
           </Dialog>
             </div>
             <aside className="min-w-0 rounded-[26px] border border-[#252823]/10 bg-white p-4 dark:border-white/10 dark:bg-[#282E29] lg:sticky lg:top-24" aria-label="실시간 미리보기">
-              <ProfileLivePreview username={userProfile.username} displayName={activeTab === "profile" && isProfileDialogOpen ? profileForm.displayName : userProfile.displayName}
-                bio={activeTab === "profile" && isProfileDialogOpen ? profileForm.bio : userProfile.bio}
+              <ProfileLivePreview username={userProfile.username} displayName={inlineDraft?.displayName ?? (activeTab === "profile" && isProfileDialogOpen ? profileForm.displayName : userProfile.displayName)}
+                bio={inlineDraft?.bio ?? (activeTab === "profile" && isProfileDialogOpen ? profileForm.bio : userProfile.bio)}
                 photoURL={userProfile.photoURL} appearance={appearanceDraft ?? userProfile} links={links} />
             </aside>
           </div>
