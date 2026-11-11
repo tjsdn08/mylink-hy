@@ -19,11 +19,12 @@ interface ProfileVisualProps {
   links: ProfileLink[];
   compact?: boolean;
   trackingUserId?: string;
+  interactive?: boolean;
   children?: React.ReactNode;
 }
 
 /** 랜딩, 편집 미리보기, 공개 프로필의 공통 시각 구조입니다. */
-export function ProfileVisual({ profile, links, compact = false, trackingUserId, children }: ProfileVisualProps) {
+export function ProfileVisual({ profile, links, compact = false, trackingUserId, interactive = false, children }: ProfileVisualProps) {
   const social = normalizeSocialLinks(profile.socialLinks);
   const visibleLinks = [...links]
     .filter((link) => link.isActive !== false)
@@ -72,7 +73,7 @@ export function ProfileVisual({ profile, links, compact = false, trackingUserId,
           {social.length > 0 ? (
             <div className="mt-4 flex flex-wrap justify-center gap-2" aria-label="SNS 프로필">
               {social.map((item) => (
-                compact ? (
+                compact && !interactive ? (
                   <span key={item.platform} title={item.platform} className="flex size-9 items-center justify-center rounded-full border border-current/20">
                     <LinkFavicon url={item.url} className="size-5" />
                   </span>
@@ -103,8 +104,8 @@ export function ProfileVisual({ profile, links, compact = false, trackingUserId,
           <span className="shrink-0 rounded-full border border-current/25 px-2.5 py-1 text-[10px] font-bold">{visibleLinks.length} links</span>
         </div>
         {visibleLinks.length ? (
-          <div className={compact ? "profile-visual-demo-links pointer-events-none" : undefined}>
-            <LinkList links={visibleLinks} compact trackingUserId={compact ? undefined : trackingUserId} />
+          <div className={compact && !interactive ? "profile-visual-demo-links pointer-events-none" : undefined}>
+            <LinkList links={visibleLinks} compact trackingUserId={interactive ? trackingUserId : undefined} />
           </div>
         ) : (
           <p className="rounded-2xl border border-dashed border-current/30 p-6 text-center text-xs opacity-75">아직 등록된 링크가 없어요.</p>

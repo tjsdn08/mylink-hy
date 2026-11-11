@@ -8,10 +8,12 @@ interface ProfilePhoneFrameProps {
   profile: ProfileVisualData;
   links: Link[];
   label?: string;
+  interactive?: boolean;
+  trackingUserId?: string;
 }
 
 /** 온보딩 예시와 마이페이지 미리보기에서 동일한 휴대폰 프레임을 사용합니다. */
-export function ProfilePhoneFrame({ profile, links, label = "미리보기" }: ProfilePhoneFrameProps) {
+export function ProfilePhoneFrame({ profile, links, label = "미리보기", interactive = false, trackingUserId }: ProfilePhoneFrameProps) {
   return (
     <div className="mx-auto w-full max-w-[390px] overflow-hidden rounded-[39px] border-[7px] border-[#252823] bg-[#252823] shadow-[0_20px_60px_rgba(24,28,25,.18)]">
       <div className="flex h-7 items-center justify-center bg-white">
@@ -23,7 +25,7 @@ export function ProfilePhoneFrame({ profile, links, label = "미리보기" }: Pr
         </span>
         <span className="rounded-full bg-[#EAF4CB] px-3 py-1 text-[10px] font-extrabold text-[#405829]">{label}</span>
       </div>
-      <ProfileVisual compact profile={profile} links={links} />
+      <ProfileVisual compact profile={profile} links={links} interactive={interactive} trackingUserId={trackingUserId} />
     </div>
   );
 }

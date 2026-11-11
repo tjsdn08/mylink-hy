@@ -5,7 +5,7 @@ import { collection, doc, getDoc, onSnapshot, orderBy, query, Timestamp, setDoc,
 import { notFound } from "next/navigation";
 import NextLink from "next/link";
 import { ArrowUpRight, Check, Copy, Globe2, Link2, Share2 } from "lucide-react";
-import { ProfileVisual } from "@/components/profile/ProfileVisual";
+import { ProfilePhoneFrame } from "@/components/profile/ProfilePhoneFrame";
 import { ProfileQrDialog } from "@/components/profile/ProfileQrDialog";
 import { getFirebaseFirestore } from "@/lib/firebase";
 import { showToast } from "@/lib/toast";
@@ -221,14 +221,13 @@ export function PublicProfileClient({ username }: { username: string }) {
       </header>
 
       <main className="relative mx-auto w-full max-w-[620px] px-5 pb-10 sm:px-7">
-        <div className="mt-4 overflow-hidden rounded-[30px] border border-current/10 shadow-[0_22px_80px_rgba(52,48,34,0.08)]">
-          <ProfileVisual profile={profile} links={links} trackingUserId={ownerId}>
-            <button type="button" onClick={() => void copyPublicUrl()}
-              className="mt-6 inline-flex min-h-10 items-center gap-2 rounded-full border border-current/25 px-4 text-xs font-bold transition-colors hover:bg-black/10">
-              {copied ? <Check className="size-4" aria-hidden="true" /> : <Copy className="size-4" aria-hidden="true" />}
-              {copied ? "주소 복사 완료" : "내 페이지 주소 복사"}
-            </button>
-          </ProfileVisual>
+        <ProfilePhoneFrame label="공개 프로필" profile={profile} links={links} interactive trackingUserId={ownerId} />
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+          <button type="button" onClick={() => void copyPublicUrl()}
+            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-current/25 px-5 text-sm font-bold transition-colors hover:bg-white/10">
+            {copied ? <Check className="size-4" aria-hidden="true" /> : <Copy className="size-4" aria-hidden="true" />}
+            {copied ? "주소 복사 완료" : "내 페이지 주소 복사"}
+          </button>
         </div>
         <div className="mt-5 flex items-center justify-center">
           <button type="button" onClick={() => setQrOpen(true)}
