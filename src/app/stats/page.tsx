@@ -104,11 +104,12 @@ export default function StatsPage() {
   );
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-xl space-y-6 px-4 py-8 sm:px-6">
-      <header className="flex flex-wrap items-center justify-between gap-3">
+    <main className="mylink-stats mx-auto min-h-screen w-full max-w-5xl space-y-8 px-5 py-9 text-[#252823] dark:text-[#F8F6F1] sm:px-8 sm:py-14">
+      <header className="flex flex-wrap items-start justify-between gap-4 border-b border-[#252823]/10 pb-8 dark:border-white/10">
         <div className="space-y-1">
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">클릭 통계</h1>
-          <p className="text-body-2 text-muted-foreground">내 링크의 클릭 수를 확인해요.</p>
+          <p className="text-[11px] font-extrabold tracking-[0.2em] text-[#D97757]">YOUR INSIGHTS / MYLINK</p>
+          <h1 className="mt-3 text-[clamp(2.4rem,6vw,4rem)] font-black leading-tight tracking-[-0.065em] text-[#252823] dark:text-[#F8F6F1]">링크가 남긴 기록<span className="text-[#F06D4E]">.</span></h1>
+          <p className="mt-2 text-sm text-[#7B7F74] dark:text-white/60">어떤 링크가 관심을 받았는지, 실제 클릭 수로 확인해 보세요.</p>
         </div>
         <Button variant="outline" className="h-10 rounded-xl" render={<NextLink href="/" />}>
           <ArrowLeft aria-hidden="true" /> 마이페이지
@@ -127,26 +128,26 @@ export default function StatsPage() {
       {status === "ready" ? (
         <>
           <section aria-label="클릭 통계 요약" className="grid gap-3 sm:grid-cols-2">
-            <Card className="relative overflow-hidden rounded-3xl border-0 bg-gradient-to-br from-[#3182F6] via-[#2878EC] to-[#155CCB] p-6 text-white shadow-tds-3 sm:col-span-2">
-              <div aria-hidden="true" className="pointer-events-none absolute -right-12 -top-20 size-60 rounded-full border-[35px] border-white/10" />
+            <Card className="relative overflow-hidden rounded-[28px] border-0 bg-[#252823] p-7 text-white sm:col-span-2 sm:p-10">
+              <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-24 size-72 rounded-full border-[40px] border-[#DDF76B]/25" />
               <div className="relative space-y-4">
-                <div className="flex items-center gap-2 text-sm font-semibold text-white/85"><MousePointerClick aria-hidden="true" className="size-5" /> 전체 링크 클릭 수</div>
-                <p className="text-4xl font-extrabold tracking-tight tabular-nums sm:text-5xl">{formatCount(totalClicks)} <span className="text-lg font-medium text-white/80">회</span></p>
-                <p className="text-sm text-white/80">내 링크의 방문 기록을 한눈에 확인해요.</p>
+                <div className="flex items-center gap-2 text-xs font-extrabold tracking-[0.13em] text-[#DDF76B]"><MousePointerClick aria-hidden="true" className="size-5" /> 전체 링크 클릭 수</div>
+                <p className="text-6xl font-black tracking-[-0.065em] tabular-nums sm:text-7xl">{formatCount(totalClicks)} <span className="text-lg font-medium text-white/80">회</span></p>
+                <p className="text-sm text-white/65">등록된 링크에서 발생한 클릭의 합계예요. 동일 방문자의 반복 클릭도 포함돼요.</p>
               </div>
             </Card>
-            <Card className="rounded-xl border-border/70 bg-card p-5 shadow-tds-1">
+            <Card className="rounded-[24px] border border-[#252823]/10 bg-white p-6 shadow-none dark:border-white/10 dark:bg-[#323A33]">
               <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground"><Link2 aria-hidden="true" className="size-4 text-[#5b5fc7]" /> 등록한 링크</div>
               <p className="mt-3 text-3xl font-bold tabular-nums">{formatCount(links.length)}<span className="ml-1 text-sm font-normal text-muted-foreground">개</span></p>
             </Card>
-            <Card className="rounded-2xl border-border/70 bg-card p-5 shadow-tds-1">
+            <Card className="rounded-[24px] border border-[#252823]/10 bg-[#E8F1C8] p-6 shadow-none dark:border-white/10 dark:bg-[#303C2D]">
               <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground"><Trophy aria-hidden="true" className="size-4 text-primary" /> 가장 인기 있는 링크</div>
               <p className="mt-3 truncate text-lg font-bold" title={topLink?.title ?? ""}>{topLink?.title ?? "아직 등록한 링크가 없어요"}</p>
               <p className="mt-1 text-xs text-muted-foreground">{formatCount(topLink?.clickCount ?? 0)}회 클릭</p>
             </Card>
           </section>
 
-          <Card className="rounded-2xl border-border/70 bg-card shadow-tds-1">
+          <Card className="overflow-hidden rounded-[28px] border border-[#252823]/10 bg-white shadow-none dark:border-white/10 dark:bg-[#323A33]">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-title-2">
                 <ChartNoAxesColumn aria-hidden="true" className="size-5 text-[#5b5fc7]" />
@@ -168,14 +169,14 @@ export default function StatsPage() {
                       <XAxis type="number" allowDecimals={false} domain={[0, "dataMax"]} tickLine={false} axisLine={false} />
                       <YAxis dataKey="label" type="category" width={100} tickLine={false} axisLine={false} />
                       <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-                      <Bar dataKey="clickCount" fill="#5b5fc7" radius={4} maxBarSize={22} />
+                      <Bar dataKey="clickCount" fill="#7E9650" radius={4} maxBarSize={22} />
                     </BarChart>
                   </ChartContainer>
-                  <div className="divide-y divide-border" aria-label="모든 링크별 클릭 수">
+                  <div className="divide-y divide-[#252823]/10 dark:divide-white/10" aria-label="모든 링크별 클릭 수">
                     {sortedLinks.map((link) => (
                       <div key={link.id} className="flex items-center justify-between gap-4 py-3 text-body-2">
                         <span className="min-w-0 truncate text-foreground" title={link.title}>{link.title}</span>
-                        <span className="shrink-0 font-medium tabular-nums text-foreground">{formatCount(link.clickCount)}회</span>
+                        <span className="shrink-0 rounded-full bg-[#EFF5D6] px-3 py-1 text-xs font-extrabold tabular-nums text-[#546936] dark:bg-white/10 dark:text-[#DDF76B]">{formatCount(link.clickCount)}회</span>
                       </div>
                     ))}
                   </div>

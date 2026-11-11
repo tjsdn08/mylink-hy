@@ -454,11 +454,11 @@ export default function MyPage() {
   }
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-md space-y-7 px-4 pb-20 pt-0 text-foreground">
-      <header className="sticky top-0 z-50 -mx-[calc((100vw-100%)/2)] mb-8 flex min-h-16 items-center justify-between border-b border-border/50 bg-background/90 px-5 py-3 backdrop-blur-md">
-        <NextLink href="/" className="flex items-center gap-2 text-lg font-bold tracking-tight" aria-label="MyLink 홈">
-          <Globe2 className="size-5 text-[#5b5fc7]" aria-hidden="true" />
-          MyLink
+    <main className="mylink-workspace mx-auto min-h-screen w-full max-w-[860px] space-y-7 px-5 pb-24 text-[#252823] dark:text-[#F8F6F1] sm:px-8">
+      <header className="sticky top-0 z-50 -mx-5 mb-8 flex min-h-[76px] items-center justify-between border-b border-[#252823]/10 bg-[#F8F6F1]/95 px-5 py-3 backdrop-blur-xl dark:border-white/10 dark:bg-[#1D211D]/95 sm:-mx-8 sm:px-8">
+        <NextLink href="/" className="flex items-center gap-2 text-2xl font-black tracking-[-0.07em]" aria-label="MyLink 홈">
+          <span className="inline-flex size-8 -rotate-6 items-center justify-center rounded-[10px] bg-[#252823] text-[#DDF76B] dark:bg-[#DDF76B] dark:text-[#252823]"><Link2 className="size-4" aria-hidden="true" /></span>
+          mylink<span className="text-[#F06D4E]">.</span>
         </NextLink>
         {isAuthLoading || (user && !isProfileReady && !profileError) ? (
           <span role="status" className="text-xs text-muted-foreground">계정 확인 중...</span>
@@ -566,6 +566,25 @@ export default function MyPage() {
           </Button>
         )}
       </header>
+
+      {user && isProfileReady && userProfile ? (
+        <section aria-label="페이지 관리 안내" className="relative overflow-hidden rounded-[26px] bg-[#252823] px-6 py-7 text-white sm:px-9 sm:py-9">
+          <div aria-hidden="true" className="pointer-events-none absolute -right-8 -top-14 size-56 rounded-full border-[28px] border-[#DDF76B]/20" />
+          <div className="relative flex flex-wrap items-center justify-between gap-5">
+            <div>
+              <p className="text-[11px] font-black tracking-[0.2em] text-[#DDF76B]">YOUR SPACE / EDITOR</p>
+              <h1 className="mt-3 text-[clamp(1.8rem,4vw,2.7rem)] font-black tracking-[-0.055em]">내 페이지, 내 방식대로.</h1>
+              <p className="mt-2 text-sm leading-6 text-white/65">프로필과 링크를 관리하고, 방문자에게 보이는 모습을 확인해 보세요.</p>
+            </div>
+            {userProfile.username ? (
+              <NextLink href={`/${encodeURIComponent(userProfile.username)}`} target="_blank"
+                className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#DDF76B] px-5 text-sm font-extrabold text-[#252823] transition-transform hover:-translate-y-0.5">
+                공개 페이지 보기 <Eye className="size-4" aria-hidden="true" />
+              </NextLink>
+            ) : null}
+          </div>
+        </section>
+      ) : null}
 
       {authError ? (
         <p role="alert" className="text-sm text-destructive">
@@ -711,7 +730,7 @@ export default function MyPage() {
         </section>
       ) : (
         <>
-          <section className="w-full" aria-label="내 링크 추가">
+          <section className="w-full rounded-[26px] border border-[#252823]/10 bg-white p-5 shadow-[0_8px_30px_rgba(32,33,30,0.04)] dark:border-white/10 dark:bg-[#282E29] sm:p-6" aria-label="내 링크 추가">
             {isDialogOpen ? (
               <form onSubmit={handleSubmit} noValidate className="space-y-3 rounded-xl border border-border bg-card p-4 shadow-sm">
                 <Input
@@ -747,13 +766,20 @@ export default function MyPage() {
               </form>
             ) : (
               <button type="button" onClick={() => handleDialogOpenChange(true)}
-                className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[#5b5fc7]/45 bg-[#5b5fc7]/10 px-4 py-3 text-sm font-semibold text-[#5b5fc7] transition-all hover:bg-[#5b5fc7]/20 focus-visible:outline-2 focus-visible:outline-[#5b5fc7] active:scale-[0.98]">
+                className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-[#879C56] bg-[#EFF5D6] px-4 py-3 text-sm font-extrabold text-[#3E5529] transition-all hover:border-[#252823] hover:bg-[#DDF76B] focus-visible:outline-2 focus-visible:outline-[#252823] active:scale-[0.98] dark:border-[#DDF76B]/40 dark:bg-[#DDF76B]/10 dark:text-[#DDF76B]">
                 <Plus aria-hidden="true" className="size-5" /> 새로운 링크 추가하기
               </button>
             )}
           </section>
           {loadError ? <p role="alert" className="text-sm text-destructive">{loadError}</p> : null}
-          <section aria-label="내 링크" className="w-full">
+          <section aria-label="내 링크" className="w-full rounded-[26px] border border-[#252823]/10 bg-white p-5 shadow-[0_8px_30px_rgba(32,33,30,0.04)] dark:border-white/10 dark:bg-[#282E29] sm:p-6">
+            <div className="mb-5 flex items-end justify-between gap-3">
+              <div>
+                <p className="text-[11px] font-extrabold tracking-[0.16em] text-[#E77955]">MY COLLECTION</p>
+                <h2 className="mt-1 text-xl font-black tracking-[-0.04em]">등록한 링크</h2>
+              </div>
+              <span className="rounded-full bg-[#EFF5D6] px-3 py-1 text-xs font-extrabold text-[#4F6431] dark:bg-white/10 dark:text-[#DDF76B]">{links.length}개</span>
+            </div>
             {links.length === 0 ? (
               <div className="flex flex-col items-center py-10 text-center">
                 <Link2 className="mb-3 size-8 text-muted-foreground/30" aria-hidden="true" />
@@ -766,7 +792,7 @@ export default function MyPage() {
         </>
       )}
 
-      <footer className="py-8 text-center text-xs font-semibold text-muted-foreground">
+      <footer className="py-8 text-center text-xs font-semibold tracking-wide text-[#898D7C]">
         <Globe2 aria-hidden="true" className="mr-1 inline size-3" /> Powered by MyLink
       </footer>
       <Dialog
