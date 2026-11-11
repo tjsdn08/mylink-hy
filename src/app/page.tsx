@@ -34,7 +34,7 @@ function LandingPreview() {
   return (
     <div className="relative mx-auto w-full max-w-[410px] motion-safe:animate-[mylink-rise_700ms_ease-out_both]"
       aria-label="실제 공개 프로필과 동일한 디자인으로 만든 예시 화면">
-      <div aria-hidden="true" className="pointer-events-none absolute -inset-6 -z-10 rounded-[45px] bg-[#DDF76B]/30 blur-3xl" />
+      <div aria-hidden="true" className="pointer-events-none absolute -inset-6 -z-10 rounded-[45px] bg-[#DDF76B]/30 blur-3xl motion-safe:animate-[mylink-float_9s_ease-in-out_infinite]" />
       <ProfilePhoneFrame
         label="프로필 예시"
         profile={{
@@ -61,7 +61,7 @@ function LandingPreview() {
           </button>
         ))}
       </div>
-      <div className="absolute -right-3 -top-5 hidden items-center gap-2 rounded-2xl bg-white px-3 py-2 text-xs font-semibold text-[#252823] shadow-xl sm:flex">
+      <div className="absolute -right-3 -top-5 hidden items-center gap-2 rounded-2xl bg-white px-3 py-2 text-xs font-semibold text-[#252823] shadow-xl motion-safe:animate-[mylink-float_7s_ease-in-out_infinite] sm:flex">
         <MousePointerClick aria-hidden="true" className="size-4 text-[#516D34]" /> 하나의 주소로 공유!
       </div>
     </div>
@@ -155,7 +155,7 @@ export default function Home() {
           <div aria-hidden="true" className="pointer-events-none absolute -right-24 top-12 -z-10 size-[320px] rounded-full bg-[#DDF76B]/45 blur-[95px] sm:size-[450px]" />
           <div className="mx-auto grid max-w-7xl items-center gap-14 px-5 pb-28 pt-20 sm:px-8 lg:min-h-[720px] lg:grid-cols-[1.05fr_0.95fr] lg:gap-12 lg:px-12">
             <div className="max-w-xl text-center lg:text-left">
-              <p className="inline-flex items-center gap-2 rounded-full bg-[#EAF4CB] px-4 py-2 text-xs font-bold text-[#344A25]">
+              <p className="inline-flex items-center gap-2 rounded-full bg-[#EAF4CB] px-4 py-2 text-xs font-bold text-[#344A25] motion-safe:animate-[mylink-rise_600ms_ease-out_both]">
                 <Sparkles aria-hidden="true" className="size-4" /> YOUR SPACE ON THE INTERNET
               </p>
               <h1 className="mt-7 text-[clamp(3.4rem,7vw,6.5rem)] font-black leading-[1.05] tracking-[-0.075em]">
