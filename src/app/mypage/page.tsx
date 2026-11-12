@@ -191,6 +191,10 @@ export default function MyPage() {
       }
       void ensureUserProfileDocument(user).then((profile) => {
         if (cancelled || uid !== user.uid) return;
+        if (!profile.username) {
+          router.replace("/");
+          return;
+        }
         setUserProfile(profile);
         setProfileForm({
           username: profile.username,
@@ -270,6 +274,16 @@ export default function MyPage() {
               ];
             });
 
+            // 과거 문서의 isActive 누락값은 기존 공개 상태(true)로 마이그레이션합니다.
+            // 공개 목록은 isActive == true 조건으로 읽으므로 누락 문서를 보완해야 합니다.
+            const legacy = snapshot.docs.filter((item) => typeof item.data().isActive !== "boolean");
+            for (let offset = 0; offset < legacy.length; offset += 400) {
+              const batch = writeBatch(getFirebaseFirestore());
+              for (const item of legacy.slice(offset, offset + 400)) batch.update(item.ref, { isActive: true });
+              void batch.commit().catch((cause: unknown) => {
+                if (!isCancelled) setLoadError(cause instanceof Error ? `기존 링크 마이그레이션 실패: ${cause.message}` : "기존 링크 설정을 업데이트하지 못했어요.");
+              });
+            }
             setFirestoreLinks(savedLinks);
             setLinksUserId(userId);
             setLoadError("");
