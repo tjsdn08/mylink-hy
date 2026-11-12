@@ -1,7 +1,6 @@
 import { getApp, getApps, initializeApp, type FirebaseApp } from "firebase/app";
 import { getAuth, type Auth } from "firebase/auth";
 import { getFirestore, type Firestore } from "firebase/firestore";
-import { getStorage, type FirebaseStorage } from "firebase/storage";
 
 function getFirebaseConfig() {
   const config = {
@@ -15,7 +14,7 @@ function getFirebaseConfig() {
   };
 
   const missingValues = Object.entries(config)
-    .filter(([key, value]) => key !== "measurementId" && !value)
+    .filter(([key, value]) => !["measurementId", "storageBucket"].includes(key) && !value)
     .map(([key]) => key);
 
   if (missingValues.length > 0) {
@@ -39,10 +38,6 @@ export function getFirebaseAuth(): Auth {
 
 export function getFirebaseFirestore(): Firestore {
   return getFirestore(getFirebaseApp());
-}
-
-export function getFirebaseStorage(): FirebaseStorage {
-  return getStorage(getFirebaseApp());
 }
 
 export async function getFirebaseAnalytics() {
