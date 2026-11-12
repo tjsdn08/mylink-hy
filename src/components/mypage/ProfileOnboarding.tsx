@@ -83,7 +83,6 @@ export function ProfileOnboarding({ profile, onComplete }: Props) {
         <div className="mb-4">
           <p className="text-[11px] font-extrabold tracking-[.18em] text-[#648040]">LIVE PREVIEW</p>
           <h2 className="mt-1 text-lg font-black">방문자에게 보일 프로필</h2>
-          <p className="mt-1 text-xs leading-5 text-[#616A5E]">입력한 내용이 즉시 반영돼요. 휴대폰 프레임 안에서 스크롤해 전체 화면을 확인하세요.</p>
         </div>
         <ProfilePhoneFrame
           label="온보딩 미리보기"
