@@ -34,8 +34,10 @@ export async function deleteMyLinkAccount(user: User, username: string): Promise
   // Prevent deleting a username owned by a different account.
   const name = username.trim().toLowerCase();
   const nameRef = name ? doc(db, "usernames", name) : null;
+  let hasOwnedUsername = false;
   if (nameRef) {
     const mapped = await getDoc(nameRef);
+    hasOwnedUsername = mapped.exists();
     if (mapped.exists() && mapped.data().uid !== uid) {
       throw new Error("고유 주소 소유권이 일치하지 않습니다. 삭제를 중단했어요.");
     }
@@ -44,7 +46,7 @@ export async function deleteMyLinkAccount(user: User, username: string): Promise
   const batch = writeBatch(db);
   batch.delete(doc(db, "users", uid, "metrics", "profile"));
   batch.delete(doc(db, "users", uid, "profile", "main"));
-  if (nameRef) batch.delete(nameRef);
+  if (nameRef && hasOwnedUsername) batch.delete(nameRef);
   batch.delete(doc(db, "users", uid));
   await batch.commit();
 
