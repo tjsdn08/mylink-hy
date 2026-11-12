@@ -52,7 +52,7 @@ MyLink는 사용자가 자신만의 프로필 페이지를 만들고 여러 웹�
 | State Management | React state/Context + Firestore 실시간 구독 (현 구현); Zustand는 미사용 |
 | Authentication | Firebase Authentication |
 | Database | Cloud Firestore |
-| File Storage | Firebase Storage (이미지 업로드 코드 구현, Storage 규칙 게시 및 운영 검증 필요) |
+| File Storage | 과제 구현에서는 미사용. Spark 무료 요금제 유지, Google 계정 프로필 사진 사용 |
 | Hosting | Vercel |
 | Version Control | Git / GitHub |
 
@@ -214,12 +214,12 @@ Firestore를 데이터의 기준 저장소로 유지한다. 추후 전역 상태
 
 제약:
 - 최대 5MB
-- Firebase Storage 저장
+- **원래 목표:** Firebase Storage 저장. **이번 과제 구현:** 무료 Spark 요금제 유지로 직접 업로드를 제외하고 Google 계정 사진 사용
 - 정사각형 영역에 표시
 - 이미지 비율 왜곡 방지
 - 이미지 크롭 편집 기능은 제공하지 않음
 
-클라이언트와 Firebase Storage 보안 규칙에서 파일 형식, 용량, 소유권을 검증한다.
+직접 업로드를 추후 구현한다면 파일 형식·용량·소유권 검증이 필요하다. 현재 Spark 과제에는 업로드 UI가 없다.
 
 ---
 
