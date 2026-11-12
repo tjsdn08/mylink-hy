@@ -84,6 +84,20 @@ export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange
       await updateDoc(doc(getFirebaseFirestore(), "users", userId, "profile", "main"),
         { socialLinks: storedLinks, updatedAt: serverTimestamp() });
       onSocialOrderSaved?.(storedLinks);
+      const otherDraft = theme !== (appearance.theme ?? "cream")
+        || backgroundColor !== (appearance.backgroundColor ?? "")
+        || buttonColor !== (appearance.buttonColor ?? "")
+        || textColor !== (appearance.textColor ?? "")
+        || buttonStyle !== (appearance.buttonStyle ?? "rounded")
+        || coverStyle !== (appearance.coverStyle ?? "orbits")
+        || headline !== (appearance.headline ?? "")
+        || about !== (appearance.about ?? "")
+        || now !== (appearance.now ?? "")
+        || SOCIAL_PLATFORMS.some((platform) =>
+          (socialUrls[platform] ?? "").trim() !==
+          ((appearance.socialLinks ?? []).find((item) => item.platform === platform)?.url ?? "")
+        );
+      if (!otherDraft) onDraftChange?.(null);
       showToast("SNS 순서를 자동 저장했어요.");
     } catch (cause) {
       setSocialOrder(socialOrder);
