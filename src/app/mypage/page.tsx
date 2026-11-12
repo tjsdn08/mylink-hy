@@ -75,6 +75,8 @@ const reservedUsernames = new Set([
   "api",
   "dashboard",
   "login",
+  "links",
+  "onboarding",
   "mypage",
   "settings",
   "stats",
@@ -661,6 +663,19 @@ export default function MyPage() {
               </NextLink>
             ) : null}
           </div>
+        </section>
+      ) : null}
+
+      {user && isProfileReady && userProfile && !userProfile.username ? (
+        <section aria-label="첫 프로필 설정" className="rounded-[24px] border border-[#A0B579] bg-[#EEF3E1] p-5 text-[#252823] sm:p-7">
+          <h2 className="text-lg font-black">나만의 페이지 주소를 먼저 정해 주세요</h2>
+          <p className="mt-2 text-sm leading-6 text-[#495642]">
+            Google 로그인은 완료됐어요. 고유 Username과 표시 이름을 저장하면 공개 프로필 주소가 만들어져요.
+            링크를 공유하기 전에 먼저 설정해 주세요.
+          </p>
+          <Button type="button" className="mt-4 rounded-xl" onClick={openProfileEditor}>
+            Username과 이름 설정하기
+          </Button>
         </section>
       ) : null}
 
