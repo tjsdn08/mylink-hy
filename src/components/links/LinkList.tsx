@@ -17,12 +17,13 @@ export interface LinkListProps {
   links: LinkItem[];
   onUpdate?: (link: LinkItem) => Promise<void>;
   onDelete?: (link: LinkItem) => void;
+  onDraftChange?: (draft: LinkItem | null) => void;
   trackingUserId?: string;
   compact?: boolean;
   onReorder?: (fromId: string, toId: string) => Promise<void>;
 }
 
-export function LinkList({ links, onUpdate, onDelete, trackingUserId, compact = false, onReorder }: LinkListProps) {
+export function LinkList({ links, onUpdate, onDelete, onDraftChange, trackingUserId, compact = false, onReorder }: LinkListProps) {
   if (compact) {
     if (!onReorder) {
       const featured = links.filter((link) => link.isFeatured);
@@ -89,7 +90,7 @@ export function LinkList({ links, onUpdate, onDelete, trackingUserId, compact = 
             }}
             className="relative"
           >
-            <LinkCard link={link} onUpdate={onUpdate} onDelete={onDelete} trackingUserId={trackingUserId} compact />
+            <LinkCard link={link} onUpdate={onUpdate} onDelete={onDelete} onDraftChange={onDraftChange} trackingUserId={trackingUserId} compact />
             <div className="mt-1 flex items-center justify-end gap-2 text-[11px] text-muted-foreground">
                 <span className="mr-auto">끌어서 순서 변경</span>
                 <button type="button" disabled={links[0].id === link.id} onClick={() => void onReorder(link.id, links[links.indexOf(link) - 1].id)}
@@ -118,6 +119,7 @@ export function LinkList({ links, onUpdate, onDelete, trackingUserId, compact = 
           links={group.links}
           onUpdate={onUpdate}
           onDelete={onDelete}
+          onDraftChange={onDraftChange}
           trackingUserId={trackingUserId}
         />
       ))}
