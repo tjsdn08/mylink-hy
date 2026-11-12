@@ -51,6 +51,8 @@ service cloud.firestore {
             'bio',
             'theme',
             'backgroundColor',
+            'buttonColor',
+            'textColor',
             'buttonStyle',
             'coverStyle',
             'headline',
