@@ -9,7 +9,7 @@ import { getFirebaseFirestore, getFirebaseStorage } from "@/lib/firebase";
  * account signed in so the owner can retry; production-scale use should move
  * deletion orchestration to a trusted backend with a retry queue.
  */
-export async function deleteMyLinkAccount(user: User, username: string): Promise<void> {
+export async function deleteMyLinkAccount(user: User, username: string, photoURL: string): Promise<void> {
   // Reauthentication happens before the first destructive operation.
   await reauthenticateWithPopup(user, new GoogleAuthProvider());
 
@@ -17,10 +17,12 @@ export async function deleteMyLinkAccount(user: User, username: string): Promise
   const uid = user.uid;
 
   // Remove the stored avatar while the owner is still authenticated.
-  try {
-    await deleteObject(storageRef(getFirebaseStorage(), `profile-images/${uid}/avatar`));
-  } catch (cause) {
-    if ((cause as { code?: string })?.code !== "storage/object-not-found") throw cause;
+  if (photoURL.includes(encodeURIComponent(`profile-images/${uid}/avatar`))) {
+    try {
+      await deleteObject(storageRef(getFirebaseStorage(), `profile-images/${uid}/avatar`));
+    } catch (cause) {
+      if ((cause as { code?: string })?.code !== "storage/object-not-found") throw cause;
+    }
   }
 
   // Firestore batched writes are limited to 500 operations. Keep enough margin.
