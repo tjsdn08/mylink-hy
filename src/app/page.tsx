@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import {
-  ArrowRight, BarChart3, CheckCircle2,
-  ChevronRight, Globe2, Link2, MousePointerClick,
-  Palette, ShieldCheck, Sparkles, WandSparkles,
+  ArrowRight, CheckCircle2, Link2, MousePointerClick,
+  ShieldCheck, Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -19,11 +18,6 @@ import { ProfilePhoneFrame } from "@/components/profile/ProfilePhoneFrame";
 import { THEME_PRESETS, type ProfileTheme } from "@/lib/profile-design";
 
 
-const highlights = [
-  { icon: Link2, title: "링크는 한곳에", body: "프로젝트·블로그·SNS 링크를 그룹별로 정리하고 중요한 링크는 강조해요." },
-  { icon: Palette, title: "나답게 소개하기", body: "테마, 커버, 자기소개를 직접 꾸며 나만의 페이지를 만들어요." },
-  { icon: BarChart3, title: "관심도 알아보기", body: "방문 수와 링크별 클릭 수로 관심을 받은 콘텐츠를 확인해요." },
-];
 const demoLinks = [
   { id: "demo-github", title: "GitHub", description: "프로젝트와 개발 기록", url: "https://github.com", category: "github" as const, group: "프로젝트", isActive: true, sortOrder: 0 },
   { id: "demo-blog", title: "기술 블로그", description: "배운 것을 차곡차곡", url: "https://velog.io", category: "blog" as const, group: "프로젝트", isActive: true, sortOrder: 1 },
@@ -143,12 +137,8 @@ export default function Home() {
         <div className="mx-auto flex h-[72px] max-w-6xl items-center justify-between gap-4 px-5 sm:px-8">
           <Link href="/" aria-label="MyLink 홈" className="flex items-center gap-2.5">
             <span className="flex size-9 -rotate-6 items-center justify-center rounded-xl bg-[#252823] text-[#DDF76B]"><Link2 aria-hidden="true" className="size-5" /></span>
-            <span className="text-[23px] font-black tracking-[-0.07em]">my<span className="text-[#F06D4E]">link.</span></span>
+            <span className="text-[23px] font-black tracking-[-0.07em]">my<span>link<span className="text-[#708E36]">.</span></span></span>
           </Link>
-          <nav aria-label="서비스 안내" className="hidden items-center gap-7 text-sm font-semibold text-muted-foreground md:flex">
-            <a href="#features" className="hover:text-foreground">서비스 소개</a>
-            <a href="#steps" className="hover:text-foreground">이용 방법</a>
-          </nav>
           <Button variant="outline" className="h-10 rounded-xl px-4" onClick={handleGoogleSignIn} disabled={busy}>
             {isSigningIn ? "로그인 중..." : isProfileSaving ? "준비 중..." : "로그인"}
           </Button>
@@ -174,9 +164,6 @@ export default function Home() {
                 <Button size="lg" className="h-14 w-full rounded-2xl bg-[#252823] px-7 text-sm font-bold text-white hover:bg-[#373D32] sm:w-auto" disabled={busy} onClick={handleGoogleSignIn}>
                   {loginLabel}<ArrowRight aria-hidden="true" className="ml-1 size-4" />
                 </Button>
-                <a href="#steps" className="inline-flex h-12 w-full items-center justify-center gap-1.5 rounded-2xl px-5 text-sm font-semibold text-muted-foreground hover:bg-muted sm:w-auto">
-                  어떻게 사용하나요? <ChevronRight aria-hidden="true" className="size-4" />
-                </a>
               </div>
               <div className="mt-5 min-h-6" aria-live="polite">
                 {isAuthLoading ? <p role="status" className="text-xs text-muted-foreground">로그인 상태를 확인하고 있어요.</p> : null}
@@ -192,58 +179,6 @@ export default function Home() {
           </div>
         </section>
 
-        <div className="border-b border-[#252823]/10 bg-[#DDF76B] py-4 text-center text-xs font-black tracking-[0.15em] text-[#333B29] sm:text-sm">YOUR LINKS <span className="mx-4">✳</span> YOUR STORIES <span className="mx-4">✳</span> YOUR SPACE</div>
-        <section id="features" className="scroll-mt-24 bg-[#F8F6F1] py-12 sm:py-14">
-          <div className="mx-auto max-w-6xl px-5 sm:px-8">
-            <p className="text-sm font-extrabold text-[#4A622C]">WHY MYLINK?</p>
-            <h2 className="mt-3 text-[clamp(1.8rem,4vw,2.65rem)] font-bold leading-tight tracking-tight">작은 링크 하나에도,<br />나만의 이야기가 있어.</h2>
-            <p className="mt-4 text-sm text-muted-foreground">링크 관리부터 프로필 꾸미기와 클릭 통계까지, 한곳에서 관리해 보세요.</p>
-            <div className="mt-10 grid gap-4 md:grid-cols-3">
-              {highlights.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <article key={item.title} className="rounded-[26px] border border-[#252823]/10 bg-[#252823] p-6 text-white transition-transform duration-300 hover:-translate-y-1 sm:p-7">
-                    <span className="flex size-12 items-center justify-center rounded-2xl bg-[#EAF4CB] text-[#344A25]"><Icon aria-hidden="true" className="size-6" /></span>
-                    <h3 className="mt-6 text-lg font-bold">{item.title}</h3>
-                    <p className="mt-3 text-sm leading-[1.8] text-white/65">{item.body}</p>
-                  </article>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-        <section id="steps" className="scroll-mt-24 border-t border-[#252823]/10 bg-[#F0EEE6] py-12 text-[#252823] sm:py-14">
-          <div className="mx-auto max-w-6xl px-5 sm:px-8">
-            <p className="text-center text-xs font-extrabold tracking-[0.16em] text-[#4A622C]">HOW IT WORKS</p>
-            <h2 className="mt-3 text-center text-[clamp(1.8rem,4vw,2.65rem)] font-bold tracking-tight text-[#252823]">세 단계면 충분해요</h2>
-            <ol className="mt-11 grid gap-5 md:grid-cols-3">
-              {[
-                { icon: WandSparkles, title: "Google로 시작", description: "복잡한 가입 없이 계정으로 시작해요." },
-                { icon: Palette, title: "페이지 꾸미기", description: "내 소개와 링크를 추가하고 원하는 테마로 꾸며요." },
-                { icon: Globe2, title: "주소 하나로 공유", description: "개인 URL을 복사하거나 QR 코드로 공유해요." },
-              ].map((step, index) => {
-                const Icon = step.icon;
-                return (
-                  <li key={step.title} className="rounded-3xl border border-[#D7DACF] bg-[#FFFFFF]/80 p-6 shadow-[0_4px_18px_rgba(37,40,35,0.04)] sm:p-7">
-                    <div className="flex items-center justify-between text-[#49652B]"><strong className="text-xs font-extrabold">STEP 0{index + 1}</strong><Icon aria-hidden="true" className="size-5" /></div>
-                    <h3 className="mt-6 text-lg font-bold text-[#252823]">{step.title}</h3>
-                    <p className="mt-3 text-sm leading-relaxed text-[#5D6259]">{step.description}</p>
-                  </li>
-                );
-              })}
-            </ol>
-          </div>
-        </section>
-
-        <section className="bg-[#DDF76B] px-5 py-12 text-center text-[#252823] sm:py-20">
-          <div className="mx-auto max-w-3xl">
-            <p className="inline-flex items-center gap-2 rounded-full bg-[#FFFFFF]/90 px-4 py-2 text-xs font-bold text-[#405A27]"><Sparkles aria-hidden="true" className="size-4" /> 나만의 작은 홈페이지</p>
-            <h2 className="mt-5 text-[clamp(1.8rem,4vw,2.8rem)] font-extrabold tracking-tight text-[#252823]">당신의 링크에도 무대가 필요해.</h2>
-            <p className="mt-4 text-sm font-medium text-[#45543A]">프로필과 링크를 모아 나만의 웹페이지를 만들어 보세요.</p>
-            <Button className="mt-8 h-12 rounded-2xl bg-[#252823] px-7 font-bold text-[#FFFFFF] shadow-[0_6px_0_rgba(37,40,35,0.15)] transition-all hover:-translate-y-0.5 hover:bg-[#40483A] hover:text-[#FFFFFF] disabled:opacity-60" disabled={busy} onClick={handleGoogleSignIn}>{loginLabel}<ArrowRight aria-hidden="true" className="size-4" /></Button>
-          </div>
-        </section>
       </main>
       <footer className="border-t border-[#252823]/10 bg-[#252823] px-5 py-9 text-white">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 text-xs text-white/60 sm:flex-row">
