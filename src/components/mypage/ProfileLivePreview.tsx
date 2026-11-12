@@ -1,6 +1,5 @@
 "use client";
 
-import { Globe2, Link2 } from "lucide-react";
 import { ProfilePhoneFrame } from "@/components/profile/ProfilePhoneFrame";
 import type { ProfileAppearance } from "@/lib/profile-design";
 import type { Link } from "@/types/link";
@@ -26,16 +25,6 @@ export function ProfileLivePreview({ username, displayName, bio, photoURL, appea
       </div>
       <ProfilePhoneFrame label="실시간 미리보기"
         profile={{ username, displayName, bio, photoURL, ...appearance }} links={links} />
-      <p className="flex items-start gap-2 text-xs leading-5 text-muted-foreground">
-        <Globe2 className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-        프로필과 디자인은 저장 후 공개돼요. 링크 순서 변경은 자동 저장돼요.
-      </p>
-      {username ? (
-        <a href={`/${encodeURIComponent(username)}`} target="_blank" rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-xs font-bold text-[#546D35] hover:underline dark:text-[#DDF76B]">
-          <Link2 className="size-3.5" aria-hidden="true" /> 실제 공개 페이지 열기
-        </a>
-      ) : null}
     </div>
   );
 }
