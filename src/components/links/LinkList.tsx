@@ -119,7 +119,6 @@ export function LinkList({ links, onUpdate, onDelete, onDraftChange, trackingUse
           links={group.links}
           onUpdate={onUpdate}
           onDelete={onDelete}
-          onDraftChange={onDraftChange}
           trackingUserId={trackingUserId}
         />
       ))}
