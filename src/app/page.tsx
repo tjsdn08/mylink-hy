@@ -19,9 +19,9 @@ import { THEME_PRESETS, type ProfileTheme } from "@/lib/profile-design";
 
 
 const highlights = [
-  { icon: Link2, title: "링크는 한곳에", body: "블로그부터 포트폴리오까지, 흩어진 링크를 보기 좋게 정리해요." },
-  { icon: Palette, title: "나답게 소개하기", body: "프로필과 자기소개로 첫인상을 만들어요." },
-  { icon: BarChart3, title: "관심도 알아보기", body: "어떤 링크가 인기 있는지 클릭 통계로 확인해요." },
+  { icon: Link2, title: "링크는 한곳에", body: "프로젝트·블로그·SNS 링크를 그룹별로 정리하고 중요한 링크는 강조해요." },
+  { icon: Palette, title: "나답게 소개하기", body: "테마, 커버, 자기소개를 직접 꾸며 나만의 페이지를 만들어요." },
+  { icon: BarChart3, title: "관심도 알아보기", body: "방문 수와 링크별 클릭 수로 관심을 받은 콘텐츠를 확인해요." },
 ];
 const demoLinks = [
   { id: "demo-github", title: "GitHub", description: "프로젝트와 개발 기록", url: "https://github.com", category: "github" as const, group: "프로젝트", isActive: true, sortOrder: 0 },
@@ -169,7 +169,7 @@ export default function Home() {
                 모든 나를<br /><span className="relative inline-block text-[#252823] after:absolute after:bottom-2 after:left-0 after:-z-10 after:h-[22%] after:w-full after:-rotate-2 after:bg-[#DDF76B]">한 곳에.</span>
               </h1>
               <p className="mx-auto mt-6 max-w-[480px] text-[15px] leading-[1.8] text-muted-foreground sm:text-[17px] lg:mx-0">
-                프로젝트, 블로그, SNS, 지금 하고 있는 일까지.<br className="hidden sm:block" />
+                프로젝트, 블로그, SNS, 내가 하고 있는 일까지.<br className="hidden sm:block" />
                 흩어진 링크를 모아 <strong className="font-extrabold text-[#252823]">나를 닮은 한 페이지</strong>로 소개해요.
               </p>
               <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row sm:justify-center lg:justify-start">
@@ -199,7 +199,7 @@ export default function Home() {
           <div className="mx-auto max-w-6xl px-5 sm:px-8">
             <p className="text-sm font-extrabold text-[#4A622C]">WHY MYLINK?</p>
             <h2 className="mt-3 text-[clamp(1.8rem,4vw,2.65rem)] font-bold leading-tight tracking-tight">작은 링크 하나에도,<br />나만의 이야기가 있어.</h2>
-            <p className="mt-4 text-sm text-muted-foreground">작은 링크 하나도 나를 설명할 수 있으니까요.</p>
+            <p className="mt-4 text-sm text-muted-foreground">링크 관리부터 프로필 꾸미기와 클릭 통계까지, 한곳에서 관리해 보세요.</p>
             <div className="mt-10 grid gap-4 md:grid-cols-3">
               {highlights.map((item) => {
                 const Icon = item.icon;
@@ -222,8 +222,8 @@ export default function Home() {
             <ol className="mt-11 grid gap-5 md:grid-cols-3">
               {[
                 { icon: WandSparkles, title: "Google로 시작", description: "복잡한 가입 없이 계정으로 시작해요." },
-                { icon: Link2, title: "링크 모으기", description: "소개하고 싶은 링크를 자유롭게 추가해요." },
-                { icon: Globe2, title: "한 번에 공유", description: "나만의 URL로 프로필을 보여줘요." },
+                { icon: Palette, title: "페이지 꾸미기", description: "내 소개와 링크를 추가하고 원하는 테마로 꾸며요." },
+                { icon: Globe2, title: "주소 하나로 공유", description: "개인 URL을 복사하거나 QR 코드로 공유해요." },
               ].map((step, index) => {
                 const Icon = step.icon;
                 return (
@@ -242,7 +242,7 @@ export default function Home() {
           <div className="mx-auto max-w-3xl">
             <p className="inline-flex items-center gap-2 rounded-full bg-[#FFFFFF]/90 px-4 py-2 text-xs font-bold text-[#405A27]"><Sparkles aria-hidden="true" className="size-4" /> 나만의 작은 홈페이지</p>
             <h2 className="mt-5 text-[clamp(1.8rem,4vw,2.8rem)] font-extrabold tracking-tight text-[#252823]">당신의 링크에도 무대가 필요해.</h2>
-            <p className="mt-4 text-sm font-medium text-[#45543A]">한 페이지에 나다운 이야기를 담아보세요.</p>
+            <p className="mt-4 text-sm font-medium text-[#45543A]">프로필과 링크를 모아 나만의 웹페이지를 만들어 보세요.</p>
             <Button className="mt-8 h-12 rounded-2xl bg-[#252823] px-7 font-bold text-[#FFFFFF] shadow-[0_6px_0_rgba(37,40,35,0.15)] transition-all hover:-translate-y-0.5 hover:bg-[#40483A] hover:text-[#FFFFFF] disabled:opacity-60" disabled={busy} onClick={handleGoogleSignIn}>{loginLabel}<ArrowRight aria-hidden="true" className="size-4" /></Button>
           </div>
         </section>
@@ -250,7 +250,7 @@ export default function Home() {
       <footer className="border-t border-[#252823]/10 bg-[#252823] px-5 py-9 text-white">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 text-xs text-white/60 sm:flex-row">
           <strong className="flex items-center gap-2 font-bold text-[#FFFFFF]"><Link2 aria-hidden="true" className="size-4 text-[#DDF76B]" /> MyLink</strong>
-          <p>© 2026 MyLink. 하나의 링크로 나를 소개해요.</p>
+          <p>© 2026 MyLink. 나를 소개하는 하나의 주소.</p>
           <a href="#features" className="text-[#ECEFE7] underline-offset-4 hover:text-[#DDF76B] hover:underline">서비스 소개로 이동</a>
         </div>
       </footer>
