@@ -19,7 +19,7 @@
 - **Styling**: Tailwind CSS 4, shadcn/ui 스타일 공통 컴포넌트, Base UI
 - **Icons**: Lucide React (기존 코드 기준, Tabler Icons 아님)
 - **Fonts**: Geist, Geist Mono 및 프로젝트의 한국어 글꼴 설정
-- **Backend**: Firebase Authentication (Google 로그인), Cloud Firestore, Firebase Storage (프로필 사진 업로드)
+- **Backend**: Firebase Authentication (Google 로그인), Cloud Firestore. Firebase Storage는 사용하지 않음(Spark 무료 요금제)
 - **Charts**: Recharts
 - **Deployment**: Vercel
 - **Tooling**: ESLint, Prettier, GitHub Actions
@@ -47,7 +47,7 @@ src/
 └─ data/                         # 개발용 샘플 데이터
 docs/                            # PRD, 사용자 시나리오, 와이어프레임, 테스트 문서
 firestore.rules                  # Firestore 보안 규칙(콘솔 게시 별도)
-storage.rules                    # 이미지 업로드·읽기·삭제 Storage 규칙
+firebase.json                    # Firestore 규칙만 배포 (Storage 미사용)
 AGENTS.md                        # Next.js 개발 에이전트 안내
 ```
 
@@ -71,7 +71,7 @@ AGENTS.md                        # Next.js 개발 에이전트 안내
 
 4. **프로필 커스터마이징**
    - 기존 테마(크림·라벤더·미드나잇), 커버 패턴, 버튼 스타일, 소개글, SNS 연결을 보존합니다.
-   - 프로필 사진은 Google 계정 사진 또는 사용자가 Storage에 직접 업로드한 JPG/PNG/WebP(최대 5MB)를 표시합니다.
+   - 프로필 사진은 Google 계정 사진을 표시합니다. 직접 업로드 UI, Cloud Storage, 유료 요금제 의존성을 추가하지 않습니다.
    - 변경 내용은 저장 전 미리보기에서 확인할 수 있어야 하며, 공개 페이지 반영은 저장 이후에 이루어집니다.
 
 5. **링크 구성과 순서**
@@ -141,8 +141,8 @@ npm run build          # Next.js 프로덕션 빌드
 - [ ] Firebase Console에 최신 Firestore Rules 게시 상태 확인
 - [ ] 실제 계정으로 가입·편집·저장·공유·통계 전체 흐름 점검
 - [ ] 모바일/태블릿/데스크톱 실화면 및 접근성 확인
-- [x] 사용자 직접 이미지 업로드 코드(실제 Storage 규칙 게시 및 실사용 테스트 필요)
-- [x] 계정 탈퇴 UI·Google 재인증 및 브라우저 기반 삭제 코드(서버측 삭제 재시도/원자성은 미구현)
-- [ ] 최신 Firestore·Storage 규칙 게시 및 탈퇴 테스트 계정 검증
+- [ ] 직접 이미지 업로드는 최종 PRD의 원래 목표였으나 Spark 무료 요금제 제약에 따라 **이번 과제 범위에서는 제외**. 현재 Google 계정 사진만 표시
+- [x] 계정 탈퇴 UI·Google 재인증 및 Firestore/Auth 삭제 코드(Storage 미사용, 서버측 삭제 재시도/원자성은 미구현)
+- [ ] 최신 Firestore 규칙 게시 및 탈퇴 테스트 계정 검증 (Storage 사용 안 함)
 
 > 체크 항목은 소스 코드상 구현 여부를 기준으로 하며, 실제 운영 환경에서 테스트를 모두 통과했다는 뜻은 아닙니다.
