@@ -149,7 +149,9 @@ export default function MyPage() {
 
   useEffect(() => {
     const requestedTab = new URLSearchParams(window.location.search).get("tab");
-    if (requestedTab === "profile" || requestedTab === "links" || requestedTab === "design") setActiveTab(requestedTab);
+    if (requestedTab === "profile" || requestedTab === "links" || requestedTab === "design") {
+      queueMicrotask(() => setActiveTab(requestedTab));
+    }
     const handlePointerDown = (event: PointerEvent) => {
       if (accountMenuRef.current && !accountMenuRef.current.contains(event.target as Node)) {
         accountMenuRef.current.open = false;
