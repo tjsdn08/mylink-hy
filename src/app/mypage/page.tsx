@@ -111,6 +111,7 @@ export default function MyPage() {
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<"profile" | "links" | "design">("links");
   const [appearanceDraft, setAppearanceDraft] = useState<ProfileAppearance | null>(null);
+  const [pendingTab, setPendingTab] = useState<"links" | "profile" | null>(null);
   const [inlineDraft, setInlineDraft] = useState<{ displayName: string; bio: string } | null>(null);
   const [linkFieldErrors, setLinkFieldErrors] = useState<{ title?: string; url?: string }>({});
   const links = user && isProfileReady && linksUserId === user.uid
@@ -127,6 +128,15 @@ export default function MyPage() {
   ];
   const completedCount = profileChecklist.filter((item) => item.done).length;
   const nextSuggestion = profileChecklist.find((item) => !item.done);
+  function changeTab(tab: "profile" | "links" | "design") {
+    if (tab === activeTab) return;
+    if (activeTab === "design" && appearanceDraft && tab !== "design") {
+      setPendingTab(tab);
+      return;
+    }
+    setActiveTab(tab);
+  }
+
 
   useEffect(() => {
     const handlePointerDown = (event: PointerEvent) => {
@@ -679,7 +689,7 @@ export default function MyPage() {
           <nav aria-label="관리 메뉴" className="flex flex-wrap gap-2 rounded-2xl border border-[#252823]/10 bg-white p-2 text-[#252823] dark:border-white/10 dark:bg-[#282E29] dark:text-[#F8F6F1]">
             {([["links", "링크 관리"], ["profile", "프로필"], ["design", "디자인·SNS"]] as const).map(([tab, name]) => (
               <button key={tab} type="button" aria-current={activeTab === tab ? "page" : undefined}
-                onClick={() => { if (activeTab === "design" && tab !== "design") setAppearanceDraft(null); setActiveTab(tab); }}
+                onClick={() => changeTab(tab)}
                 className={`min-h-11 flex-1 rounded-xl px-3 text-sm font-bold transition-colors ${activeTab === tab ? "bg-[#252823] text-white dark:bg-[#DDF76B] dark:text-[#252823]" : "hover:bg-[#EEF2E4] dark:hover:bg-white/10"}`}>{name}</button>
             ))}
           </nav>
@@ -706,7 +716,7 @@ export default function MyPage() {
                 style={{ width: `${completedCount / profileChecklist.length * 100}%` }} />
             </div>
             {nextSuggestion ? (
-              <button type="button" onClick={() => setActiveTab(nextSuggestion.tab)}
+              <button type="button" onClick={() => changeTab(nextSuggestion.tab)}
                 className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-full bg-[#252823] px-4 text-xs font-bold text-white transition-colors hover:bg-[#455239] dark:bg-[#DDF76B] dark:text-[#252823]">
                 다음 추천: {nextSuggestion.label} <span aria-hidden="true">↗</span>
               </button>
@@ -964,6 +974,26 @@ export default function MyPage() {
       <footer className="py-8 text-center text-xs font-semibold tracking-wide text-[#898D7C]">
         <Globe2 aria-hidden="true" className="mr-1 inline size-3" /> Powered by MyLink
       </footer>
+      <Dialog open={pendingTab !== null} onOpenChange={(open) => { if (!open) setPendingTab(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>저장하지 않은 변경사항이 있어요</DialogTitle>
+            <DialogDescription>
+              지금 다른 메뉴로 이동하면 디자인·소개글·SNS에 입력한 내용이 저장되지 않아요.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setPendingTab(null)}>계속 편집</Button>
+            <Button type="button" onClick={() => {
+              if (!pendingTab) return;
+              const next = pendingTab;
+              setPendingTab(null);
+              setAppearanceDraft(null);
+              setActiveTab(next);
+            }}>저장하지 않고 이동</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <Dialog
         open={linkToDelete !== null}
         onOpenChange={(open) => {
