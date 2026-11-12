@@ -17,6 +17,8 @@ export interface UserProfileDocument {
   bio: string;
   theme?: "cream" | "lavender" | "midnight";
   backgroundColor?: string;
+  buttonColor?: string;
+  textColor?: string;
   buttonStyle?: "rounded" | "pill" | "square";
   coverStyle?: "orbits" | "grid" | "minimal";
   headline?: string;
@@ -80,6 +82,8 @@ export function ensureUserProfileDocument(
         "",
       theme: ["cream", "lavender", "midnight"].includes(storedProfile.theme) ? storedProfile.theme : "cream",
       backgroundColor: typeof storedProfile.backgroundColor === "string" ? storedProfile.backgroundColor : "",
+      buttonColor: typeof storedProfile.buttonColor === "string" ? storedProfile.buttonColor : "",
+      textColor: typeof storedProfile.textColor === "string" ? storedProfile.textColor : "",
       buttonStyle: ["rounded", "pill", "square"].includes(storedProfile.buttonStyle) ? storedProfile.buttonStyle : "rounded",
       coverStyle: ["orbits", "grid", "minimal"].includes(storedProfile.coverStyle) ? storedProfile.coverStyle : "orbits",
       headline: typeof storedProfile.headline === "string" ? storedProfile.headline : "",
