@@ -148,6 +148,8 @@ export default function MyPage() {
 
 
   useEffect(() => {
+    const requestedTab = new URLSearchParams(window.location.search).get("tab");
+    if (requestedTab === "profile" || requestedTab === "links" || requestedTab === "design") setActiveTab(requestedTab);
     const handlePointerDown = (event: PointerEvent) => {
       if (accountMenuRef.current && !accountMenuRef.current.contains(event.target as Node)) {
         accountMenuRef.current.open = false;
@@ -666,6 +668,11 @@ export default function MyPage() {
                     </button>
                   </>
                 ) : null}
+                <NextLink href="/dashboard"
+                  onClick={() => { if (accountMenuRef.current) accountMenuRef.current.open = false; }}
+                  className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-muted">
+                  <Globe2 className="size-4" aria-hidden="true" /> 대시보드
+                </NextLink>
                 <NextLink
                   href="/stats"
                   onClick={() => { if (accountMenuRef.current) accountMenuRef.current.open = false; }}
