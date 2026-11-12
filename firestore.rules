@@ -2,6 +2,136 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    function validUsername(username) {
+      return username is string
+        && username.matches('^[a-z0-9_]{3,20}
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function profileUsernameAfterWrite(uid, username) {
+      return getAfter(
+        /databases/$(database)/documents/users/$(uid)/profile/main
+      ).data.uid == uid
+        && getAfter(
+          /databases/$(database)/documents/users/$(uid)/profile/main
+        ).data.username == username;
+    }
+
+    match /users/{uid} {
+      allow get, list: if signedInAs(uid);
+      allow create, update: if signedInAs(uid)
+        && request.resource.data.uid == uid
+        && request.resource.data.email is string
+        && request.resource.data.displayName is string
+        && request.resource.data.photoURL is string
+        && request.resource.data.username is string
+        && request.resource.data.bio is string;
+      allow delete: if signedInAs(uid);
+
+      match /profile/{profileId} {
+        allow get: if profileId == 'main'
+          && (
+            signedInAs(uid)
+            || resource == null
+            || !resource.data.keys().hasAny(['email'])
+          );
+        allow list: if false;
+
+        allow create, update: if signedInAs(uid)
+          && profileId == 'main'
+          && request.resource.data.uid == uid
+          && request.resource.data.username is string
+          && request.resource.data.displayName is string
+          && request.resource.data.photoURL is string
+          && request.resource.data.bio is string
+          && !request.resource.data.keys().hasAny(['email'])
+          && request.resource.data.keys().hasOnly([
+            'uid',
+            'username',
+            'displayName',
+            'photoURL',
+            'bio',
+            'theme',
+            'backgroundColor',
+            'buttonColor',
+            'textColor',
+            'buttonStyle',
+            'coverStyle',
+            'headline',
+            'about',
+            'now',
+            'socialLinks',
+            'createdAt',
+            'updatedAt'
+          ]);
+
+        allow delete: if signedInAs(uid) && profileId == 'main';
+      }
+
+      // 비로그인 방문자는 조회 및 원자적 +1만 가능합니다.
+      // 중복 새로고침·봇 트래픽도 포함되는 단순 조회 수입니다.
+      match /metrics/{metricId} {
+        allow get: if metricId == 'profile';
+        allow list: if false;
+        allow create: if metricId == 'profile'
+          && request.resource.data.keys().hasOnly(['views'])
+          && request.resource.data.views == 1;
+        allow update: if metricId == 'profile'
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views'])
+          && request.resource.data.views is int
+          && request.resource.data.views == resource.data.get('views', 0) + 1;
+        allow delete: if signedInAs(uid);
+      }
+
+      match /links/{linkId} {
+        // 소유자는 전체 링크를 열람하지만 방문자는 활성 링크만 읽습니다.
+        allow read: if signedInAs(uid) || resource.data.get('isActive', true) == true;
+        allow create, update, delete: if signedInAs(uid);
+
+        // 공개 페이지의 방문자는 클릭 수만 +1 할 수 있습니다.
+        // increment(1)은 서버에서 원자적으로 적용되므로 동시 클릭 손실이 없습니다.
+        // 실습용 공개 카운터로, 반복 요청 및 봇에 의한 조작까지 막지는 못합니다.
+        allow update: if resource.data.get('isActive', true) == true
+          && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['clickCount'])
+          && request.resource.data.clickCount is int
+          && request.resource.data.clickCount == resource.data.get('clickCount', 0) + 1;
+      }
+    }
+
+    match /usernames/{username} {
+      allow get: if true;
+      allow list: if false;
+
+      // 신규 Username 등록은 본인의 프로필과 같은 트랜잭션에서만 허용합니다.
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.username == username
+        && validUsername(username)
+        && profileUsernameAfterWrite(request.auth.uid, username);
+
+      // 이미 등록된 Username은 현재 소유자만 갱신할 수 있습니다.
+      // 새 요청의 uid 검사만으로는 다른 사람의 주소를 빼앗는 것을 막을 수 없습니다.
+      allow update: if request.auth != null
+        && resource.data.uid == request.auth.uid
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.username == username
+        && profileUsernameAfterWrite(request.auth.uid, username);
+
+      allow delete: if request.auth != null
+        && resource.data.uid == request.auth.uid
+        && (
+          !existsAfter(/databases/$(database)/documents/users/$(request.auth.uid)/profile/main)
+          || getAfter(
+            /databases/$(database)/documents/users/$(request.auth.uid)/profile/main
+          ).data.username != username
+        );
+    }
+  }
+})
+        && !(username in ['api', 'dashboard', 'login', 'links', 'onboarding', 'mypage', 'settings', 'stats']);
+    }
+
     function signedInAs(uid) {
       return request.auth != null && request.auth.uid == uid;
     }
