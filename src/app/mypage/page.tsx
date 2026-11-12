@@ -325,7 +325,7 @@ export default function MyPage() {
     setDeletingAccount(true);
     setAccountDeleteError("");
     try {
-      await deleteMyLinkAccount(user, userProfile.username);
+      await deleteMyLinkAccount(user, userProfile.username, userProfile.photoURL);
       setShowAccountDelete(false);
       setAccountDeleteText("");
       showToast("계정과 데이터를 삭제했어요.");
