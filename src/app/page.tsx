@@ -53,7 +53,6 @@ function LandingPreview() {
           links={demoLinks}
         />
       </div>
-      <p className="mt-2 text-center text-xs font-medium text-[#56604B]">휴대폰 화면 안에서 스크롤해 전체 예시를 보고 테마를 선택해 보세요</p>
       <div className="relative mt-3 flex flex-wrap items-center justify-center gap-2" role="group" aria-label="프로필 미리보기 테마 선택">
         {(Object.keys(THEME_PRESETS) as ProfileTheme[]).map((theme) => (
           <button type="button" key={theme} onClick={() => setPreviewTheme(theme)} aria-pressed={previewTheme === theme}
