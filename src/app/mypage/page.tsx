@@ -42,6 +42,7 @@ import { normalizeExternalUrl } from "@/lib/url-normalize";
 import { safeHttpUrl } from "@/lib/profile-design";
 import type { ProfileAppearance } from "@/lib/profile-design";
 import { getFirebaseFirestore, getFirebaseStorage } from "@/lib/firebase";
+import { deleteMyLinkAccount } from "@/lib/account-deletion";
 import { useAuth } from "@/components/auth-provider";
 import { showToast } from "@/lib/toast";
 import { getLinkFieldErrors, validateLinkForm } from "@/lib/link-validation";
@@ -95,6 +96,10 @@ export default function MyPage() {
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
   const [isProfileSaving, setIsProfileSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [showAccountDelete, setShowAccountDelete] = useState(false);
+  const [accountDeleteText, setAccountDeleteText] = useState("");
+  const [deletingAccount, setDeletingAccount] = useState(false);
+  const [accountDeleteError, setAccountDeleteError] = useState("");
   const [profileSaveError, setProfileSaveError] = useState("");
   const [profileForm, setProfileForm] = useState<ProfileFormValues>({
     username: "",
@@ -312,6 +317,23 @@ export default function MyPage() {
       );
     } finally {
       setIsSigningIn(false);
+    }
+  }
+
+  async function handleAccountDeletion() {
+    if (!user || !userProfile || accountDeleteText !== "탈퇴합니다" || deletingAccount) return;
+    setDeletingAccount(true);
+    setAccountDeleteError("");
+    try {
+      await deleteMyLinkAccount(user, userProfile.username);
+      setShowAccountDelete(false);
+      setAccountDeleteText("");
+      showToast("계정과 데이터를 삭제했어요.");
+      router.replace("/");
+    } catch (cause) {
+      setAccountDeleteError(cause instanceof Error ? cause.message : "계정을 삭제하지 못했어요. 다시 시도해 주세요.");
+    } finally {
+      setDeletingAccount(false);
     }
   }
 
@@ -657,6 +679,12 @@ export default function MyPage() {
                     aria-label="다크 모드 전환"
                   />
                 </div>
+                <div className="my-1 h-px bg-border" role="separator" />
+                <button type="button"
+                  onClick={() => { if (accountMenuRef.current) accountMenuRef.current.open = false; setShowAccountDelete(true); }}
+                  className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm text-destructive transition-colors hover:bg-destructive/10">
+                  계정 탈퇴 및 데이터 삭제
+                </button>
                 <div className="my-1 h-px bg-border" role="separator" />
                 <button
                   type="button"
@@ -1032,6 +1060,29 @@ export default function MyPage() {
       <footer className="py-8 text-center text-xs font-semibold tracking-wide text-[#898D7C]">
         <Globe2 aria-hidden="true" className="mr-1 inline size-3" /> Powered by MyLink
       </footer>
+      <Dialog open={showAccountDelete} onOpenChange={(open) => { if (!deletingAccount) { setShowAccountDelete(open); if (!open) { setAccountDeleteText(""); setAccountDeleteError(""); } } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>MyLink 계정을 영구 삭제할까요?</DialogTitle>
+            <DialogDescription>
+              프로필, 모든 링크, 조회·클릭 통계, 직접 업로드한 사진, 고유 주소 및 Google로 로그인한 MyLink 계정이 삭제됩니다.
+              복구할 수 없으며, 삭제 전에 Google 재인증이 필요해요.
+            </DialogDescription>
+          </DialogHeader>
+          <label htmlFor="account-deletion-confirm" className="text-sm font-bold">확인을 위해 ‘탈퇴합니다’를 입력해 주세요.</label>
+          <Input id="account-deletion-confirm" value={accountDeleteText} disabled={deletingAccount}
+            onChange={(event) => setAccountDeleteText(event.target.value)} placeholder="탈퇴합니다" />
+          {accountDeleteError ? <p role="alert" className="text-sm text-destructive">{accountDeleteError}</p> : null}
+          <p className="text-xs text-muted-foreground">삭제 도중 연결이 끊기면 일부 데이터만 삭제될 수 있습니다. 오류가 표시되면 재시도해 주세요.</p>
+          <DialogFooter>
+            <Button type="button" variant="outline" disabled={deletingAccount} onClick={() => setShowAccountDelete(false)}>취소</Button>
+            <Button type="button" variant="destructive" disabled={deletingAccount || accountDeleteText !== "탈퇴합니다"}
+              onClick={() => void handleAccountDeletion()}>
+              {deletingAccount ? "계정 삭제 중..." : "영구 삭제"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <Dialog open={pendingTab !== null} onOpenChange={(open) => { if (!open) setPendingTab(null); }}>
         <DialogContent>
           <DialogHeader>
