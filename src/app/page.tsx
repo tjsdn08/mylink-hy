@@ -36,29 +36,25 @@ function LandingPreview() {
     <div className="relative mx-auto w-full max-w-[360px] motion-safe:animate-[mylink-rise_700ms_ease-out_both]"
       aria-label="실제 공개 프로필과 동일한 디자인으로 만든 예시 화면">
       <div aria-hidden="true" className="pointer-events-none absolute -inset-6 -z-10 rounded-[45px] bg-[#DDF76B]/30 blur-3xl motion-safe:animate-[mylink-float_9s_ease-in-out_infinite]" />
-      {/* 실제 공개 프로필과 같은 컴포넌트를 사용하되, 랜딩에서는 축소해 일부만 보여줍니다. */}
-      <div className="landing-phone-viewport relative mx-auto h-[430px] w-full max-w-[285px] overflow-hidden rounded-[32px] sm:h-[465px]">
-        <div className="pointer-events-none absolute left-1/2 top-0 w-[390px] origin-top -translate-x-1/2 scale-[0.69] sm:scale-[0.72]">
-          <ProfilePhoneFrame
-            label="프로필 예시"
-            profile={{
-              username: "yourname",
-              displayName: "나만의 링크 공간",
-              headline: "만드는 과정도 나만의 이야기",
-              bio: "만든 것, 배우는 것, 좋아하는 것까지 ✨",
-              about: "관심 있는 일을 배우고 작은 프로젝트로 만들어 기록합니다.",
-              now: "요즘은 새로운 아이디어를 웹으로 구현하고 있어요.",
-              socialLinks: [{ platform: "GitHub", url: "https://github.com" }, { platform: "Blog", url: "https://velog.io" }],
-              theme: previewTheme,
-              coverStyle: previewTheme === "lavender" ? "grid" : previewTheme === "midnight" ? "minimal" : "orbits",
-              buttonStyle: "rounded",
-            }}
-            links={demoLinks}
-          />
-        </div>
-        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-[#F8F6F1]" />
+      <div className="mx-auto w-full max-w-[330px]">
+        <ProfilePhoneFrame
+          label="프로필 예시"
+          profile={{
+            username: "yourname",
+            displayName: "나만의 링크 공간",
+            headline: "만드는 과정도 나만의 이야기",
+            bio: "만든 것, 배우는 것, 좋아하는 것까지 ✨",
+            about: "관심 있는 일을 배우고 작은 프로젝트로 만들어 기록합니다.",
+            now: "요즘은 새로운 아이디어를 웹으로 구현하고 있어요.",
+            socialLinks: [{ platform: "GitHub", url: "https://github.com" }, { platform: "Blog", url: "https://velog.io" }],
+            theme: previewTheme,
+            coverStyle: previewTheme === "lavender" ? "grid" : previewTheme === "midnight" ? "minimal" : "orbits",
+            buttonStyle: "rounded",
+          }}
+          links={demoLinks}
+        />
       </div>
-      <p className="mt-2 text-center text-xs font-medium text-[#56604B]">공개 프로필 미리보기 · 테마를 선택해 보세요</p>
+      <p className="mt-2 text-center text-xs font-medium text-[#56604B]">휴대폰 화면 안에서 스크롤해 전체 예시를 보고 테마를 선택해 보세요</p>
       <div className="relative mt-3 flex flex-wrap items-center justify-center gap-2" role="group" aria-label="프로필 미리보기 테마 선택">
         {(Object.keys(THEME_PRESETS) as ProfileTheme[]).map((theme) => (
           <button type="button" key={theme} onClick={() => setPreviewTheme(theme)} aria-pressed={previewTheme === theme}
