@@ -26,11 +26,17 @@ interface Props {
 export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange }: Props) {
   const [theme, setTheme] = useState<ProfileTheme>(appearance.theme ?? "cream");
   const [backgroundColor, setBackgroundColor] = useState(appearance.backgroundColor ?? "");
+  const [buttonColor, setButtonColor] = useState(appearance.buttonColor ?? "");
+  const [textColor, setTextColor] = useState(appearance.textColor ?? "");
   const [buttonStyle, setButtonStyle] = useState<ButtonStyle>(appearance.buttonStyle ?? "rounded");
   const [coverStyle, setCoverStyle] = useState<CoverStyle>(appearance.coverStyle ?? "orbits");
   const [headline, setHeadline] = useState(appearance.headline ?? "");
   const [about, setAbout] = useState(appearance.about ?? "");
   const [now, setNow] = useState(appearance.now ?? "");
+  const [socialOrder, setSocialOrder] = useState<string[]>([
+    ...(appearance.socialLinks ?? []).map((item) => item.platform),
+    ...SOCIAL_PLATFORMS.filter((platform) => !(appearance.socialLinks ?? []).some((item) => item.platform === platform)),
+  ]);
   const [socialUrls, setSocialUrls] = useState<Record<string, string>>(
     Object.fromEntries((appearance.socialLinks ?? []).map((item) => [item.platform, item.url]))
   );
@@ -39,8 +45,8 @@ export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange
 
   const updateDraft = (patch: Partial<ProfileAppearance>) => {
     const next = {
-      theme, backgroundColor, buttonStyle, coverStyle, headline, about, now,
-      socialLinks: SOCIAL_PLATFORMS.flatMap((platform) => {
+      theme, backgroundColor, buttonColor, textColor, buttonStyle, coverStyle, headline, about, now,
+      socialLinks: socialOrder.flatMap((platform) => {
         const url = socialUrls[platform]?.trim();
         return url ? [{ platform, url }] : [];
       }),
@@ -52,14 +58,14 @@ export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange
   async function saveDesign() {
     if (saving) return;
     setError("");
-    if (backgroundColor && !validColor(backgroundColor)) {
-      setError("배경색은 #RRGGBB 형식으로 입력해 주세요.");
+    if ([backgroundColor, buttonColor, textColor].some((color) => color && !validColor(color))) {
+      setError("색상은 #RRGGBB 형식으로 입력해 주세요.");
       return;
     }
     if (about.trim().length > 600 || now.trim().length > 240) { setError("소개는 600자, 최근 활동은 240자 이내로 입력해 주세요."); return; }
     if (headline.trim().length > 60) { setError("한 줄 소개는 60자 이내로 입력해 주세요."); return; }
     const socialLinks: { platform: string; url: string }[] = [];
-    for (const platform of SOCIAL_PLATFORMS) {
+    for (const platform of socialOrder) {
       const input = (socialUrls[platform] ?? "").trim();
       if (!input) continue;
       const url = safeHttpUrl(input);
@@ -71,7 +77,7 @@ export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange
     }
     setSaving(true);
     try {
-      const next: ProfileAppearance = { theme, backgroundColor, buttonStyle, coverStyle, headline: headline.trim(), about: about.trim(), now: now.trim(), socialLinks };
+      const next: ProfileAppearance = { theme, backgroundColor, buttonColor, textColor, buttonStyle, coverStyle, headline: headline.trim(), about: about.trim(), now: now.trim(), socialLinks };
       await updateDoc(doc(getFirebaseFirestore(), "users", userId, "profile", "main"), {
         ...next, updatedAt: serverTimestamp(),
       });
@@ -181,24 +187,54 @@ export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange
           </select>
         </div>
       </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        {([
+          { id: "profile-button-color", label: "링크 버튼 색상", value: buttonColor, preset: THEME_PRESETS[theme].button,
+            set: setButtonColor, prop: "buttonColor" as const },
+          { id: "profile-text-color", label: "프로필 글자 색상", value: textColor, preset: THEME_PRESETS[theme].foreground,
+            set: setTextColor, prop: "textColor" as const },
+        ]).map(({ id, label, value, preset, set, prop }) => (
+          <div key={id} className="space-y-2">
+            <label htmlFor={id} className="text-sm font-extrabold">{label}</label>
+            <div className="flex items-center gap-3">
+              <input id={id} type="color" value={validColor(value) ?? preset}
+                onChange={(event) => { set(event.target.value); updateDraft({ [prop]: event.target.value }); }}
+                className="size-11 cursor-pointer rounded-lg border border-border bg-transparent p-1" />
+              <button type="button" onClick={() => { set(""); updateDraft({ [prop]: "" }); }}
+                className="text-xs text-muted-foreground underline">테마 기본색</button>
+            </div>
+            <p className="text-xs text-muted-foreground">텍스트 대비를 확인한 후 저장해 주세요.</p>
+          </div>
+        ))}
+      </div>
       <div className="border-t border-border pt-5">
         <h3 className="flex items-center gap-2 text-sm font-extrabold"><Share2 className="size-4" aria-hidden="true" /> SNS 아이콘</h3>
         <p className="mt-1 text-xs text-muted-foreground">주소를 입력한 플랫폼만 공개 프로필에 표시돼요.</p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          {SOCIAL_PLATFORMS.map((platform) => (
-            <label key={platform} className="space-y-1.5 text-xs font-semibold">
-              <span>{platform}</span>
-              <input type="url" value={socialUrls[platform] ?? ""} placeholder="https://..."
+          {socialOrder.map((platform, index) => (
+            <div key={platform} className="space-y-1.5 text-xs font-semibold">
+              <div className="flex items-center justify-between gap-2">
+                <label htmlFor={`social-${platform}`}>{platform}</label>
+                <span className="flex gap-1">
+                  <button type="button" disabled={index === 0} aria-label={`${platform} 위로 이동`}
+                    onClick={() => { const order = [...socialOrder]; [order[index - 1], order[index]] = [order[index], order[index - 1]]; setSocialOrder(order); updateDraft({ socialLinks: order.flatMap((p) => socialUrls[p]?.trim() ? [{ platform: p, url: socialUrls[p].trim() }] : []) }); }}
+                    className="rounded border border-border px-2 py-1 disabled:opacity-30">↑</button>
+                  <button type="button" disabled={index === socialOrder.length - 1} aria-label={`${platform} 아래로 이동`}
+                    onClick={() => { const order = [...socialOrder]; [order[index + 1], order[index]] = [order[index], order[index + 1]]; setSocialOrder(order); updateDraft({ socialLinks: order.flatMap((p) => socialUrls[p]?.trim() ? [{ platform: p, url: socialUrls[p].trim() }] : []) }); }}
+                    className="rounded border border-border px-2 py-1 disabled:opacity-30">↓</button>
+                </span>
+              </div>
+              <input id={`social-${platform}`} type="url" value={socialUrls[platform] ?? ""} placeholder="https://..."
                 onChange={(event) => {
                   const value = event.target.value;
                   const nextUrls = { ...socialUrls, [platform]: value };
                   setSocialUrls(nextUrls);
-                  onDraftChange?.({ theme, backgroundColor, buttonStyle, coverStyle, headline, about, now,
-                    socialLinks: SOCIAL_PLATFORMS.flatMap((p) => nextUrls[p]?.trim() ? [{ platform: p, url: nextUrls[p].trim() }] : []),
+                  onDraftChange?.({ theme, backgroundColor, buttonColor, textColor, buttonStyle, coverStyle, headline, about, now,
+                    socialLinks: socialOrder.flatMap((p) => nextUrls[p]?.trim() ? [{ platform: p, url: nextUrls[p].trim() }] : []),
                   });
                 }}
                 className="h-11 w-full rounded-xl border border-border bg-background px-3 text-sm font-normal text-foreground placeholder:text-muted-foreground outline-none focus:border-[#71864D]" />
-            </label>
+            </div>
           ))}
         </div>
       </div>
