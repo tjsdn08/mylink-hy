@@ -12,16 +12,17 @@ MyLink는 개인 프로필과 프로젝트·블로그·SNS 링크를 하나의 �
 ## 주요 기능
 
 - **Google 로그인**: Firebase Authentication 기반 로그인 및 로그아웃
-- **프로필 관리**: 이름, 소개글, 고유 Username 수정 및 중복 확인
+- **프로필 관리**: 최초 필수 온보딩, 이름·소개글·Username 수정 및 중복 확인, 프로필 사진 업로드
 - **공개 프로필**: `/{username}` 주소로 프로필·링크 공유
 - **링크 관리**: 링크 추가·수정·삭제 및 삭제 확인
 - **클릭 통계**: 공개 페이지 링크 클릭 수 기록, 링크별 통계 차트
-- **화면 사용성**: 모바일 대응, 알림 토스트, 라이트·다크 모드, 로딩 UI
-- **개인별 디자인**: 공개 프로필 테마(크림/라벤더/미드나잇), 사용자 배경색, 링크 버튼 모양
-- **SNS 프로필**: Instagram·GitHub·YouTube 등 SNS 아이콘과 외부 연결
+- **화면 사용성**: 분리된 대시보드, 모바일 대응, 알림 토스트, 라이트·다크 모드, 로딩 UI
+- **개인별 디자인**: 공개 프로필 테마(크림/라벤더/미드나잇), 배경·버튼·글자색, 링크 버튼 모양
+- **SNS 프로필**: Instagram·GitHub·YouTube 등 SNS 아이콘과 외부 연결, 순서 드래그·화살표 자동 저장
 - **링크 꾸미기·관리**: 링크 설명·이미지 URL·공개 여부·대표 링크·드래그 순서 변경
 - **프로필 조회 수**: 프로필 방문 시 원자적 +1 기록, 통계 화면에서 조회 수 확인
 - **공유/검색**: 사용자별 OG 이미지, 메타데이터, robots.txt, sitemap.xml
+- **계정 탈퇴**: Google 재인증 후 사용자 데이터 삭제(브라우저 기반, 장애 시 재시도 필요)
 
 ## 기술 스택
 
@@ -29,7 +30,7 @@ MyLink는 개인 프로필과 프로젝트·블로그·SNS 링크를 하나의 �
 | --- | --- |
 | 프레임워크 | Next.js 16 App Router, React 19, TypeScript |
 | 스타일 | Tailwind CSS v4, shadcn/ui·Base UI, Lucide |
-| 데이터베이스·인증 | Firebase Firestore, Firebase Authentication |
+| 데이터베이스·인증 | Firebase Firestore, Firebase Authentication, Firebase Storage |
 | 통계 시각화 | Recharts |
 | 배포 | Vercel |
 
@@ -40,6 +41,7 @@ MyLink는 개인 프로필과 프로젝트·블로그·SNS 링크를 하나의 �
 - 사용자 목표 시나리오: [USER_SCENARIOS](docs/USER_SCENARIOS.md)
 - 목표 와이어프레임: [WIREFRAMES](docs/WIREFRAMES.md)
 - AI 개발 가이드: [GEMINI.md](GEMINI.md)
+- Firebase 규칙 게시 및 신규 기능 검증: [STORAGE_RULES_SETUP](docs/STORAGE_RULES_SETUP.md)
 
 ## 로컬 실행
 
@@ -89,7 +91,8 @@ npm run build
 src/
 ├─ app/
 │  ├─ [username]/        # 공개 프로필 및 사용자별 OG 이미지
-│  ├─ mypage/            # 프로필·링크 관리
+│  ├─ dashboard/         # 로그인 사용자 요약 화면
+│  ├─ mypage/            # 프로필·링크·디자인 관리
 │  ├─ stats/             # 클릭 통계
 │  └─ loading.tsx        # 공통 라우트 로딩 UI
 ├─ components/           # 링크 카드, 프로필, UI, 테마
@@ -101,7 +104,7 @@ docs/                    # 제품/화면 기획 및 운영 안내
 
 ## Firestore 보안과 운영
 
-Firestore는 **GitHub에 있는 `firestore.rules`를 자동으로 적용하지 않습니다.** Firebase Console의 Firestore Rules 화면에서 해당 규칙을 직접 검토하고 **게시**해야 합니다.
+Firestore/Storage는 **GitHub에 있는 `firestore.rules`와 `storage.rules`를 자동으로 적용하지 않습니다.** Firebase Console의 Firestore Rules 화면에서 해당 규칙을 직접 검토하고 **게시**해야 합니다.
 
 - 사용자 계정 정보는 본인에게만 읽기·쓰기를 허용합니다.
 - 공개 프로필에는 이메일을 저장하지 않으며, 공개 링크는 읽을 수 있습니다.
@@ -128,7 +131,7 @@ Firestore는 **GitHub에 있는 `firestore.rules`를 자동으로 적용하지 �
 
 **운영 전 중요**: 새 프로필 디자인 저장과 방문 수 기록을 사용하려면 Firebase Console에 최신 `firestore.rules`를 직접 게시해야 합니다. 규칙을 게시하지 않으면 프로필 디자인 저장 또는 방문 수 집계가 실패할 수 있습니다.
 
-**숨김 링크**는 공개 페이지의 목록에서 제외되는 표시 설정입니다. 현재 Firestore의 공개 링크 컬렉션은 읽기 가능한 구조이므로, 숨김 기능을 비밀 URL 보관 용도로 사용해서는 안 됩니다. 비밀로 유지해야 할 URL은 등록하지 마세요.
+**숨김 링크**는 공개 페이지에서 제외되며 최신 `firestore.rules`를 게시하면 비로그인 직접 읽기도 제한됩니다. 구버전 규칙으로 운영 중이면 보호되지 않습니다. 이미 공유된 URL은 별도로 회수할 수 없으므로 비밀 정보를 등록하지 마세요.
 
 **조회 수**는 기기별 고유 방문자가 아닌 페이지 조회 횟수이며, 새로고침과 반복 방문 및 봇 요청이 포함될 수 있습니다. 기존 클릭 수와 집계 시작 시점이 다르므로 방문당 클릭 지표는 참고용입니다.
 
