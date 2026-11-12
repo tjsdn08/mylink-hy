@@ -636,15 +636,6 @@ export default function MyPage() {
                 {userProfile?.username ? (
                   <>
                     <button type="button"
-                      onClick={() => {
-                        const url = `${window.location.origin}/${encodeURIComponent(userProfile.username)}`;
-                        window.open(url, "_blank", "noopener,noreferrer");
-                        if (accountMenuRef.current) accountMenuRef.current.open = false;
-                      }}
-                      className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm transition-colors hover:bg-muted">
-                      <Eye className="size-4" aria-hidden="true" /> 내 프로필 미리보기
-                    </button>
-                    <button type="button"
                       onClick={async () => {
                         const url = `${window.location.origin}/${encodeURIComponent(userProfile.username)}`;
                         try {
