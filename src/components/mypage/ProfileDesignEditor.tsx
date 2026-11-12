@@ -152,10 +152,6 @@ export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange
           <h2 className="mt-1 flex items-center gap-2 text-xl font-black tracking-tight"><Palette className="size-5" aria-hidden="true" /> 디자인과 SNS</h2>
           <p className="mt-2 text-sm text-muted-foreground">소개 문구, 커버, 링크 스타일과 SNS를 설정해 나만의 페이지를 꾸며 보세요.</p>
         </div>
-        <button type="button" onClick={() => void saveDesign()} disabled={saving}
-          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#252823] px-5 text-sm font-bold text-white hover:bg-[#40483A] disabled:opacity-50 dark:bg-[#DDF76B] dark:text-[#252823]">
-          <Save className="size-4" aria-hidden="true" /> {saving ? "저장 중..." : "디자인 저장"}
-        </button>
       </div>
       <div>
         <p className="mb-3 text-sm font-extrabold">테마 선택</p>
@@ -299,7 +295,12 @@ export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange
         </div>
       </div>
       {error ? <p role="alert" className="text-sm font-semibold text-destructive">{error}</p> : null}
-      <p className="text-xs text-muted-foreground">미리보기는 입력 즉시 바뀌지만, 방문자에게는 ‘디자인 저장’ 이후 반영돼요.</p>
+      <div className="flex justify-end border-t border-border pt-5">
+        <button type="button" onClick={() => void saveDesign()} disabled={saving}
+          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#252823] px-5 text-sm font-bold text-white hover:bg-[#40483A] disabled:opacity-50 dark:bg-[#DDF76B] dark:text-[#252823]">
+          <Save className="size-4" aria-hidden="true" /> {saving ? "저장 중..." : "디자인 저장"}
+        </button>
+      </div>
     </section>
   );
 }
