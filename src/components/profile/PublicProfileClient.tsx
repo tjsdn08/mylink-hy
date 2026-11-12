@@ -5,7 +5,7 @@ import { collection, doc, getDoc, onSnapshot, query, where, Timestamp, setDoc, i
 import { notFound } from "next/navigation";
 import NextLink from "next/link";
 import { Check, Copy, Link2, QrCode, Share2 } from "lucide-react";
-import { ProfilePhoneFrame } from "@/components/profile/ProfilePhoneFrame";
+import { ProfileVisual } from "@/components/profile/ProfileVisual";
 import { ProfileQrDialog } from "@/components/profile/ProfileQrDialog";
 import { getFirebaseFirestore } from "@/lib/firebase";
 import { showToast } from "@/lib/toast";
@@ -214,13 +214,13 @@ export function PublicProfileClient({ username }: { username: string }) {
   }
 
   return (
-    <div className="mylink-public min-h-screen pb-20" data-theme={profile.theme ?? "cream"} style={appearanceVariables(profile)}>
+    <div className="mylink-public min-h-screen pb-12" data-theme={profile.theme ?? "cream"} style={appearanceVariables(profile)}>
       <header className="relative z-20 mx-auto flex h-[76px] w-full max-w-5xl items-center justify-between px-5 sm:px-8">
         <NextLink href="/" className="inline-flex items-center gap-2 text-xl font-black tracking-[-0.07em]">
           <span className="inline-flex size-8 -rotate-6 items-center justify-center rounded-[10px] bg-[#252823] text-[#DDF76B] dark:bg-[#DDF76B] dark:text-[#252823]">
             <Link2 className="size-4" aria-hidden="true" />
           </span>
-          mylink<span className="text-[#F06D4E]">.</span>
+          mylink<span className="text-[#708E36]">.</span>
         </NextLink>
         <button type="button" onClick={() => void shareProfile()}
           className="inline-flex min-h-11 items-center gap-2 rounded-full border border-current/20 bg-transparent px-5 text-sm font-extrabold transition-transform hover:-translate-y-0.5 hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-current">
@@ -228,8 +228,8 @@ export function PublicProfileClient({ username }: { username: string }) {
         </button>
       </header>
 
-      <main className="relative mx-auto w-full max-w-[620px] px-5 pb-10 sm:px-7">
-        <ProfilePhoneFrame label="공개 프로필" profile={profile} links={links} interactive trackingUserId={ownerId} />
+      <main className="relative mx-auto w-full max-w-[860px] px-4 pb-10 sm:px-8">
+        <ProfileVisual profile={profile} links={links} interactive trackingUserId={ownerId} />
         <nav aria-label="프로필 공유 도구" className="mt-6 flex flex-wrap items-center justify-center gap-2">
           <button type="button" onClick={() => void copyPublicUrl()}
             className="inline-flex min-h-11 items-center gap-2 rounded-full border border-current/25 px-4 text-sm font-bold transition-colors hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-current">
