@@ -15,7 +15,6 @@ import {
   updateDoc,
   writeBatch,
 } from "firebase/firestore";
-import { getDownloadURL, ref as storageRef, uploadBytes } from "firebase/storage";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useTheme } from "@/components/theme-provider";
@@ -41,7 +40,7 @@ import { ProfileLivePreview } from "@/components/mypage/ProfileLivePreview";
 import { normalizeExternalUrl } from "@/lib/url-normalize";
 import { safeHttpUrl } from "@/lib/profile-design";
 import type { ProfileAppearance } from "@/lib/profile-design";
-import { getFirebaseFirestore, getFirebaseStorage } from "@/lib/firebase";
+import { getFirebaseFirestore } from "@/lib/firebase";
 import { deleteMyLinkAccount } from "@/lib/account-deletion";
 import { useAuth } from "@/components/auth-provider";
 import { showToast } from "@/lib/toast";
@@ -95,7 +94,6 @@ export default function MyPage() {
   const [profileError, setProfileError] = useState("");
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
   const [isProfileSaving, setIsProfileSaving] = useState(false);
-  const [uploadingImage, setUploadingImage] = useState(false);
   const [showAccountDelete, setShowAccountDelete] = useState(false);
   const [accountDeleteText, setAccountDeleteText] = useState("");
   const [deletingAccount, setDeletingAccount] = useState(false);
@@ -364,7 +362,7 @@ export default function MyPage() {
     setDeletingAccount(true);
     setAccountDeleteError("");
     try {
-      await deleteMyLinkAccount(user, userProfile.username, userProfile.photoURL);
+      await deleteMyLinkAccount(user, userProfile.username);
       setShowAccountDelete(false);
       setAccountDeleteText("");
       showToast("계정과 데이터를 삭제했어요.");
@@ -391,34 +389,6 @@ export default function MyPage() {
       );
     } finally {
       setIsSigningOut(false);
-    }
-  }
-
-  async function handlePhotoUpload(file: File | undefined) {
-    if (!file || !user || !userProfile || uploadingImage) return;
-    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
-      showToast("JPG, PNG, WebP 이미지만 사용할 수 있어요.", "error");
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      showToast("프로필 이미지는 5MB 이하여야 해요.", "error");
-      return;
-    }
-    setUploadingImage(true);
-    try {
-      const imageRef = storageRef(getFirebaseStorage(), `profile-images/${user.uid}/avatar`);
-      await uploadBytes(imageRef, file, { contentType: file.type });
-      const url = await getDownloadURL(imageRef);
-      const batch = writeBatch(getFirebaseFirestore());
-      batch.update(doc(getFirebaseFirestore(), "users", user.uid), { photoURL: url });
-      batch.update(doc(getFirebaseFirestore(), "users", user.uid, "profile", "main"), { photoURL: url, updatedAt: serverTimestamp() });
-      await batch.commit();
-      setUserProfile((current) => current ? { ...current, photoURL: url } : current);
-      showToast("프로필 사진을 변경했어요.");
-    } catch (cause) {
-      showToast(cause instanceof Error ? cause.message : "이미지를 업로드하지 못했어요. Storage 규칙을 확인해 주세요.", "error");
-    } finally {
-      setUploadingImage(false);
     }
   }
 
@@ -842,16 +812,12 @@ export default function MyPage() {
           <div className="grid gap-7 lg:grid-cols-[minmax(0,1fr)_390px] lg:items-start">
             <div className="min-w-0 space-y-6">
           {activeTab === "profile" ? (
-            <div className="rounded-2xl border border-border bg-card p-5">
-              <label htmlFor="profile-photo-upload" className="block text-sm font-extrabold">프로필 사진 업로드</label>
-              <p className="mt-1 text-xs text-muted-foreground">JPG·PNG·WebP, 최대 5MB. 사진은 정사각형 영역에 맞춰 표시돼요.</p>
-              <input id="profile-photo-upload" type="file" accept="image/jpeg,image/png,image/webp"
-                disabled={uploadingImage} onChange={(event) => {
-                  void handlePhotoUpload(event.target.files?.[0]);
-                  event.target.value = "";
-                }}
-                className="mt-3 block w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-[#EAF4CB] file:px-4 file:py-2 file:font-bold file:text-[#252823]" />
-              {uploadingImage ? <p role="status" className="mt-2 text-xs">이미지 업로드 및 저장 중...</p> : null}
+            <div className="rounded-2xl border border-border bg-card px-5 py-4">
+              <p className="text-sm font-extrabold">프로필 사진</p>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                현재 Google 계정의 프로필 사진을 사용해요. 사진을 변경하려면 Google 계정에서 수정해 주세요.
+                MyLink에서는 별도 사진 업로드를 지원하지 않아요.
+              </p>
             </div>
           ) : null}
           {activeTab === "profile" ? <ProfileSection
@@ -1112,7 +1078,7 @@ export default function MyPage() {
           <DialogHeader>
             <DialogTitle>MyLink 계정을 영구 삭제할까요?</DialogTitle>
             <DialogDescription>
-              프로필, 모든 링크, 조회·클릭 통계, 직접 업로드한 사진, 고유 주소 및 Google로 로그인한 MyLink 계정이 삭제됩니다.
+              MyLink 프로필, 모든 링크, 조회·클릭 통계, 고유 주소 및 MyLink 계정이 삭제됩니다. Google 계정과 Google 프로필 사진 자체는 삭제되지 않아요.
               복구할 수 없으며, 삭제 전에 Google 재인증이 필요해요.
             </DialogDescription>
           </DialogHeader>
