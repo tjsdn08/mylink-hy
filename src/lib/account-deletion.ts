@@ -1,29 +1,19 @@
 import { deleteUser, GoogleAuthProvider, reauthenticateWithPopup, type User } from "firebase/auth";
 import { collection, doc, getDoc, getDocs, writeBatch } from "firebase/firestore";
-import { deleteObject, ref as storageRef } from "firebase/storage";
-import { getFirebaseFirestore, getFirebaseStorage } from "@/lib/firebase";
+import { getFirebaseFirestore } from "@/lib/firebase";
 
 /**
  * Browser-side account removal for the current Firebase data model.
- * This is not an atomic cross-service transaction. A failed step leaves the
+ * Firestore and Firebase Auth deletion are not atomic. A failed step can leave the
  * account signed in so the owner can retry; production-scale use should move
  * deletion orchestration to a trusted backend with a retry queue.
  */
-export async function deleteMyLinkAccount(user: User, username: string, photoURL: string): Promise<void> {
+export async function deleteMyLinkAccount(user: User, username: string): Promise<void> {
   // Reauthentication happens before the first destructive operation.
   await reauthenticateWithPopup(user, new GoogleAuthProvider());
 
   const db = getFirebaseFirestore();
   const uid = user.uid;
-
-  // Remove the stored avatar while the owner is still authenticated.
-  if (photoURL.includes(encodeURIComponent(`profile-images/${uid}/avatar`))) {
-    try {
-      await deleteObject(storageRef(getFirebaseStorage(), `profile-images/${uid}/avatar`));
-    } catch (cause) {
-      if ((cause as { code?: string })?.code !== "storage/object-not-found") throw cause;
-    }
-  }
 
   // Firestore batched writes are limited to 500 operations. Keep enough margin.
   const links = await getDocs(collection(db, "users", uid, "links"));
