@@ -116,9 +116,12 @@ service cloud.firestore {
 
       allow delete: if request.auth != null
         && resource.data.uid == request.auth.uid
-        && getAfter(
-          /databases/$(database)/documents/users/$(request.auth.uid)/profile/main
-        ).data.username != username;
+        && (
+          !existsAfter(/databases/$(database)/documents/users/$(request.auth.uid)/profile/main)
+          || getAfter(
+            /databases/$(database)/documents/users/$(request.auth.uid)/profile/main
+          ).data.username != username
+        );
     }
   }
 }
