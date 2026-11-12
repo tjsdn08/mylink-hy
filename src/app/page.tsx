@@ -13,7 +13,7 @@ import {
   ensureUserProfileDocument,
   type UserProfileDocument,
 } from "@/lib/user-profile";
-import MyPage from "@/app/mypage/page";
+import DashboardPage from "@/app/dashboard/page";
 import { ProfileOnboarding } from "@/components/mypage/ProfileOnboarding";
 import { ProfilePhoneFrame } from "@/components/profile/ProfilePhoneFrame";
 import { THEME_PRESETS, type ProfileTheme } from "@/lib/profile-design";
@@ -134,7 +134,7 @@ export default function Home() {
 
   if (user && userProfile?.uid === user.uid && !isAuthLoading && !isProfileSaving) {
     if (!userProfile.username) return <ProfileOnboarding profile={userProfile} onComplete={setUserProfile} />;
-    return <MyPage />;
+    return <DashboardPage initialProfile={userProfile} />;
   }
 
   const busy = isAuthLoading || isSigningIn || isProfileSaving;
