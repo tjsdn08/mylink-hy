@@ -599,7 +599,7 @@ export default function MyPage() {
       <header className="sticky top-0 z-50 -mx-5 mb-8 flex min-h-[76px] items-center justify-between border-b border-[#252823]/10 bg-[#F8F6F1]/95 px-5 py-3 backdrop-blur-xl dark:border-white/10 dark:bg-[#1D211D]/95 sm:-mx-8 sm:px-8">
         <NextLink href="/" className="flex items-center gap-2 text-2xl font-black tracking-[-0.07em]" aria-label="MyLink 홈">
           <span className="inline-flex size-8 -rotate-6 items-center justify-center rounded-[10px] bg-[#252823] text-[#DDF76B] dark:bg-[#DDF76B] dark:text-[#252823]"><Link2 className="size-4" aria-hidden="true" /></span>
-          mylink<span className="text-[#F06D4E]">.</span>
+          mylink<span className="text-[#708E36]">.</span>
         </NextLink>
         {isAuthLoading || (user && !isProfileReady && !profileError) ? (
           <span role="status" className="text-xs text-muted-foreground">계정 확인 중...</span>
