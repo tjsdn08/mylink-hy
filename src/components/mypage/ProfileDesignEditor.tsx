@@ -50,6 +50,7 @@ export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange
   };
 
   async function saveDesign() {
+    if (saving) return;
     setError("");
     if (backgroundColor && !validColor(backgroundColor)) {
       setError("배경색은 #RRGGBB 형식으로 입력해 주세요.");
@@ -75,7 +76,7 @@ export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange
         ...next, updatedAt: serverTimestamp(),
       });
       onSaved(next);
-      showToast("프로필 디자인과 SNS가 저장되었어요.");
+      showToast("프로필 꾸미기와 SNS 변경사항을 저장했어요.");
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "디자인을 저장하지 못했어요.");
     } finally { setSaving(false); }
@@ -87,7 +88,7 @@ export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange
         <div>
           <p className="text-[11px] font-extrabold tracking-[0.16em] text-[#B95C45]">PERSONALIZE</p>
           <h2 className="mt-1 flex items-center gap-2 text-xl font-black tracking-tight"><Palette className="size-5" aria-hidden="true" /> 디자인과 SNS</h2>
-          <p className="mt-2 text-sm text-muted-foreground">공개 프로필의 배경, 링크 버튼, SNS 아이콘을 꾸며 보세요.</p>
+          <p className="mt-2 text-sm text-muted-foreground">소개 문구, 커버, 링크 스타일과 SNS를 설정해 나만의 페이지를 꾸며 보세요.</p>
         </div>
         <button type="button" onClick={() => void saveDesign()} disabled={saving}
           className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#252823] px-5 text-sm font-bold text-white hover:bg-[#40483A] disabled:opacity-50 dark:bg-[#DDF76B] dark:text-[#252823]">
@@ -192,7 +193,7 @@ export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange
                   const value = event.target.value;
                   const nextUrls = { ...socialUrls, [platform]: value };
                   setSocialUrls(nextUrls);
-                  onDraftChange?.({ theme, backgroundColor, buttonStyle, coverStyle, headline,
+                  onDraftChange?.({ theme, backgroundColor, buttonStyle, coverStyle, headline, about, now,
                     socialLinks: SOCIAL_PLATFORMS.flatMap((p) => nextUrls[p]?.trim() ? [{ platform: p, url: nextUrls[p].trim() }] : []),
                   });
                 }}
@@ -202,7 +203,7 @@ export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange
         </div>
       </div>
       {error ? <p role="alert" className="text-sm font-semibold text-destructive">{error}</p> : null}
-      <p className="text-xs text-muted-foreground">변경 사항은 ‘디자인 저장’을 누르면 공개 페이지에 반영돼요.</p>
+      <p className="text-xs text-muted-foreground">미리보기는 입력 즉시 바뀌지만, 방문자에게는 ‘디자인 저장’ 이후 반영돼요.</p>
     </section>
   );
 }
