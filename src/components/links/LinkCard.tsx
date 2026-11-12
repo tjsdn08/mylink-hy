@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { doc, increment, updateDoc } from "firebase/firestore";
 import {
   ArrowUpRight,
@@ -45,11 +45,12 @@ export interface LinkCardProps {
   link: LinkItem;
   onUpdate?: (link: LinkItem) => Promise<void>;
   onDelete?: (link: LinkItem) => void;
+  onDraftChange?: (draft: LinkItem | null) => void;
   trackingUserId?: string;
   compact?: boolean;
 }
 
-export function LinkCard({ link, onUpdate, onDelete, trackingUserId, compact = false }: LinkCardProps) {
+export function LinkCard({ link, onUpdate, onDelete, onDraftChange, trackingUserId, compact = false }: LinkCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(link.title);
   const [url, setUrl] = useState(link.url);
@@ -64,6 +65,18 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId, compact = f
   const [isSaving, setIsSaving] = useState(false);
   const Icon = categoryIcons[link.category];
   const clickCount = link.clickCount ?? 0;
+
+  useEffect(() => {
+    if (!onDraftChange) return;
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
+      onDraftChange(isEditing
+        ? { ...link, title, url: normalizeExternalUrl(url), description, group, thumbnailUrl, isActive, isFeatured }
+        : null);
+    });
+    return () => { cancelled = true; };
+  }, [onDraftChange, isEditing, link, title, url, description, group, thumbnailUrl, isActive, isFeatured]);
 
   // Firestore의 원자적 증가 연산으로 동시 클릭 시 덮어쓰기 문제를 방지합니다.
   // 외부 링크는 새 탭으로 바로 열고, 클릭 기록은 현재 페이지에서 비동기 저장합니다.
