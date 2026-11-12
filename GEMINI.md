@@ -8,7 +8,7 @@
 
 **MyLink**는 개발자와 크리에이터가 프로젝트, 포트폴리오, 블로그, SNS 링크를 하나의 공개 주소(`/{username}`)에 모아 공유하는 링크 인 바이오(link-in-bio) 웹 서비스입니다.
 
-- **핵심 흐름**: Google 로그인 → 프로필·링크 편집 → 실시간 미리보기 → 저장 → 공개 URL 공유 → 방문·클릭 통계 확인
+- **핵심 흐름**: Google 로그인 → 최초 username·이름 온보딩 → 대시보드 → 프로필·링크·디자인 편집 → 공개 URL 공유 → 클릭 통계
 - **설계 목표**: 직관적인 편집, 일관된 공개 화면, 모바일 접근성, 안전한 외부 URL 처리
 - **운영 주소**: https://mylink-hy.vercel.app
 - **저장소**: https://github.com/tjsdn08/mylink-hy
@@ -19,7 +19,7 @@
 - **Styling**: Tailwind CSS 4, shadcn/ui 스타일 공통 컴포넌트, Base UI
 - **Icons**: Lucide React (기존 코드 기준, Tabler Icons 아님)
 - **Fonts**: Geist, Geist Mono 및 프로젝트의 한국어 글꼴 설정
-- **Backend**: Firebase Authentication (Google 로그인), Cloud Firestore
+- **Backend**: Firebase Authentication (Google 로그인), Cloud Firestore, Firebase Storage (프로필 사진 업로드)
 - **Charts**: Recharts
 - **Deployment**: Vercel
 - **Tooling**: ESLint, Prettier, GitHub Actions
@@ -31,7 +31,8 @@
 ```text
 src/
 ├─ app/
-│  ├─ page.tsx                   # 로그인 전 랜딩 / 로그인 후 관리 화면 진입
+│  ├─ page.tsx                   # 비로그인 랜딩 / 신규 온보딩 / 로그인 후 대시보드
+│  ├─ dashboard/page.tsx         # 링크·방문 현황 대시보드
 │  ├─ mypage/page.tsx            # 프로필·링크·디자인 관리
 │  ├─ [username]/                # 공개 프로필 및 OG 메타데이터
 │  ├─ stats/                     # 조회·클릭 통계
@@ -46,6 +47,7 @@ src/
 └─ data/                         # 개발용 샘플 데이터
 docs/                            # PRD, 사용자 시나리오, 와이어프레임, 테스트 문서
 firestore.rules                  # Firestore 보안 규칙(콘솔 게시 별도)
+storage.rules                    # 이미지 업로드·읽기·삭제 Storage 규칙
 AGENTS.md                        # Next.js 개발 에이전트 안내
 ```
 
@@ -69,14 +71,14 @@ AGENTS.md                        # Next.js 개발 에이전트 안내
 
 4. **프로필 커스터마이징**
    - 기존 테마(크림·라벤더·미드나잇), 커버 패턴, 버튼 스타일, 소개글, SNS 연결을 보존합니다.
-   - 프로필 사진은 현재 Google 계정 사진을 표시할 수 있으며, 별도 이미지 파일 업로드 기능과 구별합니다.
+   - 프로필 사진은 Google 계정 사진 또는 사용자가 Storage에 직접 업로드한 JPG/PNG/WebP(최대 5MB)를 표시합니다.
    - 변경 내용은 저장 전 미리보기에서 확인할 수 있어야 하며, 공개 페이지 반영은 저장 이후에 이루어집니다.
 
 5. **링크 구성과 순서**
    - 링크는 제목, URL, 설명, 그룹, 이미지 URL, 활성 여부, 대표 링크를 지원합니다.
    - **명시적 `sortOrder` 우선**: 사용자가 순서를 이동하면 저장된 순서를 유지합니다.
    - 기존 정렬 값이 없는 링크는 생성일 역순 조회 결과를 기본 순서로 사용합니다. 모든 링크를 무조건 최신순으로 재정렬하지 않습니다.
-   - 비활성 링크는 공개 목록에서 숨기되, 보안상 비밀 데이터로 취급하지 않습니다.
+   - 비활성 링크는 공개 목록에서 숨기고 최신 Firestore 규칙에서 비로그인 읽기도 차단합니다. 공개 URL로 한 번 공유된 정보는 이미 복사됐을 수 있으므로 비밀 정보 등록은 피합니다.
 
 6. **아이콘·외부 링크**
    - 파비콘은 Google Favicon API로 가져오며 로딩 실패 시 기본 아이콘을 표시합니다.
@@ -89,7 +91,7 @@ AGENTS.md                        # Next.js 개발 에이전트 안내
 - 로그인과 소유권 확인에는 Firebase Authentication을 사용합니다.
 - Firestore 읽기·쓰기 권한은 `firestore.rules`와 함께 검토합니다.
 - 공개 프로필에 이메일과 비밀 정보를 노출하지 않습니다.
-- **중요**: 현재 링크 컬렉션은 공개 읽기가 가능하므로 '숨김 링크'를 비밀 URL 저장소로 취급하면 안 됩니다.
+- **중요**: 최신 Firestore 규칙은 비활성 링크의 비로그인 읽기를 차단합니다. 게시 전 규칙에서는 보호되지 않으므로 [규칙 배포 안내](docs/STORAGE_RULES_SETUP.md)를 확인합니다.
 - 조회·클릭 통계는 반복 방문 및 자동화 요청을 포함할 수 있습니다. 고유 방문자 수라고 표현하지 않습니다.
 - Firestore Rules는 저장소 커밋이나 Vercel 배포만으로 자동 게시되지 않습니다. Firebase Console에서 별도 확인·게시해야 합니다.
 - `.env.local`의 인증 설정 및 비밀 값을 Git에 커밋하지 않습니다.
@@ -115,7 +117,7 @@ npm run build          # Next.js 프로덕션 빌드
 2. **변경 범위**: 기존 기능을 보존하면서 요청한 내용만 수정합니다. 관련 없는 UI나 패키지를 일괄 재구성하지 않습니다.
 3. **컴포넌트 재사용**: 공통 프로필 UI, 디자인 토큰, 공통 UI 컴포넌트를 우선 활용합니다.
 4. **URL 입력**: 프로토콜이 없는 일반 도메인에는 `https://`를 보완하되 위험한 스킴을 자동 변환하거나 허용하지 않습니다.
-5. **저장 동작**: 프로필·디자인 변경은 명시적으로 저장하고, 링크 순서 변경은 자동 저장합니다.
+5. **저장 동작**: 프로필·디자인·SNS URL 변경은 명시적으로 저장합니다. 일반 링크 순서와 저장된 SNS 아이콘 순서 변경은 자동 저장합니다.
 6. **검증**: 변경 후 TypeScript, lint, 빌드를 확인하고 로그인/관리/공개 프로필 주요 흐름을 점검합니다.
 7. **문서 동기화**: 기능이나 화면 흐름이 바뀌면 `README.md`, `docs/PRD.md`, `docs/USER_SCENARIOS.md`, `docs/WIREFRAMES.md` 중 관련 문서를 갱신합니다.
 8. **Next.js 버전 주의**: `AGENTS.md`를 존중하고 필요한 경우 설치된 Next.js 버전의 문서를 확인합니다.
@@ -139,7 +141,8 @@ npm run build          # Next.js 프로덕션 빌드
 - [ ] Firebase Console에 최신 Firestore Rules 게시 상태 확인
 - [ ] 실제 계정으로 가입·편집·저장·공유·통계 전체 흐름 점검
 - [ ] 모바일/태블릿/데스크톱 실화면 및 접근성 확인
-- [ ] 사용자 직접 이미지 업로드(현재의 Google 사진 표시/외부 썸네일 URL과 구별)
-- [ ] 계정 탈퇴와 관련 데이터 일괄 삭제 기능
+- [x] 사용자 직접 이미지 업로드 코드(실제 Storage 규칙 게시 및 실사용 테스트 필요)
+- [x] 계정 탈퇴 UI·Google 재인증 및 브라우저 기반 삭제 코드(서버측 삭제 재시도/원자성은 미구현)
+- [ ] 최신 Firestore·Storage 규칙 게시 및 탈퇴 테스트 계정 검증
 
 > 체크 항목은 소스 코드상 구현 여부를 기준으로 하며, 실제 운영 환경에서 테스트를 모두 통과했다는 뜻은 아닙니다.
