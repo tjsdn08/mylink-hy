@@ -123,9 +123,29 @@ export default function MyPage() {
   const [pendingTab, setPendingTab] = useState<"links" | "profile" | null>(null);
   const [inlineDraft, setInlineDraft] = useState<{ displayName: string; bio: string } | null>(null);
   const [linkFieldErrors, setLinkFieldErrors] = useState<{ title?: string; url?: string }>({});
+  const [previewDraftLink, setPreviewDraftLink] = useState<Link | null>(null);
   const links = user && isProfileReady && linksUserId === user.uid
     ? [...firestoreLinks].sort((a, b) => (a.sortOrder ?? 100000) - (b.sortOrder ?? 100000))
     : [];
+  const draftUrl = normalizeExternalUrl(form.url);
+  const newLinkPreview: Link | null = isDialogOpen && form.title.trim() && !validateLinkForm({ title: form.title, url: draftUrl })
+    ? {
+        id: "unsaved-new-link",
+        title: form.title.trim(),
+        url: draftUrl,
+        category: "other",
+        description: form.description,
+        group: form.group,
+        thumbnailUrl: safeHttpUrl(form.thumbnailUrl) ?? "",
+        isActive: form.isActive,
+        isFeatured: form.isFeatured,
+        sortOrder: -1,
+      }
+    : null;
+  const previewLinks = [
+    ...links.map((item) => previewDraftLink?.id === item.id ? { ...previewDraftLink, sortOrder: item.sortOrder } : item),
+    ...(newLinkPreview ? [newLinkPreview] : []),
+  ];
 
   const profileChecklist: { label: string; done: boolean; tab: "links" | "design" }[] = [
     { label: "나를 표현하는 한 줄 소개", done: Boolean(userProfile?.headline?.trim()), tab: "design" },
@@ -143,6 +163,7 @@ export default function MyPage() {
       setPendingTab(tab);
       return;
     }
+    if (tab !== "links") setPreviewDraftLink(null);
     setActiveTab(tab);
   }
 
@@ -956,7 +977,7 @@ export default function MyPage() {
                 <p className="text-sm text-muted-foreground">아직 등록된 링크가 없습니다.</p>
               </div>
             ) : (
-              <LinkList links={links} onUpdate={handleUpdateLink} onDelete={setLinkToDelete} onReorder={handleReorder} trackingUserId={user.uid} compact />
+              <LinkList links={links} onUpdate={handleUpdateLink} onDelete={setLinkToDelete} onDraftChange={setPreviewDraftLink} onReorder={handleReorder} trackingUserId={user.uid} compact />
             )}
           </section>
         </div>
@@ -1060,7 +1081,7 @@ export default function MyPage() {
             <aside className="min-w-0 rounded-[26px] border border-[#252823]/10 bg-white p-4 text-[#252823] dark:border-white/10 dark:bg-[#282E29] dark:text-[#F8F6F1] lg:sticky lg:top-24" aria-label="실시간 미리보기">
               <ProfileLivePreview username={userProfile.username} displayName={inlineDraft?.displayName ?? (activeTab === "profile" && isProfileDialogOpen ? profileForm.displayName : userProfile.displayName)}
                 bio={inlineDraft?.bio ?? (activeTab === "profile" && isProfileDialogOpen ? profileForm.bio : userProfile.bio)}
-                photoURL={userProfile.photoURL} appearance={appearanceDraft ?? userProfile} links={links} />
+                photoURL={userProfile.photoURL} appearance={appearanceDraft ?? userProfile} links={previewLinks} />
             </aside>
           </div>
         </>
