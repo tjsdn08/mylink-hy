@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { saveUserProfile, type UserProfileDocument } from "@/lib/user-profile";
+import { ProfilePhoneFrame } from "@/components/profile/ProfilePhoneFrame";
 
 const RESERVED = new Set(["api", "dashboard", "login", "links", "onboarding", "mypage", "settings", "stats"]);
 
@@ -43,8 +44,9 @@ export function ProfileOnboarding({ profile, onComplete }: Props) {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#F8F6F1] px-5 py-12 text-[#252823]">
-      <div className="w-full max-w-lg rounded-[28px] border border-[#DCE2CE] bg-white p-6 shadow-lg sm:p-9">
+    <main className="min-h-screen bg-[#F8F6F1] px-5 py-10 text-[#252823] sm:py-14">
+      <div className="mx-auto grid w-full max-w-5xl items-start gap-8 lg:grid-cols-[minmax(0,1fr)_390px] lg:gap-10">
+      <div className="w-full min-w-0 rounded-[28px] border border-[#DCE2CE] bg-white p-6 shadow-lg sm:p-9">
         <p className="text-xs font-extrabold uppercase tracking-[.2em] text-[#648040]">WELCOME TO MYLINK</p>
         <h1 className="mt-4 text-3xl font-black tracking-tight">나만의 페이지를 시작해요.</h1>
         <p className="mt-3 text-sm leading-6 text-[#5A6257]">공유할 주소와 표시 이름을 정하면 바로 링크를 등록할 수 있어요. 기존에 사용 중인 아이디와 중복되지 않아야 해요.</p>
@@ -76,6 +78,30 @@ export function ProfileOnboarding({ profile, onComplete }: Props) {
             {pending ? "페이지를 만들고 있어요..." : "내 페이지 만들기"}
           </button>
         </form>
+      </div>
+      <aside aria-label="온보딩 실시간 프로필 미리보기" className="min-w-0 rounded-[26px] border border-[#DCE2CE] bg-white p-4 shadow-sm lg:sticky lg:top-8">
+        <div className="mb-4">
+          <p className="text-[11px] font-extrabold tracking-[.18em] text-[#648040]">LIVE PREVIEW</p>
+          <h2 className="mt-1 text-lg font-black">방문자에게 보일 프로필</h2>
+          <p className="mt-1 text-xs leading-5 text-[#616A5E]">입력한 내용이 즉시 반영돼요. 휴대폰 프레임 안에서 스크롤해 전체 화면을 확인하세요.</p>
+        </div>
+        <ProfilePhoneFrame
+          label="온보딩 미리보기"
+          profile={{
+            username: username.trim().toLowerCase() || "yourname",
+            displayName: displayName.trim() || "나의 이름",
+            bio,
+            photoURL: profile.photoURL,
+            theme: profile.theme,
+            backgroundColor: profile.backgroundColor,
+            buttonColor: profile.buttonColor,
+            textColor: profile.textColor,
+            buttonStyle: profile.buttonStyle,
+            coverStyle: profile.coverStyle,
+          }}
+          links={[]}
+        />
+      </aside>
       </div>
     </main>
   );
