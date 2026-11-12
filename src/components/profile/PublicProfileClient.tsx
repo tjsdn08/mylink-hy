@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { collection, doc, getDoc, onSnapshot, orderBy, query, Timestamp, setDoc, increment } from "firebase/firestore";
 import { notFound } from "next/navigation";
 import NextLink from "next/link";
-import { ArrowUpRight, Check, Copy, Globe2, Link2, Share2 } from "lucide-react";
+import { Check, Copy, Link2, QrCode, Share2 } from "lucide-react";
 import { ProfilePhoneFrame } from "@/components/profile/ProfilePhoneFrame";
 import { ProfileQrDialog } from "@/components/profile/ProfileQrDialog";
 import { getFirebaseFirestore } from "@/lib/firebase";
