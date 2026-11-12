@@ -161,12 +161,12 @@ export default function StatsPage() {
             <Card className="rounded-[24px] border border-[#252823]/10 bg-white p-6 shadow-none dark:border-white/10 dark:bg-[#323A33]">
               <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground"><Eye aria-hidden="true" className="size-4 text-[#71864D]" /> 프로필 방문 수</div>
               <p className="mt-3 text-3xl font-bold tabular-nums">{profileViews === null ? "미집계" : formatCount(profileViews)}{profileViews !== null ? <span className="ml-1 text-sm font-normal text-muted-foreground">회</span> : null}</p>
-              <p className="mt-2 text-xs text-[#4D5A45] dark:text-[#CFD8C8]">방문 수 집계 도입 이후 기록, 새로고침 포함</p>
+              <p className="mt-2 text-xs text-[#4D5A45] dark:text-[#CFD8C8]">방문 수 집계 도입 이후의 누적 조회 수 · 새로고침과 반복 방문 포함</p>
             </Card>
-            <Card className="rounded-[24px] border border-[#252823]/10 bg-[#E8F1C8] p-6 shadow-none dark:border-white/10 dark:bg-[#303C2D]">
-              <div className="text-sm font-semibold text-[#485643] dark:text-[#D0D9C9]">방문당 링크 클릭</div>
-              <p className="mt-3 text-3xl font-bold tabular-nums">{profileViews && profileViews > 0 ? (totalClicks / profileViews).toFixed(2) : "—"} <span className="text-sm font-normal text-muted-foreground">회</span></p>
-              <p className="mt-2 text-xs text-muted-foreground">전체 누적 클릭 수 ÷ 집계 이후 방문 수로, 기간이 달라 참고용이에요.</p>
+            <Card className="rounded-[24px] border border-[#252823]/10 bg-[#E8F1C8] p-6 text-[#252823] shadow-none dark:border-white/10 dark:bg-[#303C2D] dark:text-[#F8F6F1]">
+              <div className="text-sm font-semibold text-[#485643] dark:text-[#D0D9C9]">인기 링크의 클릭 비중</div>
+              <p className="mt-3 text-3xl font-bold tabular-nums">{totalClicks > 0 ? ((topLink?.clickCount ?? 0) / totalClicks * 100).toFixed(1) : "—"} <span className="text-sm font-normal text-[#54614C] dark:text-[#D0D9C9]">%</span></p>
+              <p className="mt-2 text-xs text-[#4D5A45] dark:text-[#CFD8C8]">가장 많이 클릭된 링크의 누적 클릭 수 ÷ 전체 누적 클릭 수</p>
             </Card>
           </section>
 
