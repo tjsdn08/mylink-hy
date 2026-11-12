@@ -48,7 +48,7 @@ export default function DashboardPage({ initialProfile }: { initialProfile?: Use
 
   const actions = [
     { href: "/mypage?tab=links", icon: Link2, title: "링크 관리", body: "링크를 추가하고 순서와 공개 여부를 관리해요." },
-    { href: "/mypage?tab=profile", icon: UserRound, title: "프로필 관리", body: "공개 이름과 소개글, 프로필 사진을 편집해요." },
+    { href: "/mypage?tab=profile", icon: UserRound, title: "프로필 관리", body: "공개 이름, 소개글과 고유 주소를 관리해요." },
     { href: "/mypage?tab=design", icon: Palette, title: "디자인·SNS", body: "테마, 색상, SNS 아이콘을 꾸며요." },
     { href: "/stats", icon: BarChart3, title: "클릭 통계", body: "조회 수와 링크별 클릭 수를 확인해요." },
   ];
