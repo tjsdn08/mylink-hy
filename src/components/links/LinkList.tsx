@@ -92,7 +92,7 @@ export function LinkList({ links, onUpdate, onDelete, onDraftChange, trackingUse
           >
             <LinkCard link={link} onUpdate={onUpdate} onDelete={onDelete} onDraftChange={onDraftChange} trackingUserId={trackingUserId} compact />
             <div className="mt-1 flex items-center justify-end gap-2 text-[11px] text-muted-foreground">
-                <span className="mr-auto">끌어서 순서 변경</span>
+                <span className="mr-auto" aria-hidden="true" />
                 <button type="button" disabled={links[0].id === link.id} onClick={() => void onReorder(link.id, links[links.indexOf(link) - 1].id)}
                   className="rounded-md px-2 py-1 hover:bg-muted disabled:opacity-30" aria-label={`${link.title} 위로 이동`}>↑ 위로</button>
                 <button type="button" disabled={links[links.length - 1].id === link.id} onClick={() => void onReorder(link.id, links[links.indexOf(link) + 1].id)}
