@@ -2,6 +2,8 @@
 
 **내 모든 링크, 딱 한 페이지에.**
 
+> **제품 기준 및 구현 현황:** [기획·디자인·개발 정합성 점검](docs/PRODUCT_ALIGNMENT.md). PRD에는 아직 개발되지 않은 목표 기능이 포함되어 있으며, 아래 ‘주요 기능’은 소스 코드상 구현 범위를 설명합니다.
+
 MyLink는 개인 프로필과 프로젝트·블로그·SNS 링크를 하나의 공개 주소로 공유하는 웹 애플리케이션입니다.
 
 - 서비스 주소: https://mylink-hy.vercel.app
@@ -30,6 +32,14 @@ MyLink는 개인 프로필과 프로젝트·블로그·SNS 링크를 하나의 �
 | 데이터베이스·인증 | Firebase Firestore, Firebase Authentication |
 | 통계 시각화 | Recharts |
 | 배포 | Vercel |
+
+## 개발 기준
+
+- 최종 목표 요구사항: [PRD](docs/PRD.md)
+- 실제 MyLink 디자인·개발 공통 기준: [PRODUCT_ALIGNMENT](docs/PRODUCT_ALIGNMENT.md)
+- 사용자 목표 시나리오: [USER_SCENARIOS](docs/USER_SCENARIOS.md)
+- 목표 와이어프레임: [WIREFRAMES](docs/WIREFRAMES.md)
+- AI 개발 가이드: [GEMINI.md](GEMINI.md)
 
 ## 로컬 실행
 
