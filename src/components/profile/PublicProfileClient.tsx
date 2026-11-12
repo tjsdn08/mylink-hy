@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, doc, getDoc, onSnapshot, orderBy, query, Timestamp, setDoc, increment } from "firebase/firestore";
+import { collection, doc, getDoc, onSnapshot, query, where, Timestamp, setDoc, increment } from "firebase/firestore";
 import { notFound } from "next/navigation";
 import NextLink from "next/link";
 import { Check, Copy, Link2, QrCode, Share2 } from "lucide-react";
@@ -83,10 +83,16 @@ export function PublicProfileClient({ username }: { username: string }) {
 
         step = "links";
         unsubscribeLinks = onSnapshot(
-          query(collection(firestore, "users", uid, "links"), orderBy("createdAt", "desc")),
+          query(collection(firestore, "users", uid, "links"), where("isActive", "==", true)),
           (snapshot) => {
             if (cancelled) return;
-            const nextLinks = snapshot.docs.flatMap((linkDoc): Link[] => {
+            // 공개 데이터만 요청하고, 조회 결과는 생성일 역순으로 정렬합니다.
+            const orderedDocs = [...snapshot.docs].sort((a, b) => {
+              const aTime = a.data().createdAt instanceof Timestamp ? a.data().createdAt.toMillis() : 0;
+              const bTime = b.data().createdAt instanceof Timestamp ? b.data().createdAt.toMillis() : 0;
+              return bTime - aTime;
+            });
+            const nextLinks = orderedDocs.flatMap((linkDoc): Link[] => {
               const link = linkDoc.data();
               if (typeof link.title !== "string" || typeof link.url !== "string") return [];
               const categories: Link["category"][] = ["github", "blog", "portfolio", "project", "other"];
