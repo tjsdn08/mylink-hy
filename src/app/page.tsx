@@ -32,26 +32,33 @@ const demoLinks = [
 function LandingPreview() {
   const [previewTheme, setPreviewTheme] = useState<ProfileTheme>("cream");
   return (
-    <div className="relative mx-auto w-full max-w-[410px] motion-safe:animate-[mylink-rise_700ms_ease-out_both]"
+    <div className="relative mx-auto w-full max-w-[360px] motion-safe:animate-[mylink-rise_700ms_ease-out_both]"
       aria-label="실제 공개 프로필과 동일한 디자인으로 만든 예시 화면">
       <div aria-hidden="true" className="pointer-events-none absolute -inset-6 -z-10 rounded-[45px] bg-[#DDF76B]/30 blur-3xl motion-safe:animate-[mylink-float_9s_ease-in-out_infinite]" />
-      <ProfilePhoneFrame
-        label="프로필 예시"
-        profile={{
-          username: "yourname",
-          displayName: "나만의 링크 공간",
-          headline: "만드는 과정도 나만의 이야기",
-          bio: "만든 것, 배우는 것, 좋아하는 것까지 ✨",
-          about: "관심 있는 일을 배우고 작은 프로젝트로 만들어 기록합니다.",
-          now: "요즘은 새로운 아이디어를 웹으로 구현하고 있어요.",
-          socialLinks: [{ platform: "GitHub", url: "https://github.com" }, { platform: "Blog", url: "https://velog.io" }],
-          theme: previewTheme,
-          coverStyle: previewTheme === "lavender" ? "grid" : previewTheme === "midnight" ? "minimal" : "orbits",
-          buttonStyle: "rounded",
-        }}
-        links={demoLinks}
-      />
-      <div className="relative mt-5 flex flex-wrap items-center justify-center gap-2" role="group" aria-label="프로필 미리보기 테마 선택">
+      {/* 실제 공개 프로필과 같은 컴포넌트를 사용하되, 랜딩에서는 축소해 일부만 보여줍니다. */}
+      <div className="landing-phone-viewport relative mx-auto h-[525px] w-full max-w-[310px] overflow-hidden rounded-[32px] sm:h-[555px]">
+        <div className="pointer-events-none absolute left-1/2 top-0 w-[390px] origin-top -translate-x-1/2 scale-[0.76] sm:scale-[0.79]">
+          <ProfilePhoneFrame
+            label="프로필 예시"
+            profile={{
+              username: "yourname",
+              displayName: "나만의 링크 공간",
+              headline: "만드는 과정도 나만의 이야기",
+              bio: "만든 것, 배우는 것, 좋아하는 것까지 ✨",
+              about: "관심 있는 일을 배우고 작은 프로젝트로 만들어 기록합니다.",
+              now: "요즘은 새로운 아이디어를 웹으로 구현하고 있어요.",
+              socialLinks: [{ platform: "GitHub", url: "https://github.com" }, { platform: "Blog", url: "https://velog.io" }],
+              theme: previewTheme,
+              coverStyle: previewTheme === "lavender" ? "grid" : previewTheme === "midnight" ? "minimal" : "orbits",
+              buttonStyle: "rounded",
+            }}
+            links={demoLinks}
+          />
+        </div>
+        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-[#F8F6F1]" />
+      </div>
+      <p className="mt-2 text-center text-xs font-medium text-[#56604B]">실제 공개 프로필을 축소한 미리보기 · 아래에서 테마를 바꿔보세요</p>
+      <div className="relative mt-3 flex flex-wrap items-center justify-center gap-2" role="group" aria-label="프로필 미리보기 테마 선택">
         {(Object.keys(THEME_PRESETS) as ProfileTheme[]).map((theme) => (
           <button type="button" key={theme} onClick={() => setPreviewTheme(theme)} aria-pressed={previewTheme === theme}
             className={`inline-flex min-h-10 items-center gap-2 rounded-full border px-3 text-xs font-bold transition-colors
@@ -153,7 +160,7 @@ export default function Home() {
       <main>
         <section className="relative isolate overflow-hidden border-b border-[#252823]/10 bg-[#F8F6F1]">
           <div aria-hidden="true" className="pointer-events-none absolute -right-24 top-12 -z-10 size-[320px] rounded-full bg-[#DDF76B]/45 blur-[95px] sm:size-[450px]" />
-          <div className="mx-auto grid max-w-7xl items-center gap-14 px-5 pb-28 pt-20 sm:px-8 lg:min-h-[720px] lg:grid-cols-[1.05fr_0.95fr] lg:gap-12 lg:px-12">
+          <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 pb-16 pt-12 sm:px-8 sm:pb-20 sm:pt-16 lg:min-h-[640px] lg:grid-cols-[1.05fr_0.95fr] lg:gap-10 lg:px-12">
             <div className="max-w-xl text-center lg:text-left">
               <p className="inline-flex items-center gap-2 rounded-full bg-[#EAF4CB] px-4 py-2 text-xs font-bold text-[#344A25] motion-safe:animate-[mylink-rise_600ms_ease-out_both]">
                 <Sparkles aria-hidden="true" className="size-4" /> YOUR SPACE ON THE INTERNET
@@ -188,7 +195,7 @@ export default function Home() {
         </section>
 
         <div className="border-b border-[#252823]/10 bg-[#DDF76B] py-4 text-center text-xs font-black tracking-[0.15em] text-[#333B29] sm:text-sm">YOUR LINKS <span className="mx-4">✳</span> YOUR STORIES <span className="mx-4">✳</span> YOUR SPACE</div>
-        <section id="features" className="scroll-mt-24 bg-[#F8F6F1] py-24 sm:py-32">
+        <section id="features" className="scroll-mt-24 bg-[#F8F6F1] py-16 sm:py-20">
           <div className="mx-auto max-w-6xl px-5 sm:px-8">
             <p className="text-sm font-extrabold text-[#4A622C]">WHY MYLINK?</p>
             <h2 className="mt-3 text-[clamp(1.8rem,4vw,2.65rem)] font-bold leading-tight tracking-tight">작은 링크 하나에도,<br />나만의 이야기가 있어.</h2>
@@ -208,7 +215,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="steps" className="scroll-mt-24 border-t border-[#252823]/10 bg-[#F0EEE6] py-24 text-[#252823] sm:py-28">
+        <section id="steps" className="scroll-mt-24 border-t border-[#252823]/10 bg-[#F0EEE6] py-16 text-[#252823] sm:py-20">
           <div className="mx-auto max-w-6xl px-5 sm:px-8">
             <p className="text-center text-xs font-extrabold tracking-[0.16em] text-[#4A622C]">HOW IT WORKS</p>
             <h2 className="mt-3 text-center text-[clamp(1.8rem,4vw,2.65rem)] font-bold tracking-tight text-[#252823]">세 단계면 충분해요</h2>
@@ -231,7 +238,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="bg-[#DDF76B] px-5 py-20 text-center text-[#252823] sm:py-24">
+        <section className="bg-[#DDF76B] px-5 py-16 text-center text-[#252823] sm:py-20">
           <div className="mx-auto max-w-3xl">
             <p className="inline-flex items-center gap-2 rounded-full bg-[#FFFFFF]/90 px-4 py-2 text-xs font-bold text-[#405A27]"><Sparkles aria-hidden="true" className="size-4" /> 나만의 작은 홈페이지</p>
             <h2 className="mt-5 text-[clamp(1.8rem,4vw,2.8rem)] font-extrabold tracking-tight text-[#252823]">당신의 링크에도 무대가 필요해.</h2>
