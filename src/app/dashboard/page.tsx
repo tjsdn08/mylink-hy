@@ -4,17 +4,17 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { collection, doc, onSnapshot } from "firebase/firestore";
-import { ArrowUpRight, BarChart3, Globe2, Link2, Palette, UserRound } from "lucide-react";
+import { ArrowUpRight, BarChart3, Globe2, Link2, LogOut, Palette, UserRound } from "lucide-react";
 import { useAuth } from "@/components/auth-provider";
 import { getFirebaseFirestore } from "@/lib/firebase";
 import { ensureUserProfileDocument, type UserProfileDocument } from "@/lib/user-profile";
 
 export default function DashboardPage({ initialProfile }: { initialProfile?: UserProfileDocument }) {
   const router = useRouter();
-  const { user, loading: authLoading, error: authError } = useAuth();
+  const { user, loading: authLoading, error: authError, signOut } = useAuth();
   const [profile, setProfile] = useState<UserProfileDocument | null>(initialProfile ?? null);
   const [links, setLinks] = useState({ total: 0, public: 0 });
-  const [views, setViews] = useState<number | null>(null);
+  const [views, setViews] = useState<number | "error" | null>(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -42,7 +42,7 @@ export default function DashboardPage({ initialProfile }: { initialProfile?: Use
       if (cancelled) return;
       const value = snapshot.data()?.views;
       setViews(typeof value === "number" ? value : 0);
-    }, () => { if (!cancelled) setViews(null); });
+    }, () => { if (!cancelled) setViews("error"); });
     return () => { cancelled = true; stopLinks(); stopViews(); };
   }, [user, authLoading, authError, initialProfile, router]);
 
@@ -57,9 +57,15 @@ export default function DashboardPage({ initialProfile }: { initialProfile?: Use
     <main className="mylink-workspace mx-auto min-h-screen w-full max-w-6xl px-5 py-10 text-[#252823] dark:text-[#F8F6F1] sm:px-8">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <Link href="/" className="text-2xl font-black tracking-tight">mylink<span className="text-[#F06D4E]">.</span></Link>
-        <Link href="/mypage" className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#252823] px-5 text-sm font-bold text-white dark:bg-[#DDF76B] dark:text-[#252823]">
-          편집하러 가기 <ArrowUpRight className="size-4" aria-hidden="true"/>
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link href="/mypage" className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#252823] px-5 text-sm font-bold text-white dark:bg-[#DDF76B] dark:text-[#252823]">
+            편집하러 가기 <ArrowUpRight className="size-4" aria-hidden="true"/>
+          </Link>
+          <button type="button" onClick={() => void signOut().catch((cause: unknown) => setError(cause instanceof Error ? cause.message : "로그아웃하지 못했어요."))}
+            className="inline-flex min-h-11 items-center gap-1 rounded-xl border border-border px-3 text-sm font-semibold">
+            <LogOut className="size-4" aria-hidden="true"/> 로그아웃
+          </button>
+        </div>
       </header>
       <section className="mt-10 rounded-[28px] bg-[#252823] px-6 py-10 text-white sm:px-10">
         <p className="text-xs font-extrabold tracking-[.18em] text-[#DDF76B]">MYLINK / DASHBOARD</p>
@@ -78,7 +84,7 @@ export default function DashboardPage({ initialProfile }: { initialProfile?: Use
         {[
           { label: "등록한 링크", value: links.total.toLocaleString("ko-KR"), note: "전체 링크" },
           { label: "공개 중인 링크", value: links.public.toLocaleString("ko-KR"), note: "방문자가 볼 수 있는 링크" },
-          { label: "프로필 조회", value: views === null ? "확인 중" : views.toLocaleString("ko-KR"), note: "반복 조회 포함" },
+          { label: "프로필 조회", value: views === null ? "확인 중" : views === "error" ? "미집계" : views.toLocaleString("ko-KR"), note: "반복 조회 포함" },
         ].map(({ label, value, note }) => (
           <article key={label} className="rounded-[22px] border border-border bg-card p-6">
             <p className="text-sm font-bold text-muted-foreground">{label}</p>
