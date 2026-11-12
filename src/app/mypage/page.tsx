@@ -848,6 +848,9 @@ export default function MyPage() {
                 setUserProfile((current) => current ? { ...current, ...next } : current);
                 setAppearanceDraft(null);
               }}
+              onSocialOrderSaved={(socialLinks) => {
+                setUserProfile((current) => current ? { ...current, socialLinks } : current);
+              }}
             />
           ) : null}
           {activeTab === "links" ? (
