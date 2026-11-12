@@ -802,15 +802,6 @@ export default function MyPage() {
           </section>
           <div className="grid gap-7 lg:grid-cols-[minmax(0,1fr)_390px] lg:items-start">
             <div className="min-w-0 space-y-6">
-          {activeTab === "profile" ? (
-            <div className="rounded-2xl border border-border bg-card px-5 py-4">
-              <p className="text-sm font-extrabold">프로필 사진</p>
-              <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                현재 Google 계정의 프로필 사진을 사용해요. 사진을 변경하려면 Google 계정에서 수정해 주세요.
-                MyLink에서는 별도 사진 업로드를 지원하지 않아요.
-              </p>
-            </div>
-          ) : null}
           {activeTab === "profile" ? <ProfileSection
             displayName={userProfile.displayName}
             username={userProfile.username}
