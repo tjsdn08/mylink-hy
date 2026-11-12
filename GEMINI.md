@@ -1,6 +1,8 @@
 # 🚀 MyLink Project Guide
 
 > 이 문서는 MyLink 개발·유지보수를 위한 프로젝트별 지침입니다. 실제 구현과 설정 파일이 달라지면 이 문서를 함께 갱신합니다.
+>
+> **문서 간 기준과 미구현 기능 확인:** [docs/PRODUCT_ALIGNMENT.md](docs/PRODUCT_ALIGNMENT.md). 최종 요구사항은 PRD를 우선하고, 현재 화면과 배포 상태는 실제 코드·운영 검증으로 판단합니다.
 
 ## 📌 Project Overview
 
