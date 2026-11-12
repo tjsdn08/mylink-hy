@@ -181,7 +181,7 @@ export function PublicProfileClient({ username }: { username: string }) {
     try {
       await navigator.clipboard.writeText(window.location.href);
       setCopied(true);
-      showToast("프로필 주소를 복사했어요.");
+      showToast("공개 페이지 주소를 복사했어요.");
     } catch {
       showToast("주소 복사에 실패했어요.", "error");
     }
@@ -222,32 +222,21 @@ export function PublicProfileClient({ username }: { username: string }) {
 
       <main className="relative mx-auto w-full max-w-[620px] px-5 pb-10 sm:px-7">
         <ProfilePhoneFrame label="공개 프로필" profile={profile} links={links} interactive trackingUserId={ownerId} />
-        <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+        <nav aria-label="프로필 공유 도구" className="mt-6 flex flex-wrap items-center justify-center gap-2">
           <button type="button" onClick={() => void copyPublicUrl()}
-            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-current/25 px-5 text-sm font-bold transition-colors hover:bg-white/10">
+            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-current/25 px-4 text-sm font-bold transition-colors hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-current">
             {copied ? <Check className="size-4" aria-hidden="true" /> : <Copy className="size-4" aria-hidden="true" />}
-            {copied ? "주소 복사 완료" : "내 페이지 주소 복사"}
+            {copied ? "주소 복사 완료" : "주소 복사"}
           </button>
-        </div>
-        <div className="mt-5 flex items-center justify-center">
           <button type="button" onClick={() => setQrOpen(true)}
-            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-current/25 px-5 text-sm font-bold transition-colors hover:bg-white/10">
-            내 프로필 QR 공유하기
+            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-current/25 px-4 text-sm font-bold transition-colors hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-current">
+            <QrCode className="size-4" aria-hidden="true" /> QR 코드
           </button>
-        </div>
+        </nav>
+        <p className="mt-3 text-center text-xs opacity-70">마음에 드는 링크 페이지를 복사하거나 QR 코드로 공유해 보세요.</p>
         {qrOpen ? <ProfileQrDialog url={`${typeof window !== "undefined" ? window.location.origin : "https://mylink-hy.vercel.app"}/${encodeURIComponent(profile.username)}`}
           onClose={() => setQrOpen(false)} /> : null}
-        <div className="mt-12 flex items-center justify-center">
-          <button type="button" onClick={() => void shareProfile()}
-            className="inline-flex min-h-12 items-center gap-2 rounded-full border border-current/25 bg-transparent px-6 text-sm font-bold transition-transform hover:-translate-y-1 hover:bg-black/10">
-            이 페이지 공유하기 <ArrowUpRight className="size-4" aria-hidden="true" />
-          </button>
-        </div>
       </main>
-      <footer className="relative mx-auto mt-12 max-w-[620px] border-t border-current/20 px-5 py-8 text-center text-xs font-medium opacity-80">
-        <NextLink href="/" className="font-black tracking-tight hover:underline">made with mylink.</NextLink>
-        <p className="mt-1">내 링크를 위한 작은 공간.</p>
-      </footer>
     </div>
   );
 }
