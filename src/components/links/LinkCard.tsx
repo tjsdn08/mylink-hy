@@ -157,7 +157,7 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId, compact = f
           <div className="flex flex-wrap gap-4">
             <label className="inline-flex cursor-pointer items-center gap-2 text-xs font-semibold">
               <input type="checkbox" checked={isActive} onChange={(event) => setIsActive(event.target.checked)} className="size-4 accent-[#6B8544]" />
-              공개하기
+              공개 페이지에 표시
             </label>
             <label className="inline-flex cursor-pointer items-center gap-2 text-xs font-semibold">
               <input type="checkbox" checked={isFeatured} onChange={(event) => setIsFeatured(event.target.checked)} className="size-4 accent-[#6B8544]" />
@@ -196,7 +196,7 @@ export function LinkCard({ link, onUpdate, onDelete, trackingUserId, compact = f
               </p>
               {onUpdate || onDelete ? <p className="mt-1 truncate text-xs text-muted-foreground">{link.url}</p> : null}
               {link.description ? <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{link.description}</p> : null}
-              {(onUpdate || onDelete) && link.isActive === false ? <p className="mt-1 text-[11px] font-bold text-[#B95C45]">비공개 · 방문자에게 숨겨짐</p> : null}
+              {(onUpdate || onDelete) && link.isActive === false ? <p className="mt-1 text-[11px] font-bold text-[#B95C45]">공개 페이지 목록에서 숨김</p> : null}
             </div>
             {!(onUpdate || onDelete) ? <ArrowUpRight aria-hidden="true" className="size-4 text-muted-foreground" /> : null}
           </div>

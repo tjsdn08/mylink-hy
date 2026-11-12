@@ -685,7 +685,7 @@ export default function MyPage() {
           </nav>
           <div className="grid gap-3 rounded-[22px] border border-[#252823]/10 bg-[#EEF3E1] px-5 py-4 text-[#35432A] sm:grid-cols-3 dark:border-[#DDF76B]/15 dark:bg-[#34412F] dark:text-[#E3EBCF]">
             <div><p className="text-[10px] font-extrabold tracking-wider opacity-70">MY PAGE</p><p className="mt-1 truncate text-sm font-black">@{userProfile.username || "username"}</p></div>
-            <div><p className="text-[10px] font-extrabold tracking-wider opacity-70">LINKS</p><p className="mt-1 text-sm font-black">{links.length}개 등록 · {links.filter((link) => link.isActive !== false).length}개 공개</p></div>
+            <div><p className="text-[10px] font-extrabold tracking-wider opacity-70">LINKS</p><p className="mt-1 text-sm font-black">{links.length}개 등록 · {links.filter((link) => link.isActive !== false).length}개 표시</p></div>
             <div><p className="text-[10px] font-extrabold tracking-wider opacity-70">PERSONAL STYLE</p><p className="mt-1 text-sm font-black">{userProfile.theme === "midnight" ? "미드나잇" : userProfile.theme === "lavender" ? "라벤더" : "크림 & 라임"} 테마</p></div>
           </div>
           <section aria-label="개인 페이지 꾸미기 안내" className="rounded-[24px] border border-[#252823]/10 bg-white px-5 py-5 text-[#252823] dark:border-white/10 dark:bg-[#282E29] dark:text-[#F8F6F1]">
@@ -796,7 +796,7 @@ export default function MyPage() {
                   <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 text-xs font-semibold">
                     <input type="checkbox" checked={form.isActive} className="size-4 accent-[#657D3E]"
                       onChange={(event) => setForm((current) => ({ ...current, isActive: event.target.checked }))} />
-                    공개하기
+                    공개 페이지에 표시
                   </label>
                   <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 text-xs font-semibold">
                     <input type="checkbox" checked={form.isFeatured} className="size-4 accent-[#657D3E]"
