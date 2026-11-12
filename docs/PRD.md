@@ -1,5 +1,7 @@
 # MyLink 제품 요구사항 정의서 (PRD)
 
+> **이 문서는 목표 요구사항 정의서입니다.** 실제 구현 현황과 미구현 항목은 [제품·디자인·개발 통합 기준](PRODUCT_ALIGNMENT.md)을 함께 확인합니다. 코드에 없다는 이유로 확정 요구사항을 제거하지 않습니다.
+
 ## 1. 프로젝트 개요
 
 | 항목 | 내용 |
@@ -11,7 +13,7 @@
 | 최종 목표 | 1~3단계 전체 기능 완성 |
 | GitHub | https://github.com/tjsdn08/mylink-hy |
 | 배포 | Vercel 무료 플랜 |
-| UI 스타일 | Toss 스타일을 참고한 깔끔한 화이트·블루 디자인 |
+| UI 스타일 | MyLink 크림·라임·차콜·코랄 브랜드 UI (Toss는 사용성 참고) |
 
 ### 1.1 서비스 소개
 
@@ -47,21 +49,21 @@ MyLink는 사용자가 자신만의 프로필 페이지를 만들고 여러 웹�
 | Language | TypeScript 5 |
 | Styling | Tailwind CSS v4.3.5 (shadcn/ui 호환 안정 버전) |
 | Design Guidelines | `design.md` 기반 Toss 스타일 디자인 시스템 |
-| State Management | Zustand |
+| State Management | React state/Context + Firestore 실시간 구독 (현 구현); Zustand는 미사용 |
 | Authentication | Firebase Authentication |
 | Database | Cloud Firestore |
-| File Storage | Firebase Storage |
+| File Storage | Firebase Storage (프로필 이미지 직접 업로드 목표, 미구현) |
 | Hosting | Vercel |
 | Version Control | Git / GitHub |
 
 ### 2.1 상태 관리 정책
 
-- **Zustand**: 전역 UI 상태 및 프로필·링크·테마의 공유 편집 상태
+- **React useState**: 현재 프로필·링크·테마 편집 상태 (Zustand 도입은 확정되지 않은 미래 선택지)
 - **Firebase Auth + React Context**: 사용자 인증 상태
 - **Cloud Firestore**: 서버 데이터의 기준 저장소
 - **React useState**: 단일 컴포넌트의 간단한 폼 상태
 
-Zustand에는 모든 Firestore 데이터를 중복 저장하지 말고, 저장 전 미리보기 상태와 공통 UI 상태를 중심으로 설계한다.
+Firestore를 데이터의 기준 저장소로 유지한다. 추후 전역 상태관리 도구를 도입하더라도 서버 데이터를 무분별하게 중복 저장하지 않는다.
 
 기존 프로젝트의 실제 설치 버전과 구조를 먼저 확인한 후 개발한다.
 
@@ -71,11 +73,11 @@ Zustand에는 모든 Firestore 데이터를 중복 저장하지 말고, 저장 �
 2. 시각적 디자인과 UX 기준은 기존 `design.md`를 따른다.
 3. shadcn/ui 컴포넌트는 재사용 가능한 형태로 구성한다.
 4. 컬러, 타이포그래피, 간격, 모서리 등은 일관된 디자인 토큰으로 관리한다.
-5. 기존 디자인의 화이트·블루 기반 스타일을 유지한다.
+5. 제품 브랜드는 크림·라임·차콜·코랄을 유지한다. 초기 화이트·블루 Toss 시안은 레퍼런스로만 사용한다.
 6. 모바일·태블릿·데스크톱 반응형 디자인을 지원한다.
 7. 접근성과 사용성을 고려해 UI를 구현한다.
 8. 새 페이지와 기능에도 동일한 디자인 시스템을 적용한다.
-9. shadcn/ui는 UI 컴포넌트 구현 기반이며, `design.md`는 시각적 디자인과 UX의 기준 문서다.
+9. 현재 제품의 디자인 기준은 `src/app/globals.css` 및 `src/lib/profile-design.ts`와 공통 컴포넌트다. `design.md`는 초기 Toss 연구 레퍼런스다.
 
 초기화 현황과 향후 구현 범위:
 - 현재 단계에서 shadcn/ui CLI 초기화, `components.json`, CSS 변수 기반 테마 설정, TypeScript 경로 별칭 및 필수 의존성 구성을 완료한다.
@@ -376,11 +378,11 @@ SNS URL에도 HTTP·HTTPS 검증 정책을 적용한다.
 
 ### FR-17. 디자인 시스템
 
-신규 UI는 shadcn/ui 컴포넌트를 기반으로 하며, 시각적 디자인과 UX는 기존 `design.md`의 Toss 스타일 기준을 따른다.
+신규 UI는 기존 공통 컴포넌트를 기반으로 한다. 제품 색상과 화면 스타일의 실제 기준은 [통합 기준](PRODUCT_ALIGNMENT.md) 및 `globals.css`, `profile-design.ts`이며 `design.md`는 초기 Toss 참고 자료다.
 
 기본 방향:
-- 화이트 배경
-- 블루 포인트 색상
+- 크림 계열 기본 배경
+- 라임 강조색과 차콜 텍스트, 코랄 보조색
 - 간결한 구성
 - 명확한 버튼
 - 일관된 간격
@@ -521,7 +523,7 @@ MyLink
 | 계정 설정 | /dashboard/settings |
 | 개인 공개 페이지 | /:username |
 
-경로는 실제 프로젝트의 Next.js App Router 구조에 맞춰 조정할 수 있다.
+위 경로는 목표 IA 예시로 현재 실제 라우트와 다릅니다. 현재는 `/`(랜딩/로그인 후 관리), `/mypage`(탭형 관리), `/stats`, `/{username}`를 사용합니다. 실제·목표 경로 대조는 [통합 기준](PRODUCT_ALIGNMENT.md)을 참조합니다.
 
 ---
 
@@ -584,7 +586,7 @@ users/{uid}/socialLinks/{socialId}
   updatedAt
 ```
 
-위 데이터 모델은 확정 기능을 구현하기 위한 권장안이다. 실제 설계에서 구조를 개선할 수 있으나 요구사항은 유지해야 한다.
+위 데이터 모델은 목표 설계 예시다. **실제 Firestore 경로와 필드는 [통합 기준](PRODUCT_ALIGNMENT.md)의 데이터 구조를 우선 확인**한다. 특히 SNS는 별도 컬렉션이 아닌 프로필의 `socialLinks` 배열이며, 링크는 `isActive`, `isFeatured`, `thumbnailUrl`, `group`을 사용한다. 요구사항은 유지하되 코드와 필드명을 혼동하지 않는다.
 
 ---
 
