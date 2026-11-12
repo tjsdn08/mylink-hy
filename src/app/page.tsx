@@ -184,7 +184,6 @@ export default function Home() {
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 text-xs text-white/60 sm:flex-row">
           <strong className="flex items-center gap-2 font-bold text-[#FFFFFF]"><Link2 aria-hidden="true" className="size-4 text-[#DDF76B]" /> MyLink</strong>
           <p>© 2026 MyLink. 나를 소개하는 하나의 주소.</p>
-          <a href="#features" className="text-[#ECEFE7] underline-offset-4 hover:text-[#DDF76B] hover:underline">서비스 소개로 이동</a>
         </div>
       </footer>
     </div>
