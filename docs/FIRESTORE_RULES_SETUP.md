@@ -39,7 +39,7 @@ application change.
 
 **최신 규칙을 게시하면** 비로그인 사용자는 `isActive=true`인 링크만 읽을 수 있고 비활성 링크의 직접 읽기·클릭 집계 증가도 거부됩니다. 공개 페이지 쿼리도 `isActive==true`로 제한했습니다. 기존에 `isActive` 값이 없는 링크는 소유자가 로그인할 때 보완됩니다. 기존 규칙을 게시한 채라면 이전 동작이 유지됩니다.
 
-프로필 이미지 업로드는 Firestore와 별도의 Storage Rules가 필요합니다. [Firebase Storage Rules 게시 안내](STORAGE_RULES_SETUP.md)를 반드시 따르세요.
+**현재 MyLink는 무료 Spark 요금제를 사용하며 Firebase Storage를 사용하지 않습니다.** 프로필 사진은 Google 계정 사진으로 표시합니다. Firestore 규칙만 게시하면 됩니다. [Spark 설정 안내](STORAGE_RULES_SETUP.md)
 
 ## 2026-11-11 개인화 필드 허용
 
