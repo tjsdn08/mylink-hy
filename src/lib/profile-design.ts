@@ -7,6 +7,8 @@ export type SocialLink = { platform: string; url: string };
 export type ProfileAppearance = {
   theme?: ProfileTheme;
   backgroundColor?: string;
+  buttonColor?: string;
+  textColor?: string;
   buttonStyle?: ButtonStyle;
   coverStyle?: CoverStyle;
   headline?: string;
@@ -43,15 +45,16 @@ function readableInk(background: string): string {
 export function appearanceVariables(value: ProfileAppearance): CSSProperties {
   const preset = THEME_PRESETS[value.theme && value.theme in THEME_PRESETS ? value.theme : "cream"];
   const background = validColor(value.backgroundColor) ?? preset.background;
-  const ink = readableInk(background);
-  const buttonInk = readableInk(preset.button);
+  const ink = validColor(value.textColor) ?? readableInk(background);
+  const button = validColor(value.buttonColor) ?? preset.button;
+  const buttonInk = readableInk(button);
   const radius = value.buttonStyle === "pill" ? "999px" : value.buttonStyle === "square" ? "9px" : "19px";
   return {
     backgroundColor: background,
     color: ink,
     "--profile-background": background,
     "--profile-text": ink,
-    "--profile-button-bg": preset.button,
+    "--profile-button-bg": button,
     "--profile-button-text": buttonInk,
     "--profile-cover": preset.cover,
     "--profile-cover-text": readableInk(preset.cover),
