@@ -1,47 +1,44 @@
-# Firebase Storage 및 Firestore Rules 배포 안내
+# MyLink 무료 Spark 요금제 Firebase 설정 안내
 
-> **중요:** GitHub/Vercel 배포는 Firebase Rules를 자동 변경하지 않습니다. 코드를 배포하기 전에 Firebase 콘솔의 Rules를 직접 게시하거나 Firebase CLI로 배포해야 합니다.
+> 이 파일 이름은 기존 문서 링크의 호환성을 위해 유지합니다. **현재 MyLink는 Firebase Storage를 사용하지 않습니다.** 요금제 업그레이드 및 `storage.rules` 게시가 필요하지 않습니다.
 
-## 1. Firestore Rules (필수)
+## 적용 서비스
 
-1. [Firebase Console](https://console.firebase.google.com/)에서 MyLink 프로젝트를 엽니다.
-2. **Firestore Database → Rules**로 이동합니다.
-3. 저장소 최신 `firestore.rules` 파일을 전체 붙여넣고 **Publish** 합니다.
-4. 게시된 규칙에 `buttonColor`, `textColor`, 비활성 링크 읽기 제한, username 탈퇴 해제 조건이 포함됐는지 확인합니다.
+| 서비스 | 사용 | 설정 |
+| --- | --- | --- |
+| Firebase Authentication | 사용 | Google 로그인 활성화 |
+| Cloud Firestore | 사용 | 저장소 루트 `firestore.rules` 게시 |
+| Firebase Storage | 미사용 | 활성화·규칙 게시·Blaze 업그레이드 불필요 |
+| 프로필 사진 | Google 계정 사진 | MyLink에서 직접 파일 업로드 불가 |
 
-**게시 전에는 새로 추가한 컬러 저장, 숨김 링크 필터링 및 계정 탈퇴가 권한 오류를 낼 수 있습니다.**
+## Firestore 규칙 적용
 
-## 2. Cloud Storage (프로필 이미지 업로드 필수)
+1. Firebase Console → 해당 프로젝트 → **Firestore Database → 규칙(Rules)**으로 이동합니다.
+2. 저장소 최신 `firestore.rules` 전체 내용을 붙여넣습니다.
+3. 규칙을 검토한 후 **게시(Publish)**합니다.
+4. 본인 계정과 별도 테스트 계정으로 Username 중복, 프로필 저장, 활성 링크 조회, 비활성 링크 접근 거부를 확인합니다.
 
-1. Firebase Console에서 **Storage**를 활성화합니다. 프로젝트 또는 버킷 요금제·리전 조건을 먼저 확인합니다.
-2. **Storage → Rules**에서 저장소의 `storage.rules` 파일 전체를 붙여넣고 게시합니다.
-3. 인증된 사용자만 `profile-images/{uid}/avatar` 경로에 JPEG/PNG/WebP 5MB 이하 파일을 업로드/교체/삭제할 수 있어야 합니다.
-4. 공개 프로필에서 해당 사진을 로그인 없이 읽을 수 있는지 확인합니다.
-5. 다른 계정 UID 경로에 업로드하거나 삭제하는 작업은 거부되어야 합니다.
+GitHub/Vercel에 코드를 올려도 Firebase Rules가 자동 게시되지는 않습니다.
 
-## 3. Firebase CLI로 배포하는 경우
+## Firebase CLI를 사용하는 경우(선택)
 
-`firebase.json`에는 Rules 파일 경로만 연결돼 있습니다. 아래 명령은 **내 Firebase 프로젝트를 올바르게 선택한 상태**에서만 사용하세요.
+`firebase.json`은 이제 Firestore 규칙만 참조합니다.
 
 ```bash
 npx firebase-tools login
 npx firebase-tools use --add
-npx firebase-tools deploy --only firestore:rules,storage
+npx firebase-tools deploy --only firestore:rules
 ```
 
-실수로 다른 프로젝트의 규칙을 덮어쓰지 않도록 `firebase use`로 프로젝트를 확인합니다. 브라우저에서 실제 기능 검증을 완료하기 전에는 본 운영 계정으로 탈퇴 테스트를 하지 마세요.
+반드시 대상 Firebase 프로젝트 ID를 확인하고 배포합니다.
 
-## 4. 검증 시나리오
+## 무료 요금제 실사용 점검
 
-- 계정 A가 자신의 프로필 사진을 업로드, 새로고침 후 공개 페이지에서 표시
-- 계정 B가 A의 `profile-images/A-uid/avatar` 경로에 업로드 시 거부
-- 비로그인 방문자가 활성 링크 조회 성공, 비활성 링크 직접 읽기 거부
-- 비활성 링크 카운터 +1 비로그인 시도 거부
-- 저장된 프로필 버튼색/글자색 공개 페이지 반영
-- 별도 **테스트 계정**으로 가입 → 링크 추가 → 업로드 → 탈퇴 → 공개 URL 비활성화 확인
+- [ ] 로그인 및 최초 온보딩 완료
+- [ ] Google 계정 사진이 마이페이지와 공개 페이지에 표시
+- [ ] 프로필 사진 직접 업로드 UI 미표시
+- [ ] 링크·SNS·디자인 저장 및 방문자 공개 페이지 열람
+- [ ] 비활성 링크의 비로그인 접근 차단
+- [ ] 별도 테스트 계정에서 탈퇴 후 Firestore 및 Auth 데이터 삭제 확인
 
-## 5. 탈퇴 기능의 운영상 제약
-
-현재 탈퇴 구현은 브라우저에서 Google 재인증 후 Storage → Firestore 링크 → 계정 문서/username → Firebase Authentication 순서로 삭제합니다. **서비스 간 원자적 삭제가 아니므로 네트워크 장애가 발생하면 일부 데이터가 남을 수 있습니다.** 오류가 뜨면 동일 계정으로 재시도하세요.
-
-실제 대규모 서비스 전에는 Firebase Admin SDK 또는 Cloud Functions의 신뢰할 수 있는 백엔드 삭제 작업, 실패 재시도 큐 및 운영 로그를 도입하는 것이 필요합니다. 현재 구현만으로 ‘실패 시에도 완전한 원자적 삭제’를 보장한다고 표시하지 않습니다.
+계정 탈퇴는 브라우저에서 Firestore와 Auth를 순차 처리하므로 장애 시 일부 데이터가 남을 수 있습니다. 운영 서비스 수준의 원자적 삭제 및 재시도 시스템은 별도 백엔드 설계가 필요합니다.
