@@ -9,7 +9,7 @@ Apply the repository's `firestore.rules` file in the Firebase Console:
 5. Test reads and writes with two signed-in accounts before production use.
 
 The rules intentionally keep `users/{uid}` private, allow public reads of
-`users/{uid}/profile/main`, `users/{uid}/links`, and individual
+`users/{uid}/profile/main`, active links in `users/{uid}/links`, and individual
 `usernames/{username}` documents, and require the authenticated UID to own all
 profile, link, and username writes. The public profile document must not contain
 email; the app keeps email on the private `users/{uid}` document and removes it
@@ -31,13 +31,15 @@ application change.
 
 ## 프로필 디자인과 방문 지표
 
-공개 프로필에 다음 선택적 필드를 저장할 수 있도록 규칙을 확장했습니다: `theme`, `backgroundColor`, `buttonStyle`, `socialLinks`. 기존 프로필 문서는 그대로 유지되고 새 값을 설정한 사용자에게만 필드가 추가됩니다.
+공개 프로필에 다음 선택적 필드를 저장할 수 있도록 규칙을 확장했습니다: `theme`, `backgroundColor`, `buttonColor`, `textColor`, `buttonStyle`, `socialLinks`. 기존 프로필 문서는 그대로 유지되고 새 값을 설정한 사용자에게만 필드가 추가됩니다.
 
 `users/{uid}/metrics/profile` 문서는 공개 읽기와 `views` +1 증가만 허용합니다. 최초 생성 시에는 `views == 1` 조건을 요구합니다. 누적 방문 수는 부정 사용과 반복 새로고침을 완전히 차단하지 않는 공개 카운터입니다.
 
 **주의:** GitHub 커밋 또는 Vercel 배포로 보안 규칙이 자동 게시되지는 않습니다. Firebase Console → Firestore Database → 규칙에서 최신 파일을 **게시(Publish)** 하세요. 그런 다음 신규 테마 저장, 비로그인 방문, 통계 방문 수 증가를 확인하세요.
 
-현재 링크 컬렉션은 공개 조회가 가능하므로 `isActive=false`인 링크도 Firestore API에서 원본 URL을 조회할 수 있습니다. 숨김은 UI 표시 제어에 한정되며 접근 비밀을 보장하지 않습니다.
+**최신 규칙을 게시하면** 비로그인 사용자는 `isActive=true`인 링크만 읽을 수 있고 비활성 링크의 직접 읽기·클릭 집계 증가도 거부됩니다. 공개 페이지 쿼리도 `isActive==true`로 제한했습니다. 기존에 `isActive` 값이 없는 링크는 소유자가 로그인할 때 보완됩니다. 기존 규칙을 게시한 채라면 이전 동작이 유지됩니다.
+
+프로필 이미지 업로드는 Firestore와 별도의 Storage Rules가 필요합니다. [Firebase Storage Rules 게시 안내](STORAGE_RULES_SETUP.md)를 반드시 따르세요.
 
 ## 2026-11-11 개인화 필드 허용
 
