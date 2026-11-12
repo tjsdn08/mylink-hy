@@ -71,6 +71,8 @@ export function PublicProfileClient({ username }: { username: string }) {
           bio: typeof data.bio === "string" ? data.bio : "",
           theme: data.theme === "lavender" || data.theme === "midnight" ? data.theme : "cream",
           backgroundColor: typeof data.backgroundColor === "string" ? data.backgroundColor : "",
+          buttonColor: typeof data.buttonColor === "string" ? data.buttonColor : "",
+          textColor: typeof data.textColor === "string" ? data.textColor : "",
           buttonStyle: data.buttonStyle === "pill" || data.buttonStyle === "square" ? data.buttonStyle : "rounded",
           socialLinks: normalizeSocialLinks(data.socialLinks),
           coverStyle: data.coverStyle === "grid" || data.coverStyle === "minimal" ? data.coverStyle : "orbits",
