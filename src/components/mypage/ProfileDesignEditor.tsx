@@ -11,6 +11,7 @@ import {
   safeHttpUrl,
   validColor,
   type ProfileAppearance,
+  type SocialLink,
   type ProfileTheme,
   type ButtonStyle,
   type CoverStyle,
@@ -20,10 +21,11 @@ interface Props {
   userId: string;
   appearance: ProfileAppearance;
   onSaved: (next: ProfileAppearance) => void;
-  onDraftChange?: (draft: ProfileAppearance) => void;
+  onDraftChange?: (draft: ProfileAppearance | null) => void;
+  onSocialOrderSaved?: (links: SocialLink[]) => void;
 }
 
-export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange }: Props) {
+export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange, onSocialOrderSaved }: Props) {
   const [theme, setTheme] = useState<ProfileTheme>(appearance.theme ?? "cream");
   const [backgroundColor, setBackgroundColor] = useState(appearance.backgroundColor ?? "");
   const [buttonColor, setButtonColor] = useState(appearance.buttonColor ?? "");
@@ -41,6 +43,7 @@ export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange
     Object.fromEntries((appearance.socialLinks ?? []).map((item) => [item.platform, item.url]))
   );
   const [saving, setSaving] = useState(false);
+  const [reordering, setReordering] = useState(false);
   const [error, setError] = useState("");
 
   const updateDraft = (patch: Partial<ProfileAppearance>) => {
@@ -54,6 +57,45 @@ export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange
     };
     onDraftChange?.(next);
   };
+
+  async function moveSocial(fromPlatform: string, toPlatform: string) {
+    if (saving || reordering || fromPlatform === toPlatform) return;
+    const from = socialOrder.indexOf(fromPlatform);
+    const to = socialOrder.indexOf(toPlatform);
+    if (from < 0 || to < 0) return;
+    const nextOrder = [...socialOrder];
+    nextOrder.splice(from, 1);
+    nextOrder.splice(to, 0, fromPlatform);
+
+    const draftLinks = nextOrder.flatMap((platform) => {
+      const url = socialUrls[platform]?.trim();
+      return url ? [{ platform, url }] : [];
+    });
+    const storedLinks = nextOrder.flatMap((platform) =>
+      (appearance.socialLinks ?? []).filter((item) => item.platform === platform)
+    );
+
+    setSocialOrder(nextOrder);
+    updateDraft({ socialLinks: draftLinks });
+    setReordering(true);
+    try {
+      // Existing saved SNS URLs are reordered; unsaved input changes are not
+      // published until the user clicks the Design Save button.
+      await updateDoc(doc(getFirebaseFirestore(), "users", userId, "profile", "main"),
+        { socialLinks: storedLinks, updatedAt: serverTimestamp() });
+      onSocialOrderSaved?.(storedLinks);
+      showToast("SNS 순서를 자동 저장했어요.");
+    } catch (cause) {
+      setSocialOrder(socialOrder);
+      updateDraft({ socialLinks: socialOrder.flatMap((platform) => {
+        const url = socialUrls[platform]?.trim();
+        return url ? [{ platform, url }] : [];
+      }) });
+      setError(cause instanceof Error ? cause.message : "SNS 순서를 저장하지 못했어요.");
+    } finally {
+      setReordering(false);
+    }
+  }
 
   async function saveDesign() {
     if (saving) return;
@@ -209,18 +251,22 @@ export function ProfileDesignEditor({ userId, appearance, onSaved, onDraftChange
       </div>
       <div className="border-t border-border pt-5">
         <h3 className="flex items-center gap-2 text-sm font-extrabold"><Share2 className="size-4" aria-hidden="true" /> SNS 아이콘</h3>
-        <p className="mt-1 text-xs text-muted-foreground">주소를 입력한 플랫폼만 공개 프로필에 표시돼요.</p>
+        <p className="mt-1 text-xs text-muted-foreground">주소를 입력한 플랫폼만 표시돼요. 순서는 드래그 또는 화살표로 변경하면 자동 저장돼요. URL 수정은 디자인 저장이 필요해요.</p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           {socialOrder.map((platform, index) => (
-            <div key={platform} className="space-y-1.5 text-xs font-semibold">
+            <div key={platform} draggable={!saving && !reordering}
+              onDragStart={(event) => event.dataTransfer.setData("text/plain", platform)}
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={(event) => { event.preventDefault(); const from = event.dataTransfer.getData("text/plain"); if (from) void moveSocial(from, platform); }}
+              className="space-y-1.5 rounded-lg border border-border/50 p-2 text-xs font-semibold">
               <div className="flex items-center justify-between gap-2">
                 <label htmlFor={`social-${platform}`}>{platform}</label>
                 <span className="flex gap-1">
-                  <button type="button" disabled={index === 0} aria-label={`${platform} 위로 이동`}
-                    onClick={() => { const order = [...socialOrder]; [order[index - 1], order[index]] = [order[index], order[index - 1]]; setSocialOrder(order); updateDraft({ socialLinks: order.flatMap((p) => socialUrls[p]?.trim() ? [{ platform: p, url: socialUrls[p].trim() }] : []) }); }}
+                  <button type="button" disabled={reordering || saving || index === 0} aria-label={`${platform} 위로 이동`}
+                    onClick={() => void moveSocial(platform, socialOrder[index - 1])}
                     className="rounded border border-border px-2 py-1 disabled:opacity-30">↑</button>
-                  <button type="button" disabled={index === socialOrder.length - 1} aria-label={`${platform} 아래로 이동`}
-                    onClick={() => { const order = [...socialOrder]; [order[index + 1], order[index]] = [order[index], order[index + 1]]; setSocialOrder(order); updateDraft({ socialLinks: order.flatMap((p) => socialUrls[p]?.trim() ? [{ platform: p, url: socialUrls[p].trim() }] : []) }); }}
+                  <button type="button" disabled={reordering || saving || index === socialOrder.length - 1} aria-label={`${platform} 아래로 이동`}
+                    onClick={() => void moveSocial(platform, socialOrder[index + 1])}
                     className="rounded border border-border px-2 py-1 disabled:opacity-30">↓</button>
                 </span>
               </div>
