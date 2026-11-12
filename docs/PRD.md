@@ -48,19 +48,19 @@ MyLink는 사용자가 자신만의 프로필 페이지를 만들고 여러 웹�
 | UI Component System | shadcn/ui |
 | Language | TypeScript 5 |
 | Styling | Tailwind CSS v4.3.5 (shadcn/ui 호환 안정 버전) |
-| Design Guidelines | `design.md` 기반 Toss 스타일 디자인 시스템 |
+| Design Guidelines | MyLink 크림·라임 제품 UI 및 공통 컴포넌트 기준, `design.md`는 Toss 참고 자료 |
 | State Management | React state/Context + Firestore 실시간 구독 (현 구현); Zustand는 미사용 |
 | Authentication | Firebase Authentication |
 | Database | Cloud Firestore |
-| File Storage | Firebase Storage (프로필 이미지 직접 업로드 목표, 미구현) |
+| File Storage | Firebase Storage (이미지 업로드 코드 구현, Storage 규칙 게시 및 운영 검증 필요) |
 | Hosting | Vercel |
 | Version Control | Git / GitHub |
 
 ### 2.1 상태 관리 정책
 
 - **React useState**: 현재 프로필·링크·테마 편집 상태 (Zustand 도입은 확정되지 않은 미래 선택지)
-- **Firebase Auth + React Context**: 사용자 인증 상태
 - **Cloud Firestore**: 서버 데이터의 기준 저장소
+- **Firebase Auth + React Context**: 인증 상태 공유
 - **React useState**: 단일 컴포넌트의 간단한 폼 상태
 
 Firestore를 데이터의 기준 저장소로 유지한다. 추후 전역 상태관리 도구를 도입하더라도 서버 데이터를 무분별하게 중복 저장하지 않는다.
@@ -604,7 +604,7 @@ users/{uid}/socialLinks/{socialId}
 
 - 공개 프로필에는 공개 대상 정보만 노출
 - 내부 uid, 이메일 및 비공개 관리 정보의 불필요한 노출 방지
-- 비활성 링크의 공개 접근 제한
+- 비활성 링크의 공개 접근 제한 (최신 Firestore Rules 게시 필요)
 - 신뢰할 수 있는 클릭 집계 처리
 - 안전한 username 예약·변경·반납 처리
 - 안전한 계정 삭제 처리
