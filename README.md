@@ -12,7 +12,7 @@ MyLink는 개인 프로필과 프로젝트·블로그·SNS 링크를 하나의 �
 ## 주요 기능
 
 - **Google 로그인**: Firebase Authentication 기반 로그인 및 로그아웃
-- **프로필 관리**: 최초 필수 온보딩, 이름·소개글·Username 수정 및 중복 확인, 프로필 사진 업로드
+- **프로필 관리**: 최초 필수 온보딩, 이름·소개글·Username 수정 및 중복 확인, Google 계정 프로필 사진 표시(별도 업로드 없음)
 - **공개 프로필**: `/{username}` 주소로 프로필·링크 공유
 - **링크 관리**: 링크 추가·수정·삭제 및 삭제 확인
 - **클릭 통계**: 공개 페이지 링크 클릭 수 기록, 링크별 통계 차트
@@ -30,7 +30,7 @@ MyLink는 개인 프로필과 프로젝트·블로그·SNS 링크를 하나의 �
 | --- | --- |
 | 프레임워크 | Next.js 16 App Router, React 19, TypeScript |
 | 스타일 | Tailwind CSS v4, shadcn/ui·Base UI, Lucide |
-| 데이터베이스·인증 | Firebase Firestore, Firebase Authentication, Firebase Storage |
+| 데이터베이스·인증 | Firebase Firestore, Firebase Authentication (Spark 무료 요금제) |
 | 통계 시각화 | Recharts |
 | 배포 | Vercel |
 
@@ -41,7 +41,7 @@ MyLink는 개인 프로필과 프로젝트·블로그·SNS 링크를 하나의 �
 - 사용자 목표 시나리오: [USER_SCENARIOS](docs/USER_SCENARIOS.md)
 - 목표 와이어프레임: [WIREFRAMES](docs/WIREFRAMES.md)
 - AI 개발 가이드: [GEMINI.md](GEMINI.md)
-- Firebase 규칙 게시 및 신규 기능 검증: [STORAGE_RULES_SETUP](docs/STORAGE_RULES_SETUP.md)
+- Spark 무료 요금제 및 Firestore 규칙 적용: [FIREBASE_SPARK_SETUP](docs/STORAGE_RULES_SETUP.md)
 
 ## 로컬 실행
 
@@ -104,7 +104,7 @@ docs/                    # 제품/화면 기획 및 운영 안내
 
 ## Firestore 보안과 운영
 
-Firestore/Storage는 **GitHub에 있는 `firestore.rules`와 `storage.rules`를 자동으로 적용하지 않습니다.** Firebase Console의 Firestore Rules 화면에서 해당 규칙을 직접 검토하고 **게시**해야 합니다.
+Firestore 규칙은 **GitHub의 `firestore.rules`를 자동으로 적용하지 않습니다.** Firebase Console의 Firestore Database → Rules에서 최신 규칙을 검토하고 **게시**해야 합니다. Spark 무료 프로젝트에는 Cloud Storage나 `storage.rules` 게시가 필요하지 않습니다.
 
 - 사용자 계정 정보는 본인에게만 읽기·쓰기를 허용합니다.
 - 공개 프로필에는 이메일을 저장하지 않으며, 공개 링크는 읽을 수 있습니다.
