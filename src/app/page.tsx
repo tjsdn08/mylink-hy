@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import {
-  ArrowRight, ArrowUpRight, BarChart3, BookOpen, CheckCircle2,
+  ArrowRight, BarChart3, CheckCircle2,
   ChevronRight, Globe2, Link2, MousePointerClick,
   Palette, ShieldCheck, Sparkles, WandSparkles,
 } from "lucide-react";
