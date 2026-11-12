@@ -26,7 +26,7 @@ export function ProfilePhoneFrame({ profile, links, label = "미리보기", inte
         <span className="rounded-full bg-[#EAF4CB] px-3 py-1 text-[10px] font-extrabold text-[#405829]">{label}</span>
       </div>
       <div
-        className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-white"
+        className="mylink-preview-scroll min-h-0 flex-1 overflow-y-auto overscroll-contain bg-white"
         tabIndex={0}
         role="region"
         aria-label={`${label} 내용. 이 영역 안에서 스크롤해 전체 프로필을 확인할 수 있어요.`}
